@@ -1,12 +1,43 @@
 import React, { useState } from 'react';
-import { festivalLocations } from '../data/locations';
 
-export default function Home() {
+// Festival Locations Dataset
+const festivalLocations = [
+  {
+    id: 1,
+    name: "National Museum of Singapore (Projection Mapping)",
+    category: "Art & Projections",
+    coordinates: [103.8485, 1.2966],
+    description: "Catch the main 'Myths and Legends' projection mapping light show."
+  },
+  {
+    id: 2,
+    name: "Armenian Street Festival Village",
+    category: "Food & Retail",
+    coordinates: [103.8492, 1.2942],
+    description: "Grab local food, Peranakan treats, and watch live performances."
+  },
+  {
+    id: 3,
+    name: "Bugis Street Art Lane (Stormy Straits)",
+    category: "Installations",
+    coordinates: [103.8545, 1.3008],
+    description: "Immersive 60m walkthrough installation of seafarer legends."
+  },
+  {
+    id: 4,
+    name: "SMU Campus Green (Traces)",
+    category: "Performances",
+    coordinates: [103.8499, 1.2961],
+    description: "Light installations celebrating the historic Singapore Stone."
+  }
+];
+
+export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedLocation, setSelectedLocation] = useState(null);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Filter locations based on search text (case-insensitive)
+  // Filter locations based on input query
   const filteredLocations = festivalLocations.filter(loc =>
     loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     loc.category.toLowerCase().includes(searchQuery.toLowerCase())
@@ -16,16 +47,12 @@ export default function Home() {
     setSelectedLocation(loc);
     setSearchQuery(loc.name);
     setIsDropdownOpen(false);
-    
-    // ACTION: If you have a map library instance (like Mapbox/Leaflet), 
-    // you would trigger a pan/zoom animation here:
-    // mapRef.current.flyTo({ center: loc.coordinates, zoom: 16 });
-    console.log(`Panning map to: ${loc.name} at coordinates`, loc.coordinates);
   };
 
   const handleClearSearch = () => {
     setSearchQuery("");
     setSelectedLocation(null);
+    setIsDropdownOpen(false);
   };
 
   return (
@@ -40,7 +67,7 @@ export default function Home() {
         
         {/* --- FLOATING SEARCH BAR --- */}
         <div className="absolute top-4 left-4 z-30 w-full max-w-sm px-2">
-          <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-gray-100 p-2 transition-all">
+          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 transition-all">
             <div className="flex items-center gap-2 px-2">
               <span className="text-gray-400 text-lg">🔍</span>
               <input
@@ -64,9 +91,9 @@ export default function Home() {
               )}
             </div>
 
-            {/* Dropdown Results List */}
+            {/* Floating Dropdown Result Slider/List */}
             {isDropdownOpen && searchQuery && (
-              <div className="mt-2 border-t border-gray-100 max-h-60 overflow-y-auto scrollbar-hide">
+              <div className="mt-2 border-t border-gray-100 max-h-60 overflow-y-auto">
                 {filteredLocations.length > 0 ? (
                   filteredLocations.map((loc) => (
                     <button
@@ -88,18 +115,22 @@ export default function Home() {
           </div>
         </div>
 
-        {/* --- MAP PLACEHOLDER CANVAS --- */}
-        {/* Replace this div with your actual Mapbox / Leaflet / Google Map component */}
+        {/* --- MAP CANVAS PLACEHOLDER --- */}
         <div className="w-full h-full flex flex-col items-center justify-center relative bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
           <span className="text-4xl mb-2">🗺️</span>
           <p className="text-sm font-semibold text-gray-500">Interactive Map Canvas</p>
           
+          {/* Selected Location Bottom Slider Information card */}
           {selectedLocation && (
-            <div className="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl border border-emerald-500/20 z-10 transition-all animate-in fade-in slide-in-from-bottom-2">
-              <span className="text-[10px] uppercase font-bold text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-full">{selectedLocation.category}</span>
+            <div className="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 bg-white p-4 rounded-2xl shadow-xl border border-emerald-500/20 z-10 transition-all">
+              <span className="text-[10px] uppercase font-bold text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-full">
+                {selectedLocation.category}
+              </span>
               <h4 className="font-bold text-sm text-gray-800 mt-2">{selectedLocation.name}</h4>
               <p className="text-xs text-gray-500 mt-1">{selectedLocation.description}</p>
-              <p className="text-[10px] text-gray-400 mt-2 font-mono">Coordinates: {selectedLocation.coordinates.join(', ')}</p>
+              <p className="text-[10px] text-gray-400 mt-2 font-mono">
+                Coordinates: {selectedLocation.coordinates.join(', ')}
+              </p>
             </div>
           )}
         </div>
