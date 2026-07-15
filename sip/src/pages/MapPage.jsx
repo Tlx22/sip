@@ -1,138 +1,97 @@
 import React, { useState } from 'react';
 
-// Festival Locations Dataset
-const festivalLocations = [
-  {
-    id: 1,
-    name: "National Museum of Singapore (Projection Mapping)",
-    category: "Art & Projections",
-    coordinates: [103.8485, 1.2966],
-    description: "Catch the main 'Myths and Legends' projection mapping light show."
-  },
-  {
-    id: 2,
-    name: "Armenian Street Festival Village",
-    category: "Food & Retail",
-    coordinates: [103.8492, 1.2942],
-    description: "Grab local food, Peranakan treats, and watch live performances."
-  },
-  {
-    id: 3,
-    name: "Bugis Street Art Lane (Stormy Straits)",
-    category: "Installations",
-    coordinates: [103.8545, 1.3008],
-    description: "Immersive 60m walkthrough installation of seafarer legends."
-  },
-  {
-    id: 4,
-    name: "SMU Campus Green (Traces)",
-    category: "Performances",
-    coordinates: [103.8499, 1.2961],
-    description: "Light installations celebrating the historic Singapore Stone."
-  }
+const mockItems = [
+  { id: 1, name: " Lau Pa Sat Food Village", category: "Food", desc: "Local hawker delights & satay street." },
+  { id: 2, name: "Armenian Street Vault", category: "Hidden Gems", desc: "Secret underground art display alley." },
+  { id: 3, name: "Dhoby Ghaut Green (High Density)", category: "Crowd Watch", desc: "Peak attendance alert: 85% capacity." },
+  { id: 4, name: "National Museum Mapping", category: "Location", desc: "Main projection light show venue." }
 ];
 
 export default function MapPage() {
+  const [sliderMode, setSliderMode] = useState("search"); // "filter" (Left) or "search" (Right)
+  const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Filter locations based on input query
-  const filteredLocations = festivalLocations.filter(loc =>
-    loc.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    loc.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const handleSelectLocation = (loc) => {
-    setSelectedLocation(loc);
-    setSearchQuery(loc.name);
-    setIsDropdownOpen(false);
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-    setSelectedLocation(null);
-    setIsDropdownOpen(false);
-  };
+  const filteredItems = mockItems.filter(item => {
+    if (sliderMode === "filter") {
+      return activeCategory ? item.category === activeCategory : ["Food", "Hidden Gems", "Crowd Watch"].includes(item.category);
+    }
+    return item.name.toLowerCase().includes(searchQuery.toLowerCase());
+  });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-5xl mx-auto">
       <div>
         <h1 className="text-3xl font-serif font-bold text-gray-900">Explore Map</h1>
-        <p className="text-sm text-gray-500 mt-1">Search and locate events or installations across the area.</p>
+        <p className="text-sm text-gray-500">Control features via the SNF scorebug dashboard.</p>
       </div>
 
-      {/* Map Container Box */}
-      <div className="relative w-full h-[550px] rounded-3xl overflow-hidden border border-gray-100 shadow-inner bg-slate-100">
+      {/* Canvas Window */}
+      <div className="relative w-full h-[580px] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
         
-        {/* --- FLOATING SEARCH BAR --- */}
-        <div className="absolute top-4 left-4 z-30 w-full max-w-sm px-2">
-          <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-2 transition-all">
-            <div className="flex items-center gap-2 px-2">
-              <span className="text-gray-400 text-lg">🔍</span>
+        {/* --- NBC SNF SCOREBUG HEADS-UP DISPLAY --- */}
+        <div className="absolute top-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4">
+          <div className="relative flex items-center bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 rounded-full border-2 border-amber-400/60 shadow-[0_0_15px_rgba(251,191,36,0.2)] h-14 overflow-hidden px-2">
+            
+            {/* LEFT WING: Quick Mode Filters */}
+            <div className={`flex-1 flex items-center justify-around gap-1 transition-all duration-300 px-2 ${sliderMode === 'filter' ? 'opacity-100 translate-x-0' : 'opacity-25 -translate-x-4 pointer-events-none'}`}>
+              {["Food", "Hidden Gems", "Crowd Watch"].map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
+                  className={`text-[11px] font-black uppercase tracking-wider px-3 py-1.5 rounded-full border transition-all ${activeCategory === cat ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-md' : 'bg-slate-800/80 text-gray-200 border-slate-700 hover:border-amber-400/40'}`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* CENTER CONTROL DIAL (The SNF Medallion) */}
+            <div className="relative z-40 shrink-0 w-28 h-12 flex flex-col items-center justify-center bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-amber-400 rounded-xl shadow-lg font-black text-center cursor-pointer select-none" onClick={() => { setSliderMode(sliderMode === "search" ? "filter" : "search"); setActiveCategory(null); setSearchQuery(""); }}>
+              <span className="text-[9px] text-amber-400 tracking-widest font-bold">SNF PANEL</span>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span className={`text-[10px] transition-colors ${sliderMode === 'filter' ? 'text-amber-400 font-extrabold' : 'text-gray-500'}`}>◀ FILT</span>
+                <span className="text-gray-400 text-[9px]">|</span>
+                <span className={`text-[10px] transition-colors ${sliderMode === 'search' ? 'text-amber-400 font-extrabold' : 'text-gray-500'}`}>SRCH ▶</span>
+              </div>
+            </div>
+
+            {/* RIGHT WING: Input Search Text Field */}
+            <div className={`flex-1 flex items-center transition-all duration-300 px-3 ${sliderMode === 'search' ? 'opacity-100 translate-x-0' : 'opacity-25 translate-x-4 pointer-events-none'}`}>
+              <span className="text-gray-400 text-sm mr-2">🔍</span>
               <input
                 type="text"
                 value={searchQuery}
-                placeholder="Search installations, food zones..."
-                onFocus={() => setIsDropdownOpen(true)}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  setIsDropdownOpen(true);
-                }}
-                className="w-full bg-transparent border-none outline-none py-2 text-sm text-gray-800 placeholder-gray-400"
+                placeholder="Type location destination..."
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent text-white font-medium placeholder-slate-500 text-xs outline-none border-none"
               />
-              {searchQuery && (
-                <button 
-                  onClick={handleClearSearch}
-                  className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors"
-                >
-                  ✕
-                </button>
-              )}
             </div>
 
-            {/* Floating Dropdown Result Slider/List */}
-            {isDropdownOpen && searchQuery && (
-              <div className="mt-2 border-t border-gray-100 max-h-60 overflow-y-auto">
-                {filteredLocations.length > 0 ? (
-                  filteredLocations.map((loc) => (
-                    <button
-                      key={loc.id}
-                      onClick={() => handleSelectLocation(loc)}
-                      className="w-full text-left px-3 py-2.5 hover:bg-gray-50 rounded-lg transition-colors flex flex-col gap-0.5"
-                    >
-                      <span className="text-xs font-semibold text-gray-800">{loc.name}</span>
-                      <span className="text-[10px] uppercase tracking-wider font-bold text-emerald-600">{loc.category}</span>
-                    </button>
-                  ))
-                ) : (
-                  <div className="px-3 py-4 text-center text-xs text-gray-400">
-                    No matching locations found
-                  </div>
-                )}
-              </div>
-            )}
           </div>
-        </div>
 
-        {/* --- MAP CANVAS PLACEHOLDER --- */}
-        <div className="w-full h-full flex flex-col items-center justify-center relative bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-          <span className="text-4xl mb-2">🗺️</span>
-          <p className="text-sm font-semibold text-gray-500">Interactive Map Canvas</p>
-          
-          {/* Selected Location Bottom Slider Information card */}
-          {selectedLocation && (
-            <div className="absolute bottom-6 left-6 right-6 md:left-auto md:right-6 md:w-80 bg-white p-4 rounded-2xl shadow-xl border border-emerald-500/20 z-10 transition-all">
-              <span className="text-[10px] uppercase font-bold text-emerald-600 px-2 py-0.5 bg-emerald-50 rounded-full">
-                {selectedLocation.category}
-              </span>
-              <h4 className="font-bold text-sm text-gray-800 mt-2">{selectedLocation.name}</h4>
-              <p className="text-xs text-gray-500 mt-1">{selectedLocation.description}</p>
-              <p className="text-[10px] text-gray-400 mt-2 font-mono">
-                Coordinates: {selectedLocation.coordinates.join(', ')}
-              </p>
+          {/* DYNAMIC RESULTS POPUP DROPDOWN */}
+          {(searchQuery || activeCategory || sliderMode === 'filter') && (
+            <div className="mt-2 bg-slate-950/95 backdrop-blur-md rounded-2xl border border-amber-400/30 shadow-2xl max-h-48 overflow-y-auto p-2 space-y-1 animate-in fade-in duration-200">
+              {filteredItems.map(item => (
+                <div key={item.id} className="p-2.5 hover:bg-slate-900 rounded-xl transition-colors border border-transparent hover:border-slate-800 flex items-center justify-between">
+                  <div>
+                    <h4 className="text-xs font-bold text-white">{item.name}</h4>
+                    <p className="text-[10px] text-slate-400 mt-0.5">{item.desc}</p>
+                  </div>
+                  <span className="text-[9px] uppercase font-black bg-amber-400/10 text-amber-400 px-2 py-0.5 rounded-md border border-amber-400/20">{item.category}</span>
+                </div>
+              ))}
             </div>
           )}
+        </div>
+
+        {/* BACKGROUND MAP GRAPHIC GRID */}
+        <div className="w-full h-full flex flex-col items-center justify-center bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px]">
+          <div className="text-center opacity-40">
+            <span className="text-5xl block">🏟️</span>
+            <span className="text-[11px] text-slate-400 font-mono tracking-widest uppercase mt-3 block">HUD Canvas Display Active</span>
+          </div>
         </div>
 
       </div>
