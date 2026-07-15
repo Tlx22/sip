@@ -1,68 +1,61 @@
 import React from 'react';
 
 export default function Home() {
-  const events = [
-    { id: 1, title: "Community Gardening", img: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?w=400" },
-    { id: 2, title: "Reading Circle", img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400" },
-    { id: 3, title: "Beach Cleanup", img: "https://images.unsplash.com/photo-1618477388954-7852f32655ec?w=400" },
-    { id: 4, title: "Social Gathering", img: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400" }
-  ];
-
   return (
-    <div className="space-y-12">
-      {/* 1. Header Banner Box (Our Mission) */}
-      <section className="bg-white rounded-3xl p-8 border border-gray-100 shadow-sm flex flex-col md:flex-row gap-8 items-center justify-between">
-        <div className="max-w-xs space-y-4">
-          <h2 className="text-3xl font-serif font-bold text-gray-800">Our Mission</h2>
-          <p className="text-gray-600 leading-relaxed text-sm">
-            Grow2gether aims to inspire users to initiate and foster harmonious communities in Singapore.
-          </p>
-          <button className="bg-[#E2ECE9] hover:bg-[#d4e2de] text-gray-800 font-semibold px-5 py-2 rounded-full text-xs shadow-sm transition-all">
-            Read more
-          </button>
+    <div className="max-w-4xl mx-auto space-y-12 pb-12">
+      {/* Header section */}
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <span className="text-emerald-800 font-serif font-bold text-3xl">Co-Co</span>
+          <span className="bg-emerald-50 text-emerald-700 text-xs font-bold px-2.5 py-1 rounded-full border border-emerald-100">About Us</span>
         </div>
+        <h1 className="text-4xl md:text-5xl font-serif font-bold text-gray-900 tracking-tight leading-tight">
+          Grow2gether aims to inspire users to initiate and foster harmonious communities in Singapore.
+        </h1>
+        <button className="bg-emerald-800 text-white font-semibold text-sm px-6 py-2.5 rounded-xl hover:bg-emerald-900 transition-colors shadow-sm">
+          Read more
+        </button>
+      </div>
 
-        {/* Placeholder Graphic Banner */}
-        <div className="flex-1 w-full h-48 bg-gradient-to-r from-amber-100 via-orange-100 to-emerald-100 rounded-2xl flex items-center justify-center border border-dashed border-gray-300">
-          <span className="text-gray-400 font-medium text-sm">[ Canva Mission Asset Image Here ]</span>
-        </div>
-      </section>
+      {/* Decorative Canva Asset Area */}
+      <div className="h-64 rounded-3xl bg-emerald-50/50 border border-dashed border-emerald-200 flex items-center justify-center text-emerald-800/60 font-medium text-sm">
+        [ Canva Mission Asset Image Here ]
+      </div>
 
-      {/* 2. Horizontal Events Slider Section */}
-      <section className="relative">
-        <h2 className="text-3xl font-serif font-bold text-gray-800 mb-6">Upcoming Events</h2>
+      {/* Upcoming Events Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-serif font-bold text-gray-800">Upcoming Events</h2>
         
-        {/* Carousel Tracks */}
-        <div className="flex items-center gap-4 relative">
-          {/* Left Arrow Button */}
-          <button className="absolute left-[-20px] z-10 w-10 h-10 rounded-full bg-white shadow-md border flex items-center justify-center text-xl font-bold hover:bg-gray-50">
-            &lt;
-          </button>
-
-          {/* Cards Flex Row Container */}
-          <div className="flex-1 flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
-            {events.map((evt) => (
-              <div key={evt.id} className="min-w-[220px] bg-white rounded-2xl p-3 border border-gray-100 shadow-sm flex flex-col items-center">
-                <img 
-                  src={evt.img} 
-                  alt={evt.title} 
-                  className="w-full h-36 object-cover rounded-xl mb-3"
-                />
-                <button className="w-full bg-[#E2ECE9] hover:bg-[#d4e2de] text-gray-800 text-xs font-bold py-2 rounded-xl transition-colors text-center">
-                  Sign up
-                </button>
-              </div>
-            ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Card 1 */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <img 
+              src="https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=800&q=80" 
+              alt="Nature trail" 
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-5 space-y-3">
+              <h3 className="font-bold text-gray-800">Community Nature Walk</h3>
+              <p className="text-xs text-gray-500">Explore local trails and connect with fellow nature lovers in Singapore.</p>
+              <button className="text-xs font-bold text-emerald-800 hover:text-emerald-950">Sign up →</button>
+            </div>
           </div>
 
-          {/* Right Arrow Button */}
-          <button className="absolute right-[-20px] z-10 w-10 h-10 rounded-full bg-white shadow-md border flex items-center justify-center text-xl font-bold hover:bg-gray-50">
-            &gt;
-          </button>
+          {/* Card 2 */}
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+            <img 
+              src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80" 
+              alt="Book club" 
+              className="w-full h-48 object-cover"
+            />
+            <div className="p-5 space-y-3">
+              <h3 className="font-bold text-gray-800">Weekly Co-Reading Space</h3>
+              <p className="text-xs text-gray-500">Bring your current read and enjoy a quiet, focused study/reading session.</p>
+              <button className="text-xs font-bold text-emerald-800 hover:text-emerald-950">Sign up →</button>
+            </div>
+          </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 }
-
-// trigger build change
