@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Search, MapPin, Layers } from 'lucide-react';
+import { Search, MapPin } from 'lucide-react';
 
-// Centralized location corpus database
 const communityLocations = [
   { id: 'loc-1', name: 'Maxwell Community Studio Booth', area: 'Central', category: 'media', description: 'Co-working and podcasting facilities.' },
   { id: 'loc-2', name: 'Redhill Bouldering Slab Hub', area: 'Queenstown', category: 'active', description: 'Public climbing wall facility.' },
@@ -17,7 +16,6 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Filter map suggestions dynamically based on user input string lengths
   const filteredSuggestions = searchQuery.trim().length > 0 
     ? communityLocations.filter(loc => 
         loc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -33,7 +31,7 @@ export default function MapPage() {
   return (
     <div className="max-w-5xl mx-auto space-y-4 text-left relative h-[calc(100vh-8rem)] flex flex-col">
       
-      {/* Top Title Header Section */}
+      {/* Top Header Section */}
       <div className="shrink-0">
         <h1 className="text-2xl font-serif font-bold text-gray-950 tracking-tight">
           📍 Singapore Interactive Guide
@@ -43,29 +41,29 @@ export default function MapPage() {
         </p>
       </div>
 
-      {/* Main Map Viewport Canvas Wrapper Container */}
-      <div className="flex-1 w-full rounded-[2.5rem] bg-[#0B1220] border border-slate-900 shadow-inner overflow-hidden relative">
+      {/* RESTORED MAP CONTAINER VIEWPORT */}
+      <div className="flex-1 w-full rounded-[2.5rem] bg-[#0E131F] border border-slate-950 shadow-inner overflow-hidden relative">
         
-        {/* Mock Map Background Layer Canvas Grid Graphic */}
-        <div className="absolute inset-0 opacity-20 pointer-events-none select-none bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px]" />
+        {/* If you are using a custom background image map layout, make sure to insert your asset layer element back here: */}
+        {/* <img src="/path-to-your-singapore-dark-map.png" className="absolute inset-0 w-full h-full object-cover" alt="Map View" /> */}
 
-        {/* MOCK MAP PIN OVERLAYS */}
-        <div className="absolute top-[40%] left-[45%] text-emerald-400 animate-bounce cursor-pointer z-10">
-          <MapPin size={28} fill="currentColor" className="text-emerald-500/30" />
+        {/* Dynamic Map Pins */}
+        <div className="absolute top-[40%] left-[45%] text-sky-400 cursor-pointer z-10 animate-pulse">
+          <MapPin size={28} fill="currentColor" className="text-sky-500/20" />
         </div>
-        <div className="absolute top-[55%] left-[38%] text-amber-400 animate-bounce cursor-pointer z-10">
-          <MapPin size={28} fill="currentColor" className="text-amber-500/30" />
+        <div className="absolute top-[55%] left-[38%] text-amber-500 cursor-pointer z-10 animate-pulse">
+          <MapPin size={28} fill="currentColor" className="text-amber-500/20" />
         </div>
-        <div className="absolute top-[60%] left-[58%] text-sky-400 animate-bounce cursor-pointer z-10">
-          <MapPin size={28} fill="currentColor" className="text-sky-500/30" />
+        <div className="absolute top-[48%] left-[62%] text-emerald-400 cursor-pointer z-10 animate-pulse">
+          <MapPin size={28} fill="currentColor" className="text-emerald-500/20" />
         </div>
 
-        {/* DYNAMIC COMBINED FLOATING CONTROLS CONTROL PILL TRAY */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl bg-[#0F172A]/90 backdrop-blur-md border border-slate-700/50 rounded-full px-4 py-2 flex items-center justify-between gap-3 z-30 shadow-2xl">
+        {/* RESTORED & UPGRADED ORANGE THEMED BOTTOM PILL CONTROLS DECK */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl bg-[#090D1A]/90 backdrop-blur-md border-2 border-amber-500/60 rounded-full px-5 py-2.5 flex items-center justify-between gap-4 z-30 shadow-2xl">
           
-          {/* CONDITION 1: MODE CONTROLLER RENDERS HORIZONTALLY SCROLLABLE FILTER TRACK */}
+          {/* CONDITION 1: SCROLLABLE FILTERS VIEW */}
           {panelMode === 'filt' && (
-            <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth py-1 pr-1">
+            <div className="flex-1 flex items-center gap-2 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth py-0.5">
               {[
                 { id: 'all', label: 'ALL' },
                 { id: 'food', label: 'FOOD' },
@@ -78,9 +76,9 @@ export default function MapPage() {
                   <button
                     key={filter.id}
                     onClick={() => setCurrentFilter(filter.id)}
-                    className={`shrink-0 text-[10px] font-black tracking-wider px-3.5 py-2 rounded-full transition-all duration-200 ${
+                    className={`shrink-0 text-xs font-black tracking-widest px-4 py-1.5 rounded-full transition-all duration-150 ${
                       isActive
-                        ? 'bg-amber-500 text-slate-950 shadow-md scale-105 font-black'
+                        ? 'bg-amber-500 text-slate-950 font-black shadow-md scale-105'
                         : 'text-slate-400 hover:text-white bg-transparent'
                     }`}
                   >
@@ -91,73 +89,70 @@ export default function MapPage() {
             </div>
           )}
 
-          {/* CONDITION 2: MODE CONTROLLER RENDERS LIVE AUTO-SUGGESTION UPWARD SEARCH CONTAINER */}
+          {/* CONDITION 2: UPWARD POPPING SEARCH FIELDS */}
           {panelMode === 'srch' && (
             <div className="flex-1 relative">
               
-              {/* UPWARD DYNAMIC AUTOCOMPLETE DROPDOWN SEARCH POPUP BOARD */}
               {showSuggestions && filteredSuggestions.length > 0 && (
-                <div className="absolute bottom-full left-0 right-0 mb-4 bg-[#0F172A]/95 backdrop-blur-lg border border-slate-700/60 rounded-2xl shadow-2xl max-h-56 overflow-y-auto p-2 space-y-1 z-50 animate-in fade-in slide-in-from-bottom-3">
-                  <div className="px-2.5 py-1 text-[9px] font-black tracking-widest text-slate-500 uppercase border-b border-slate-800/60 mb-1">
-                    Locations Found
+                <div className="absolute bottom-full left-0 right-0 mb-4 bg-[#090D1A]/95 backdrop-blur-lg border border-amber-500/40 rounded-2xl shadow-2xl max-h-56 overflow-y-auto p-2 space-y-1 z-50">
+                  <div className="px-2.5 py-1 text-[9px] font-black tracking-widest text-slate-500 uppercase border-b border-slate-800 mb-1">
+                    Matching Search Results
                   </div>
                   {filteredSuggestions.map((loc) => (
                     <button
                       key={loc.id}
                       onClick={() => handleSelectLocation(loc.name)}
-                      className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/60 transition-colors flex items-center gap-3 group text-slate-200"
+                      className="w-full text-left p-2 rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-3 text-slate-200"
                     >
-                      <span className="p-1.5 bg-slate-800 rounded-lg group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
+                      <span className="p-1 bg-slate-700 rounded-md text-amber-500">
                         <MapPin size={12} />
                       </span>
                       <div className="min-w-0 flex-1">
-                        <h4 className="text-xs font-bold truncate leading-tight">{loc.name}</h4>
-                        <p className="text-[9px] text-slate-400 truncate">{loc.area} Area • {loc.description}</p>
+                        <h4 className="text-xs font-bold truncate">{loc.name}</h4>
+                        <p className="text-[9px] text-slate-400 truncate">{loc.area} Area</p>
                       </div>
                     </button>
                   ))}
                 </div>
               )}
 
-              {/* Input Core Node Layout */}
               <div className="relative flex items-center">
-                <Search className="absolute left-3 text-slate-400 pointer-events-none" size={14} />
+                <Search className="absolute left-3 text-slate-400" size={14} />
                 <input
                   type="text"
                   value={searchQuery}
                   onFocus={() => setShowSuggestions(true)}
                   onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
-                  placeholder="Search locations..."
-                  className="w-full bg-slate-900/60 border border-slate-800 text-white rounded-full py-1.5 pl-9 pr-4 text-xs font-medium placeholder-slate-500 outline-none focus:ring-1 focus:ring-amber-500/50 transition-all"
+                  placeholder="Type location..."
+                  className="w-full bg-slate-900/80 border border-slate-800 text-white rounded-full py-1.5 pl-9 pr-4 text-xs outline-none focus:ring-1 focus:ring-amber-500/50"
                 />
               </div>
 
-              {/* Transparent click catcher panel to dim suggestions context cleanly */}
               {showSuggestions && (
                 <div className="fixed inset-0 z-[-1]" onClick={() => setShowSuggestions(false)} />
               )}
             </div>
           )}
 
-          {/* SECTION CONTROLLERS TOGGLE LOCK TRAY DECK */}
+          {/* RIGHT SWITCH CONTROLLER SWITCHBOARD LAYER */}
           <div className="shrink-0 flex items-center border-l border-slate-800 pl-3">
-            <div className="border border-slate-800 bg-slate-950/40 rounded-xl px-2 py-1 flex items-center gap-2">
-              <span className="text-[8px] font-extrabold tracking-widest text-slate-500 uppercase hidden sm:inline">
-                Deck
+            <div className="border border-amber-500/30 bg-slate-950/60 rounded-xl px-2.5 py-1 flex items-center gap-2">
+              <span className="text-[8px] font-black tracking-widest text-slate-500 uppercase hidden sm:inline">
+                MAP PANEL
               </span>
-              <div className="flex items-center gap-1.5 text-[9px] font-black tracking-wide text-slate-400">
+              <div className="flex items-center gap-2 text-[9px] font-black text-slate-400">
                 <button 
                   onClick={() => setPanelMode('filt')} 
-                  className={`px-1.5 py-0.5 rounded transition-colors ${panelMode === 'filt' ? 'text-amber-400 font-extrabold bg-slate-800/60' : 'hover:text-white'}`}
+                  className={`transition-colors ${panelMode === 'filt' ? 'text-amber-400 font-extrabold' : 'hover:text-white'}`}
                 >
-                  FILT
+                  ◀ FILT
                 </button>
-                <span className="text-slate-800 font-normal">|</span>
+                <span className="text-slate-700">|</span>
                 <button 
                   onClick={() => setPanelMode('srch')} 
-                  className={`px-1.5 py-0.5 rounded transition-colors ${panelMode === 'srch' ? 'text-amber-400 font-extrabold bg-slate-800/60' : 'hover:text-white'}`}
+                  className={`transition-colors ${panelMode === 'srch' ? 'text-amber-400 font-extrabold' : 'hover:text-white'}`}
                 >
-                  SRCH
+                  SRCH ▶
                 </button>
               </div>
             </div>
@@ -165,8 +160,7 @@ export default function MapPage() {
 
         </div>
 
-        {/* Map Vendor Engine Bottom Tag Attribution Label Grid */}
-        <div className="absolute bottom-0 right-0 bg-slate-900/90 text-[9px] font-medium tracking-tight text-slate-500 px-3 py-1 rounded-tl-xl border-t border-l border-slate-800 z-10">
+        <div className="absolute bottom-0 right-0 bg-slate-950/80 text-[9px] font-medium tracking-tight text-slate-500 px-3 py-1 rounded-tl-xl border-t border-l border-slate-900 z-10">
           Leaflet Engine Framework Map View Canvas 
         </div>
 
