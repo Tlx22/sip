@@ -75,15 +75,16 @@ export default function EventsPage() {
   const currentActiveEvent = filteredEvents.find(e => e.id === selectedEventId) || filteredEvents[0];
 
   return (
-    <div className="w-full mx-auto p-4 md:p-6 text-left space-y-6 bg-transparent">
+    /* Added strict layout constraint block framework classes so it fits cleanly into the main center flex tree column */
+    <div className="flex-1 w-full min-w-0 px-2 py-4 md:p-6 text-left space-y-6 overflow-x-hidden">
       
-      {/* Search Header Banner Card Stack styled to match main content containers */}
-      <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4">
-        <div className="max-w-xl">
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+      {/* Search Header Banner */}
+      <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm space-y-4">
+        <div>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">
             Events Hub
           </h1>
-          <p className="text-xs md:text-sm text-gray-500 mt-1">
+          <p className="text-xs text-gray-400 mt-0.5">
             Browse and filter upcoming opportunities, skill-swaps, and local tracks.
           </p>
         </div>
@@ -94,14 +95,14 @@ export default function EventsPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by event title, host group, keywords, or location..."
-            className="w-full pl-4 pr-10 py-3 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 focus:outline-none text-xs md:text-sm transition-colors"
+            placeholder="Search by event title, host group, or keywords..."
+            className="w-full pl-4 pr-10 py-2.5 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-emerald-800 focus:ring-1 focus:ring-emerald-700 focus:outline-none text-xs md:text-sm transition-colors"
           />
-          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">🔍</span>
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs">🔍</span>
         </div>
 
-        {/* Categories Tab Engine Matching Core Accent Colors */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
+        {/* Categories Tab Engine */}
+        <div className="flex flex-wrap gap-1.5 pt-2 border-t border-gray-50">
           {eventTypes.map((type) => (
             <button
               key={type}
@@ -109,10 +110,10 @@ export default function EventsPage() {
                 setSelectedType(type);
                 setSelectedEventId(null);
               }}
-              className={`text-[10px] md:text-xs font-bold px-4 py-2 rounded-full border transition-all ${
+              className={`text-[10px] font-bold px-3 py-1.5 rounded-full border transition-all ${
                 selectedType === type
                   ? 'bg-emerald-800 text-white border-emerald-800 shadow-sm'
-                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-100'
+                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300'
               }`}
             >
               {type}
@@ -122,44 +123,39 @@ export default function EventsPage() {
       </div>
 
       {/* Main Board Viewport Split-Pane Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-5 items-start w-full">
         
-        {/* LEFT COLUMN: The Interactive Search Result Cards Stack */}
-        <div className="lg:col-span-7 space-y-3">
-          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">
-            Active opportunities ({filteredEvents.length})
-          </p>
-
+        {/* LEFT COLUMN: Results Cards Stack */}
+        <div className="xl:col-span-7 space-y-3 min-w-0 w-full">
           {filteredEvents.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center space-y-2 shadow-sm">
-              <span className="text-xl block">📂</span>
+            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center space-y-1 shadow-sm">
+              <span className="text-lg block">📂</span>
               <h3 className="font-bold text-gray-800 text-xs">No matches found</h3>
-              <p className="text-[11px] text-gray-500 max-w-xs mx-auto">Try altering your text search string or selecting another header tab.</p>
             </div>
           ) : (
             filteredEvents.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setSelectedEventId(item.id)}
-                className={`p-5 rounded-2xl border transition-all cursor-pointer bg-white text-left ${
+                className={`p-4 rounded-2xl border transition-all cursor-pointer bg-white text-left block w-full ${
                   currentActiveEvent?.id === item.id
-                    ? 'border-emerald-700 ring-1 ring-emerald-700/30 shadow-sm'
+                    ? 'border-emerald-700 ring-1 ring-emerald-700/20 shadow-sm'
                     : 'border-gray-100 hover:border-gray-200 shadow-sm'
                 }`}
               >
-                <div className="space-y-2">
-                  <div className="flex justify-between items-start gap-4">
-                    <div>
-                      <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/40">
+                <div className="space-y-1.5">
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="min-w-0">
+                      <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                         {item.type}
                       </span>
-                      <h3 className="font-bold text-slate-900 text-sm md:text-base mt-2.5">
+                      <h3 className="font-bold text-slate-900 text-xs md:text-sm mt-1.5 truncate">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-gray-500 mt-0.5">{item.organization}</p>
+                      <p className="text-[11px] text-gray-400 truncate">{item.organization}</p>
                     </div>
 
-                    <span className={`text-[9px] shrink-0 font-bold px-2 py-0.5 rounded border ${
+                    <span className={`text-[8px] shrink-0 font-bold px-1.5 py-0.5 rounded border ${
                       item.status === 'Waitlist Only'
                         ? 'bg-amber-50 text-amber-700 border-amber-200'
                         : 'bg-emerald-50 text-emerald-800 border-emerald-200/50'
@@ -168,17 +164,17 @@ export default function EventsPage() {
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1.5 text-[11px] text-gray-400">
+                  <div className="flex flex-wrap gap-x-3 text-[10px] text-gray-400">
                     <span>📅 {item.date}</span>
-                    <span>📍 {item.location}</span>
+                    <span className="truncate">📍 {item.location}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center text-[11px]">
-                  <span className="font-medium text-gray-500">
+                <div className="mt-3 pt-2 border-t border-gray-50 flex justify-between items-center text-[10px]">
+                  <span className="font-medium text-gray-400">
                     🔥 {item.spotsLeft > 0 ? `${item.spotsLeft} slots open` : 'Full'}
                   </span>
-                  <span className="font-bold text-emerald-800 flex items-center gap-0.5">
+                  <span className="font-bold text-emerald-800">
                     View & Apply →
                   </span>
                 </div>
@@ -187,50 +183,50 @@ export default function EventsPage() {
           )}
         </div>
 
-        {/* RIGHT COLUMN: The Sticky Career Detail Panel Interaction Frame */}
-        <div className="lg:col-span-5 lg:sticky lg:top-6">
+        {/* RIGHT COLUMN: Detail Panel Frame */}
+        <div className="xl:col-span-5 w-full">
           {currentActiveEvent ? (
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-6 space-y-5 text-left">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-4 space-y-4 text-left w-full">
               
-              <div className="space-y-3">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/40">
+              <div className="space-y-2">
+                <span className="text-[8px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
                   {currentActiveEvent.type}
                 </span>
-                <h2 className="text-base md:text-lg font-bold text-slate-900 leading-tight">
+                <h2 className="text-sm font-bold text-slate-900 leading-tight">
                   {currentActiveEvent.title}
                 </h2>
                 <div>
-                  <p className="text-xs font-bold text-gray-700">{currentActiveEvent.organization}</p>
-                  <p className="text-[11px] text-gray-400 mt-1">📍 {currentActiveEvent.location}</p>
+                  <p className="text-[11px] font-bold text-gray-600">{currentActiveEvent.organization}</p>
+                  <p className="text-[10px] text-gray-400 mt-0.5">📍 {currentActiveEvent.location}</p>
                 </div>
               </div>
 
-              <hr className="border-gray-100" />
+              <hr className="border-gray-50" />
 
-              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100 text-[11px]">
+              <div className="grid grid-cols-2 gap-2 bg-gray-50 p-2.5 rounded-xl border border-gray-100 text-[10px]">
                 <div>
-                  <span className="block font-bold text-gray-400 text-[9px] uppercase tracking-wider">Date</span>
-                  <p className="font-bold text-slate-800 mt-0.5">{currentActiveEvent.date}</p>
+                  <span className="block font-bold text-gray-400 text-[8px] uppercase tracking-wider">Date</span>
+                  <p className="font-bold text-slate-700 mt-0.5">{currentActiveEvent.date}</p>
                 </div>
                 <div>
-                  <span className="block font-bold text-gray-400 text-[9px] uppercase tracking-wider">Timing</span>
-                  <p className="font-bold text-slate-800 mt-0.5">{currentActiveEvent.time}</p>
+                  <span className="block font-bold text-gray-400 text-[8px] uppercase tracking-wider">Timing</span>
+                  <p className="font-bold text-slate-700 mt-0.5">{currentActiveEvent.time}</p>
                 </div>
               </div>
 
-              <div className="space-y-1.5">
-                <h4 className="text-[9px] font-black uppercase tracking-widest text-gray-400">Overview</h4>
-                <p className="text-xs text-gray-600 leading-relaxed">
+              <div className="space-y-1">
+                <h4 className="text-[8px] font-black uppercase tracking-widest text-gray-400">Overview</h4>
+                <p className="text-[11px] text-gray-500 leading-relaxed">
                   {currentActiveEvent.description}
                 </p>
               </div>
 
               {currentActiveEvent.perks && (
-                <div className="space-y-2">
-                  <h4 className="text-[9px] font-black uppercase tracking-widest text-gray-400">Included</h4>
-                  <div className="flex flex-wrap gap-1.5">
+                <div className="space-y-1.5">
+                  <h4 className="text-[8px] font-black uppercase tracking-widest text-gray-400">Included</h4>
+                  <div className="flex flex-wrap gap-1">
                     {currentActiveEvent.perks.map((perk, i) => (
-                      <span key={i} className="bg-gray-100 text-gray-600 text-[10px] font-medium px-2.5 py-1 rounded-md">
+                      <span key={i} className="bg-gray-50 text-gray-500 text-[9px] font-medium px-2 py-0.5 rounded border border-gray-100">
                         ✨ {perk}
                       </span>
                     ))}
@@ -238,14 +234,14 @@ export default function EventsPage() {
                 </div>
               )}
 
-              <div className="pt-2">
+              <div className="pt-1">
                 <button
                   disabled={currentActiveEvent.spotsLeft === 0}
                   onClick={() => alert(`Successfully submitted registration track entry request for: ${currentActiveEvent.title}`)}
-                  className={`w-full text-center font-bold text-xs uppercase tracking-wider py-3 rounded-xl transition-all ${
+                  className={`w-full text-center font-bold text-[11px] uppercase tracking-wider py-2.5 rounded-xl transition-all ${
                     currentActiveEvent.spotsLeft === 0
                       ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
-                      : 'bg-emerald-800 text-white hover:bg-emerald-900 shadow-sm active:scale-[0.99]'
+                      : 'bg-emerald-800 text-white hover:bg-emerald-900 shadow-sm'
                   }`}
                 >
                   {currentActiveEvent.spotsLeft === 0 ? 'Waitlist Full' : 'Register for this Event'}
@@ -253,11 +249,7 @@ export default function EventsPage() {
               </div>
 
             </div>
-          ) : (
-            <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-8 text-center text-gray-400 text-xs shadow-sm">
-              Select an item to view requirements.
-            </div>
-          )}
+          ) : null}
         </div>
 
       </div>
