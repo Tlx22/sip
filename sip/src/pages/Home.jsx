@@ -31,7 +31,7 @@ export default function Home({ setCurrentTab }) {
   return (
     <div className="w-full space-y-8 pb-48 text-left">
       
-      {/* 1. ORIGINAL HEADLINE BANNER (Matches Photo 2 Structure) */}
+      {/* 1. MISSION HERO HERO CARD PANEL */}
       <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row gap-6 justify-between items-center">
         <div className="flex-1 space-y-4">
           <h1 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">Our Mission</h1>
@@ -47,7 +47,7 @@ export default function Home({ setCurrentTab }) {
         </div>
       </div>
 
-      {/* 2. UPCOMING EVENTS CAROUSEL FEED */}
+      {/* 2. DYNAMIC EVENTS ROUTER NAVIGATION CAROUSEL */}
       <div className="space-y-4">
         <h2 className="text-2xl font-serif font-bold text-gray-900">Upcoming Events</h2>
         
@@ -62,7 +62,10 @@ export default function Home({ setCurrentTab }) {
               <div className="w-full h-32 rounded-xl overflow-hidden bg-gray-50 relative">
                 <img src={item.img} alt="Event Cover" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
               </div>
-              <button className="w-full py-2 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-700 text-xs font-bold rounded-xl transition-all">
+              <button 
+                onClick={() => setCurrentTab && setCurrentTab('events')}
+                className="w-full py-2 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-700 text-xs font-bold rounded-xl transition-all"
+              >
                 Sign up
               </button>
             </div>
@@ -70,18 +73,10 @@ export default function Home({ setCurrentTab }) {
         </div>
       </div>
 
-      {/* Placeholder blocks to create natural scrolling content */}
-      <div className="pt-4 space-y-4 opacity-60">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-gray-400 font-sans">Recent Activity Hub</h3>
-        <p className="text-xs text-gray-400 leading-relaxed">
-          Scroll down down to review workspace activity pipelines, pending community chat groups, and local notice board listings. The featured slider container anchors cleanly above the screen baseline frame layout.
-        </p>
-      </div>
-
-      {/* 3. DYNAMIC STICKY FLOATING FOOTER ARTICLE SLIDER */}
-      <div className="fixed bottom-4 left-4 right-4 md:left-[272px] md:right-[390px] z-30 bg-white/95 backdrop-blur-md border border-gray-100 rounded-2xl p-4 shadow-xl shadow-slate-200/50 space-y-3 transition-all duration-300">
+      {/* 3. STICKY FLOATING FOOTER ARTICLE SLIDER CONTAINER */}
+      <div className="fixed bottom-4 left-4 right-4 md:left-[288px] md:right-[390px] z-30 bg-white/95 backdrop-blur-md border border-gray-100 rounded-2xl p-4 shadow-xl shadow-slate-200/50 space-y-3 transition-all duration-300">
         
-        {/* Banner Row */}
+        {/* Slider Meta Controls */}
         <div className="flex items-center justify-between border-b border-gray-50 pb-2">
           <div className="flex items-center gap-2">
             <BookOpen className="text-amber-500" size={14} />
@@ -107,7 +102,7 @@ export default function Home({ setCurrentTab }) {
           </div>
         </div>
 
-        {/* Dynamic Card Content Frame */}
+        {/* Dynamic Inner Text Content Frame */}
         <div className="space-y-1">
           <div className="flex items-center gap-2">
             <span className="text-[8px] bg-amber-100 text-amber-900 font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wide">
@@ -120,7 +115,6 @@ export default function Home({ setCurrentTab }) {
           <h3 className="text-xs font-bold text-slate-900 tracking-tight">{currentArticle.title}</h3>
           <p className="text-[11px] text-gray-500 truncate">{currentArticle.snippet}</p>
 
-          {/* Collapsible content segment */}
           <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedArticleId === currentArticle.id ? 'max-h-[150px] mt-2 opacity-100 pt-2 border-t border-dashed border-gray-100' : 'max-h-0 opacity-0'}`}>
             <p className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-gray-50 max-h-24 overflow-y-auto leading-relaxed">
               {currentArticle.content}
@@ -128,7 +122,7 @@ export default function Home({ setCurrentTab }) {
           </div>
         </div>
 
-        {/* Card Interactive Controls */}
+        {/* Card Interactive Footer Controls */}
         <div className="flex items-center justify-between pt-2 border-t border-gray-50">
           <button
             onClick={() => toggleExpand(currentArticle.id)}
