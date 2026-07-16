@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ArrowRight, BookOpen, Clock, Tag, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, ArrowRight, BookOpen, Clock, ChevronDown, ChevronUp } from 'lucide-react';
 
+// The 10 Curated Articles Dataset
 const exampleArticles = [
   { id: 1, category: "Hawker Culture", title: "The Secret Heritage of Maxwell Hawker Masters", readTime: "5 min read", snippet: "Uncovering the multi-generational spice blends and traditional methods kept alive behind local stalls.", content: "Behind the neon signs of Maxwell Food Centre lies generations of culinary dedication. We sit down with third-generation hawker owners who reveal the painstaking hours spent preparing traditional stocks and heritage balance before dawn breaks." },
   { id: 2, category: "Urban Exploration", title: "Hidden Quarry Trails You Haven't Explored Yet", readTime: "7 min read", snippet: "A complete visual mapping of rustic green corridors hidden off the standard urban pathways.", content: "Nestled deep past urban buffers, Singapore's old granite quarries have transformed into rich green hubs. This guide maps out entry gates, wildlife precautions, and the best vantage points for morning mist photography away from standard crowds." },
@@ -14,17 +15,15 @@ const exampleArticles = [
   { id: 10, category: "Local Artistry", title: "Analysing Modern Storytelling Formats in Global Audio Projects", readTime: "5 min read", snippet: "Unlocking hidden metaphors, lyric structures, and thematic concepts in concept albums.", content: "Melodic themes and seasonal motifs offer deep layers of storytelling depth. We deconstruct how modern indie duos thread poetic imagery seamlessly through driving rock instrumentation to deliver high emotional impact." }
 ];
 
-export default function HomePage({ setCurrentTab }) {
+export default function Home({ setCurrentTab }) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [expandedArticleId, setExpandedArticleId] = useState(null);
-  const [searchFocused, setSearchFocused] = useState(false);
 
-  // Auto-scroll loop every 5 seconds
+  // Auto-scroll framework running every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      // Only auto-advance if the current article isn't expanded by the user
       if (expandedArticleId === null) {
-        setCurrentIndex((prevIndex) => (prevIndex + 1) % exampleArticles.length);
+        setCurrentIndex((prev) => (prev + 1) % exampleArticles.length);
       }
     }, 5000);
     return () => clearInterval(interval);
@@ -37,143 +36,118 @@ export default function HomePage({ setCurrentTab }) {
   const currentArticle = exampleArticles[currentIndex];
 
   return (
-    <div className="flex-1 w-full text-left space-y-8 max-w-5xl mx-auto p-2 pb-16">
+    <div className="flex-1 w-full space-y-6 max-w-5xl mx-auto p-4 text-left">
       
-      {/* Hero Header Segment */}
-      <div className="bg-slate-900 text-white rounded-3xl p-8 relative overflow-hidden shadow-xl">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl -mr-20 -mt-20"></div>
+      {/* 1. ORIGINAL HERO BANNER */}
+      <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-lg border border-slate-800">
+        <div className="absolute top-0 right-0 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl -mr-24 -mt-24 pointer-events-none"></div>
         <div className="relative z-10 max-w-xl space-y-3">
-          <span className="bg-amber-400 text-slate-950 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider">
+          <span className="inline-block bg-amber-500 text-slate-950 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-md">
             Hub Portal
           </span>
-          <h2 className="text-2xl md:text-4xl font-black tracking-tight leading-tight">
+          <h1 className="text-2xl md:text-3xl font-black tracking-tight text-white">
             Discover What's Happening Around You
-          </h2>
-          <p className="text-xs text-slate-300 max-w-sm font-medium leading-relaxed">
-            Access mapping dashboards, community discussions, and curated featured columns updated live.
+          </h1>
+          <p className="text-xs text-slate-400 font-medium leading-relaxed max-w-sm">
+            Access live mapping tools, track community spaces, and stay updated with rotating featured articles.
           </p>
         </div>
       </div>
 
-      {/* --- FEATURED ARTICLES CAROUSEL ZONE --- */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+      {/* 2. DYNAMIC SLIDING STORIES BLOCK */}
+      <div className="bg-white border border-gray-100 rounded-3xl p-5 shadow-sm space-y-4">
+        <div className="flex items-center justify-between border-b border-gray-50 pb-3">
           <div className="flex items-center gap-2">
-            <BookOpen className="text-amber-500" size={18} />
-            <h3 className="text-sm font-black uppercase tracking-wider text-slate-950">
-              Featured Stories
-            </h3>
-            <span className="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-md font-mono">
-              Auto-cycling
-            </span>
+            <BookOpen className="text-amber-500" size={16} />
+            <h2 className="text-xs font-black uppercase tracking-wider text-slate-900">Featured Stories</h2>
+            <span className="text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded font-mono">Auto-cycling</span>
           </div>
-
-          {/* Search Icon Shortcut Interaction */}
           <button 
             onClick={() => setCurrentTab('articles')}
-            className="p-2 text-slate-400 hover:text-amber-500 hover:bg-slate-50 rounded-xl transition-all"
-            title="Search all articles"
+            className="p-1.5 text-slate-400 hover:text-amber-500 hover:bg-slate-50 rounded-lg transition-all"
           >
-            <Search size={18} />
+            <Search size={16} />
           </button>
         </div>
 
-        {/* Dynamic Display Panel Container */}
-        <div className="bg-white border border-gray-100 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
-          <div className="flex flex-wrap items-center justify-between gap-2 mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-[10px] bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-md uppercase tracking-wide">
+        {/* Article Body Content Wrapper */}
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              <span className="text-[9px] bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded uppercase tracking-wide">
                 {currentArticle.category}
               </span>
-              <div className="flex items-center gap-1 text-[10px] text-gray-400 font-medium">
-                <Clock size={12} />
-                <span>{currentArticle.readTime}</span>
-              </div>
+              <span className="flex items-center gap-1 text-[10px] text-gray-400">
+                <Clock size={11} /> {currentArticle.readTime}
+              </span>
             </div>
             
-            {/* Slide Indicators Tracker */}
+            {/* Inline Dots Navigator */}
             <div className="flex gap-1">
               {exampleArticles.map((_, idx) => (
                 <button
                   key={idx}
-                  onClick={() => {
-                    setExpandedArticleId(null);
-                    setCurrentIndex(idx);
-                  }}
-                  className={`h-1.5 rounded-full transition-all ${
-                    idx === currentIndex ? 'w-4 bg-amber-500' : 'w-1.5 bg-gray-200'
-                  }`}
+                  onClick={() => { setExpandedArticleId(null); setCurrentIndex(idx); }}
+                  className={`h-1 rounded-full transition-all ${idx === currentIndex ? 'w-3 bg-amber-500' : 'w-1 bg-gray-200'}`}
                 />
               ))}
             </div>
           </div>
 
-          <div className="space-y-2">
-            <h4 className="text-lg font-bold text-slate-900 tracking-tight">
-              {currentArticle.title}
-            </h4>
-            <p className="text-xs text-gray-500 leading-relaxed font-medium">
-              {currentArticle.snippet}
-            </p>
-          </div>
+          <h3 className="text-base font-bold text-slate-900 tracking-tight">{currentArticle.title}</h3>
+          <p className="text-xs text-gray-500 leading-relaxed font-medium">{currentArticle.snippet}</p>
 
-          {/* Dynamic Accordion Expand Segment */}
-          <div 
-            className={`transition-all duration-300 ease-in-out overflow-hidden ${
-              expandedArticleId === currentArticle.id ? 'max-h-[300px] mt-4 opacity-100 border-t border-dashed border-gray-100 pt-4' : 'max-h-0 opacity-0'
-            }`}
-          >
-            <p className="text-xs text-slate-700 leading-relaxed font-normal bg-slate-50 p-4 rounded-2xl border border-gray-50">
+          {/* Smooth Accordion Body Section */}
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedArticleId === currentArticle.id ? 'max-h-[300px] mt-2 opacity-100 pt-2 border-t border-dashed border-gray-100' : 'max-h-0 opacity-0'}`}>
+            <p className="text-xs text-slate-600 bg-slate-50 p-3.5 rounded-xl border border-gray-50 leading-relaxed font-normal">
               {currentArticle.content}
             </p>
           </div>
+        </div>
 
-          {/* Interactive Control Trigger Frame */}
-          <div className="flex items-center justify-between mt-6 pt-3 border-t border-gray-50">
-            <button
-              onClick={() => toggleExpand(currentArticle.id)}
-              className="flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-amber-600 transition-colors"
-            >
-              {expandedArticleId === currentArticle.id ? (
-                <>
-                  <span>Collapse Article</span>
-                  <ChevronUp size={14} />
-                </>
-              ) : (
-                <>
-                  <span>Expand Full View</span>
-                  <ChevronDown size={14} />
-                </>
-              )}
-            </button>
+        {/* Bottom Control Bars */}
+        <div className="flex items-center justify-between pt-3 border-t border-gray-50">
+          <button
+            onClick={() => toggleExpand(currentArticle.id)}
+            className="flex items-center gap-1 text-xs font-bold text-slate-600 hover:text-amber-600 transition-colors"
+          >
+            {expandedArticleId === currentArticle.id ? (
+              <><span>Collapse View</span><ChevronUp size={14} /></>
+            ) : (
+              <><span>Expand Full View</span><ChevronDown size={14} /></>
+            )}
+          </button>
 
-            {/* Read More Button (Navigates out to core articles feed page) */}
-            <button
-              onClick={() => setCurrentTab('articles')}
-              className="flex items-center gap-2 px-4 py-2 bg-slate-950 text-white rounded-xl text-xs font-bold hover:bg-slate-800 shadow-sm transition-all group"
-            >
-              <span>Read More Articles</span>
-              <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
-            </button>
-          </div>
+          <button
+            onClick={() => setCurrentTab('articles')}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-950 hover:bg-slate-800 text-white text-xs font-bold rounded-xl shadow-sm transition-all group"
+          >
+            <span>Read More Articles</span>
+            <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+          </button>
         </div>
       </div>
 
-      {/* Grid Overview Directory Modules */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* 3. RESTORED DASHBOARD ROUTING PANELS */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
         <div 
           onClick={() => setCurrentTab('map')}
-          className="bg-slate-50 border border-gray-100 rounded-2xl p-5 hover:bg-amber-50/40 hover:border-amber-200 transition-all cursor-pointer text-left"
+          className="bg-slate-50 border border-gray-100 rounded-2xl p-4 hover:bg-amber-50/30 hover:border-amber-200 transition-all cursor-pointer group"
         >
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400 mb-1">Interactive Map</div>
-          <h4 className="text-sm font-bold text-slate-900">Explore Spaces & Zone Crowds →</h4>
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Interactive Map</span>
+          <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-600 flex items-center gap-1">
+            Explore Spaces & Zone Crowds <ArrowRight size={12} />
+          </h4>
         </div>
+        
         <div 
           onClick={() => setCurrentTab('events')}
-          className="bg-slate-50 border border-gray-100 rounded-2xl p-5 hover:bg-amber-50/40 hover:border-amber-200 transition-all cursor-pointer text-left"
+          className="bg-slate-50 border border-gray-100 rounded-2xl p-4 hover:bg-amber-50/30 hover:border-amber-200 transition-all cursor-pointer group"
         >
-          <div className="text-xs font-black uppercase tracking-wider text-slate-400 mb-1">Active Scheduling</div>
-          <h4 className="text-sm font-bold text-slate-900">Browse Booked Community Events →</h4>
+          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block mb-1">Active Scheduling</span>
+          <h4 className="text-xs font-bold text-slate-900 group-hover:text-amber-600 flex items-center gap-1">
+            Browse Booked Community Events <ArrowRight size={12} />
+          </h4>
         </div>
       </div>
 
