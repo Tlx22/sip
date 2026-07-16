@@ -5,9 +5,10 @@ import Home from './pages/Home';
 import MapPage from './pages/MapPage';
 import EventsPage from './pages/Events';
 import SettingsPage from './pages/Settings';
-import { ArrowLeft, Search, Clock, BookOpen } from 'lucide-react';
+import Community from './pages/Community';
+import { ArrowLeft, Search, Clock } from 'lucide-react';
 
-// Shared database so both components read the same corpus smoothly
+// Static database for the Articles search hub
 const allArticles = [
   { id: 1, category: "Hawker Culture", title: "The Secret Heritage of Maxwell Hawker Masters", readTime: "5 min read", snippet: "Uncovering the multi-generational spice blends and traditional methods kept alive behind local stalls.", content: "Behind the neon signs of Maxwell Food Centre lies generations of culinary dedication. We sit down with third-generation hawker owners who reveal the painstaking hours spent preparing traditional stocks and heritage balance before dawn breaks." },
   { id: 2, category: "Urban Exploration", title: "Hidden Quarry Trails You Haven't Explored Yet", readTime: "7 min read", snippet: "A complete visual mapping of rustic green corridors hidden off the standard urban pathways.", content: "Nestled deep past urban buffers, Singapore's old granite quarries have transformed into rich green hubs. This guide maps out entry gates, wildlife precautions, and the best vantage points for morning mist photography away from standard crowds." },
@@ -20,7 +21,13 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [articleSearchQuery, setArticleSearchQuery] = useState('');
+  
+  // WhatsApp Global Context Memory Threads
+  const [chatRooms, setChatRooms] = useState([
+    { id: '1', name: 'Alfie (Bouldering)', handle: 'alfie_v7', messages: [{ sender: 'them', text: 'Yo, down to run some sets on the slab wall tonight?', time: '4:15 PM' }] },
+    { id: '2', name: 'Jem (SP Band)', handle: 'jem_drums', messages: [{ sender: 'you', text: 'Double hit on hi-hat sounds clean for the chorus!', time: 'Yesterday' }] }
+  ]);
 
   const [currentUser, setCurrentUser] = useState({
     type: 'personal',
@@ -31,27 +38,41 @@ export default function App() {
     interests: ['Bouldering', 'Drums', 'Python', 'Football']
   });
 
-  // Simple runtime search handler for the articles hub page
+  // Articles search pipeline filter
   const filteredArticles = allArticles.filter(article =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.snippet.toLowerCase().includes(searchQuery.toLowerCase())
+    article.title.toLowerCase().includes(articleSearchQuery.toLowerCase()) ||
+    article.category.toLowerCase().includes(articleSearchQuery.toLowerCase()) ||
+    article.snippet.toLowerCase().includes(articleSearchQuery.toLowerCase())
   );
+
+  // Unified trigger handler to bind Community/Human Library hooks seamlessly to the Messaging panel
+  const handleDirectConnectMessagingSeed = (constructedTargetRoom) => {
+    setChatRooms(prevRooms => {
+      const roomExists = prevRooms.find(r => r.id === constructedTargetRoom.id);
+      if (!roomExists) {
+        return [...prevRooms, constructedTargetRoom];
+      }
+      return prevRooms;
+    });
+    setIsMessagingOpen(true);
+  };
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#FBFBFA] font-sans text-gray-800 relative">
       
-      {/* Mobile Sidebar Overlay backdrops */}
+      {/* Mobile Sidebar Overlay Backdrops */}
       {isSidebarOpen && (
         <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
       )}
       
+      {/* Sidebar Core */}
       <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
         <Sidebar currentPage={currentPage} setCurrentPage={(page) => { setCurrentPage(page); setIsSidebarOpen(false); }} />
       </div>
 
-      {/* Main viewport area */}
+      {/* Main Viewport Router */}
       <div className="flex-1 flex flex-col h-full min-w-0 bg-white">
+        {/* Mobile Navbar Header */}
         <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 md:hidden bg-white shrink-0">
           <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-xl hover:bg-gray-100 rounded-xl">🍔</button>
           <span className="font-serif font-bold text-lg text-emerald-800">COCO</span>
@@ -59,29 +80,31 @@ export default function App() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-          {/* Main Workspace Dynamic Pages */}
+          
           {currentPage === 'home' && (
             <Home setCurrentTab={(targetTab) => setCurrentPage(targetTab)} />
           )}
+          
           {currentPage === 'map' && <MapPage />}
+          
           {currentPage === 'events' && <EventsPage currentUser={currentUser} />}
+          
           {currentPage === 'community' && (
-            <div className="max-w-4xl mx-auto space-y-4 text-left">
-              <h1 className="text-3xl font-serif font-bold text-gray-900">Community Spaces</h1>
-              <p className="text-sm text-gray-500">Join groups, chats, and meet active residents.</p>
-            </div>
+            <Community triggerDirectMessage={handleDirectConnectMessagingSeed} />
           )}
+          
           {currentPage === 'games' && (
             <div className="max-w-4xl mx-auto space-y-4 text-left">
               <h1 className="text-3xl font-serif font-bold text-gray-900">Arcade & Games</h1>
               <p className="text-sm text-gray-500">Unwind with simple local web games.</p>
             </div>
           )}
+          
           {currentPage === 'settings' && (
             <SettingsPage currentUser={currentUser} setCurrentUser={setCurrentUser} />
           )}
 
-          {/* DEDICATED ARTICLES DIRECTORY AND SEARCH PAGE */}
+          {/* DEDICATED ARTICLES SEARCH DIRECTORY */}
           {currentPage === 'articles' && (
             <div className="max-w-3xl mx-auto space-y-6 text-left pb-12">
               <button 
@@ -96,19 +119,19 @@ export default function App() {
                 <p className="text-sm text-gray-500">Explore community entries, analytical blogs, and deep dives.</p>
               </div>
 
-              {/* Functional Interactive Search Bar */}
+              {/* Functional Search Bar */}
               <div className="relative w-full">
                 <Search className="absolute left-3 top-3.5 text-gray-400" size={18} />
                 <input 
                   type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  value={articleSearchQuery}
+                  onChange={(e) => setArticleSearchQuery(e.target.value)}
                   placeholder="Search articles by title, tags, or contents..." 
-                  className="w-full px-4 py-3 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-slate-900 bg-white transition-shadow"
+                  className="w-full px-4 py-3 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[#046A4E]/20 transition-shadow"
                 />
               </div>
 
-              {/* Rendered Search Pipeline Array */}
+              {/* Filtered Articles Array */}
               <div className="space-y-4">
                 {filteredArticles.length > 0 ? (
                   filteredArticles.map((article) => (
@@ -127,7 +150,7 @@ export default function App() {
                   ))
                 ) : (
                   <div className="text-center py-12 bg-slate-50 rounded-2xl border border-dashed border-slate-200 text-gray-400 text-sm">
-                    No articles matching details found. Try adjusting terms!
+                    No articles matching your terms were found.
                   </div>
                 )}
               </div>
@@ -136,14 +159,16 @@ export default function App() {
         </main>
       </div>
 
-      {/* Mobile Social Tray Overlay panel bounds */}
-      {isMessagingOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsMessagingOpen(false)} />
-      )}
+      {/* WhatsApp Right Hand Social Bar Tray */}
       <div className={`fixed inset-y-0 right-0 z-50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto ${isMessagingOpen ? 'translate-x-0' : 'translate-x-full'}`}>
         <div className="relative h-full bg-white border-l border-gray-100">
-          <button onClick={() => setIsMessagingOpen(false)} className="absolute top-6 left-4 z-50 md:hidden bg-gray-100 p-2 rounded-full text-xs font-bold">✕ Close</button>
-          <SocialPane />
+          <button 
+            onClick={() => setIsMessagingOpen(false)} 
+            className="absolute top-4 left-[-70px] z-50 md:hidden bg-slate-900 text-white px-2.5 py-1.5 rounded-xl text-xs font-bold shadow-md"
+          >
+            ✕ Close
+          </button>
+          <SocialPane chatRoomsData={chatRooms} onAppendNewRoom={(updatedSet) => setChatRooms(updatedSet)} />
         </div>
       </div>
 
