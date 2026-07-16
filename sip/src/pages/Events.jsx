@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 
-// Structured mock dataset representing different community track initiatives
 const initialEvents = [
   {
     id: 1,
@@ -61,7 +60,6 @@ export default function EventsPage() {
   const [selectedType, setSelectedType] = useState("All");
   const [selectedEventId, setSelectedEventId] = useState(initialEvents[0].id);
 
-  // Filter Categories Pipeline
   const eventTypes = ["All", "Skill-Swap", "Camps", "Community Events"];
 
   const filteredEvents = initialEvents.filter(event => {
@@ -74,51 +72,47 @@ export default function EventsPage() {
     return matchesSearch && matchesTab;
   });
 
-  // Keep track of which event object is currently pulled open in the preview pane
-  const currentActiveEvent = initialEvents.find(e => e.id === selectedEventId) || filteredEvents[0];
+  const currentActiveEvent = filteredEvents.find(e => e.id === selectedEventId) || filteredEvents[0];
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-6 text-left space-y-6">
+    <div className="w-full mx-auto p-4 md:p-6 text-left space-y-6 bg-transparent">
       
-      {/* Search Header Banner Card Stack */}
-      <div className="bg-slate-900 rounded-3xl p-6 md:p-8 border border-slate-800 shadow-xl space-y-4">
+      {/* Search Header Banner Card Stack styled to match main content containers */}
+      <div className="bg-white rounded-3xl p-6 border border-gray-100 shadow-sm space-y-4">
         <div className="max-w-xl">
-          <h1 className="text-2xl md:text-3xl font-bold font-serif text-white tracking-tight">
-            Discover Opportunities & Tracks
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+            Events Hub
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Find local skill-swaps, specialized development camps, and community events across Singapore.
+          <p className="text-xs md:text-sm text-gray-500 mt-1">
+            Browse and filter upcoming opportunities, skill-swaps, and local tracks.
           </p>
         </div>
 
-        {/* Input Interactive Bar */}
-        <div className="flex flex-col md:flex-row gap-3">
-          <div className="flex-1 relative">
-            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 text-sm">🔍</span>
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by event title, host group, keywords, or location..."
-              className="w-full pl-10 pr-4 py-3 bg-slate-950 text-white placeholder-slate-500 rounded-xl border border-slate-800 focus:border-emerald-500 focus:outline-none text-sm transition-colors"
-            />
-          </div>
+        {/* Input Interactive Search Bar */}
+        <div className="w-full relative">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by event title, host group, keywords, or location..."
+            className="w-full pl-4 pr-10 py-3 bg-gray-50 text-gray-900 placeholder-gray-400 rounded-xl border border-gray-200 focus:border-emerald-700 focus:ring-1 focus:ring-emerald-700 focus:outline-none text-xs md:text-sm transition-colors"
+          />
+          <span className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm">🔍</span>
         </div>
 
-        {/* Categories Tab Engine */}
-        <div className="flex flex-wrap gap-2 pt-2 border-t border-slate-800/60">
+        {/* Categories Tab Engine Matching Core Accent Colors */}
+        <div className="flex flex-wrap gap-2 pt-2 border-t border-gray-100">
           {eventTypes.map((type) => (
             <button
               key={type}
               onClick={() => {
                 setSelectedType(type);
-                // Reset active element viewport to avoid state mismatch
                 setSelectedEventId(null);
               }}
-              className={`text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-full border transition-all ${
+              className={`text-[10px] md:text-xs font-bold px-4 py-2 rounded-full border transition-all ${
                 selectedType === type
-                  ? 'bg-emerald-600 text-white border-emerald-500 shadow-md'
-                  : 'bg-slate-950 text-slate-400 border-slate-800 hover:border-slate-700 hover:text-white'
+                  ? 'bg-emerald-800 text-white border-emerald-800 shadow-sm'
+                  : 'bg-gray-50 text-gray-600 border-gray-200 hover:border-gray-300 hover:bg-gray-100'
               }`}
             >
               {type}
@@ -127,67 +121,65 @@ export default function EventsPage() {
         </div>
       </div>
 
-      {/* Main Board Viewport Split-Pane Container Layout */}
+      {/* Main Board Viewport Split-Pane Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         {/* LEFT COLUMN: The Interactive Search Result Cards Stack */}
         <div className="lg:col-span-7 space-y-3">
-          <div className="flex justify-between items-center px-1">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-widest">
-              Showing {filteredEvents.length} active opportunities
-            </p>
-          </div>
+          <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-1">
+            Active opportunities ({filteredEvents.length})
+          </p>
 
           {filteredEvents.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-gray-200 p-8 text-center space-y-2">
-              <span className="text-2xl block">📂</span>
-              <h3 className="font-bold text-gray-800 text-sm">No exact matches found</h3>
-              <p className="text-xs text-gray-500 max-w-xs mx-auto">Try refining your search text or switching the filter tracks above.</p>
+            <div className="bg-white rounded-2xl border border-gray-100 p-8 text-center space-y-2 shadow-sm">
+              <span className="text-xl block">📂</span>
+              <h3 className="font-bold text-gray-800 text-xs">No matches found</h3>
+              <p className="text-[11px] text-gray-500 max-w-xs mx-auto">Try altering your text search string or selecting another header tab.</p>
             </div>
           ) : (
             filteredEvents.map((item) => (
               <div
                 key={item.id}
                 onClick={() => setSelectedEventId(item.id)}
-                className={`p-5 rounded-2xl border transition-all cursor-pointer flex flex-col justify-between bg-white ${
+                className={`p-5 rounded-2xl border transition-all cursor-pointer bg-white text-left ${
                   currentActiveEvent?.id === item.id
-                    ? 'border-emerald-500 ring-2 ring-emerald-500/10 shadow-md'
-                    : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                    ? 'border-emerald-700 ring-1 ring-emerald-700/30 shadow-sm'
+                    : 'border-gray-100 hover:border-gray-200 shadow-sm'
                 }`}
               >
                 <div className="space-y-2">
                   <div className="flex justify-between items-start gap-4">
                     <div>
-                      <span className="text-[10px] font-black tracking-wider uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/50">
+                      <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/40">
                         {item.type}
                       </span>
-                      <h3 className="font-bold text-gray-900 text-sm md:text-base mt-2 hover:text-emerald-600 transition-colors">
+                      <h3 className="font-bold text-slate-900 text-sm md:text-base mt-2.5">
                         {item.title}
                       </h3>
-                      <p className="text-xs text-gray-600 font-medium">{item.organization}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">{item.organization}</p>
                     </div>
 
-                    <span className={`text-[10px] shrink-0 font-bold px-2 py-0.5 rounded-full border ${
+                    <span className={`text-[9px] shrink-0 font-bold px-2 py-0.5 rounded border ${
                       item.status === 'Waitlist Only'
                         ? 'bg-amber-50 text-amber-700 border-amber-200'
-                        : 'bg-slate-50 text-slate-700 border-slate-200'
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-200/50'
                     }`}>
                       {item.status}
                     </span>
                   </div>
 
-                  <div className="flex flex-wrap gap-x-4 gap-y-1 pt-2 text-[11px] text-gray-500">
-                    <span className="flex items-center gap-1">📅 {item.date}</span>
-                    <span className="flex items-center gap-1">📍 {item.location}</span>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 pt-1.5 text-[11px] text-gray-400">
+                    <span>📅 {item.date}</span>
+                    <span>📍 {item.location}</span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
-                  <span className="text-[11px] font-medium text-slate-500">
-                    🔥 {item.spotsLeft > 0 ? `${item.spotsLeft} slots left` : 'Fully Booked'}
+                <div className="mt-4 pt-3 border-t border-gray-50 flex justify-between items-center text-[11px]">
+                  <span className="font-medium text-gray-500">
+                    🔥 {item.spotsLeft > 0 ? `${item.spotsLeft} slots open` : 'Full'}
                   </span>
-                  <span className="text-xs font-bold text-emerald-600 flex items-center gap-0.5 group">
-                    View Details <span className="transition-transform group-hover:translate-x-0.5">→</span>
+                  <span className="font-bold text-emerald-800 flex items-center gap-0.5">
+                    View & Apply →
                   </span>
                 </div>
               </div>
@@ -195,53 +187,50 @@ export default function EventsPage() {
           )}
         </div>
 
-        {/* RIGHT COLUMN: The Sticky Career Detail Interaction Frame */}
+        {/* RIGHT COLUMN: The Sticky Career Detail Panel Interaction Frame */}
         <div className="lg:col-span-5 lg:sticky lg:top-6">
           {currentActiveEvent ? (
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6 space-y-6">
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden p-6 space-y-5 text-left">
               
               <div className="space-y-3">
-                <span className="text-[10px] font-black tracking-wider uppercase text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/50">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200/40">
                   {currentActiveEvent.type}
                 </span>
-                <h2 className="text-lg font-bold text-gray-900 leading-tight">
+                <h2 className="text-base md:text-lg font-bold text-slate-900 leading-tight">
                   {currentActiveEvent.title}
                 </h2>
                 <div>
-                  <p className="text-xs font-bold text-gray-800">{currentActiveEvent.organization}</p>
-                  <p className="text-xs text-gray-500 flex items-center gap-1 mt-1">📍 {currentActiveEvent.location}</p>
+                  <p className="text-xs font-bold text-gray-700">{currentActiveEvent.organization}</p>
+                  <p className="text-[11px] text-gray-400 mt-1">📍 {currentActiveEvent.location}</p>
                 </div>
               </div>
 
               <hr className="border-gray-100" />
 
-              {/* Specific Timings Grid Details */}
-              <div className="grid grid-cols-2 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-100 text-xs">
+              <div className="grid grid-cols-2 gap-4 bg-gray-50 p-3 rounded-xl border border-gray-100 text-[11px]">
                 <div>
-                  <span className="block font-semibold text-slate-400 text-[10px] uppercase tracking-wide">Date</span>
+                  <span className="block font-bold text-gray-400 text-[9px] uppercase tracking-wider">Date</span>
                   <p className="font-bold text-slate-800 mt-0.5">{currentActiveEvent.date}</p>
                 </div>
                 <div>
-                  <span className="block font-semibold text-slate-400 text-[10px] uppercase tracking-wide">Timing</span>
+                  <span className="block font-bold text-gray-400 text-[9px] uppercase tracking-wider">Timing</span>
                   <p className="font-bold text-slate-800 mt-0.5">{currentActiveEvent.time}</p>
                 </div>
               </div>
 
-              {/* Inner Core Overview Body Text */}
-              <div className="space-y-2">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Track Description</h4>
+              <div className="space-y-1.5">
+                <h4 className="text-[9px] font-black uppercase tracking-widest text-gray-400">Overview</h4>
                 <p className="text-xs text-gray-600 leading-relaxed">
                   {currentActiveEvent.description}
                 </p>
               </div>
 
-              {/* Skill Perks Tags */}
               {currentActiveEvent.perks && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-gray-400">Included In Track</h4>
+                  <h4 className="text-[9px] font-black uppercase tracking-widest text-gray-400">Included</h4>
                   <div className="flex flex-wrap gap-1.5">
                     {currentActiveEvent.perks.map((perk, i) => (
-                      <span key={i} className="bg-slate-100 text-slate-700 text-[10px] font-medium px-2.5 py-1 rounded-md">
+                      <span key={i} className="bg-gray-100 text-gray-600 text-[10px] font-medium px-2.5 py-1 rounded-md">
                         ✨ {perk}
                       </span>
                     ))}
@@ -249,15 +238,14 @@ export default function EventsPage() {
                 </div>
               )}
 
-              {/* Bottom Interactive Submission Engagement Trigger CTA */}
               <div className="pt-2">
                 <button
                   disabled={currentActiveEvent.spotsLeft === 0}
                   onClick={() => alert(`Successfully submitted registration track entry request for: ${currentActiveEvent.title}`)}
-                  className={`w-full text-center font-bold text-xs uppercase tracking-wider py-3.5 rounded-xl transition-all ${
+                  className={`w-full text-center font-bold text-xs uppercase tracking-wider py-3 rounded-xl transition-all ${
                     currentActiveEvent.spotsLeft === 0
                       ? 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
-                      : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-md hover:shadow-lg transform active:scale-[0.99]'
+                      : 'bg-emerald-800 text-white hover:bg-emerald-900 shadow-sm active:scale-[0.99]'
                   }`}
                 >
                   {currentActiveEvent.spotsLeft === 0 ? 'Waitlist Full' : 'Register for this Event'}
@@ -266,8 +254,8 @@ export default function EventsPage() {
 
             </div>
           ) : (
-            <div className="bg-slate-50 border border-dashed border-slate-300 rounded-2xl p-8 text-center text-slate-400 text-xs font-medium">
-              Select an option from the panel to explore tracks.
+            <div className="bg-white border border-dashed border-gray-200 rounded-2xl p-8 text-center text-gray-400 text-xs shadow-sm">
+              Select an item to view requirements.
             </div>
           )}
         </div>
