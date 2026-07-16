@@ -42,7 +42,10 @@ export default function App() {
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          {currentPage === 'home' && <Home />}
+          {/* Drilled functional props mapped to clear routing errors */}
+          {currentPage === 'home' && (
+            <Home setCurrentTab={(targetTab) => setCurrentPage(targetTab)} />
+          )}
           {currentPage === 'map' && <MapPage />}
           {currentPage === 'events' && <EventsPage currentUser={currentUser} />}
           {currentPage === 'community' && (

@@ -1,13 +1,13 @@
 import React from 'react';
 import { Home, Map, Calendar, Users, Gamepad2 } from 'lucide-react';
 
-export default function Sidebar({ currentTab, setCurrentTab }) {
+export default function Sidebar({ currentPage, setCurrentPage }) {
   const links = [
     { id: 'home', label: 'Home Feed', icon: Home },
     { id: 'map', label: 'Shared Spaces Map', icon: Map },
     { id: 'events', label: 'Events Hub', icon: Calendar },
     { id: 'community', label: 'Community Spaces', icon: Users },
-    { id: 'arcade', label: 'Arcade & Games', icon: Gamepad2 },
+    { id: 'games', label: 'Arcade & Games', icon: Gamepad2 }, // Matched to 'games' in App.jsx
   ];
 
   return (
@@ -19,11 +19,15 @@ export default function Sidebar({ currentTab, setCurrentTab }) {
         <nav className="space-y-2">
           {links.map((link) => {
             const Icon = link.icon;
-            const isActive = currentTab === link.id;
+            const isActive = currentPage === link.id;
             return (
               <button
                 key={link.id}
-                onClick={() => setCurrentTab(link.id)}
+                onClick={() => {
+                  if (typeof setCurrentPage === 'function') {
+                    setCurrentPage(link.id);
+                  }
+                }}
                 className={`w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-xs font-bold uppercase tracking-wide transition-all ${
                   isActive
                     ? 'bg-slate-900 text-white shadow-md'
