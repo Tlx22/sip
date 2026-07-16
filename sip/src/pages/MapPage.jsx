@@ -58,6 +58,12 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mapFocus, setMapFocus] = useState({ center: [1.3140, 103.8448], zoom: 12 });
   const [viewMode, setViewMode] = useState("filter"); // toggles between 'filter' and 'search'
+  const [showSuggestions, setShowSuggestions] = useState(false);
+
+  // Compute live search suggestions based on current query typing
+  const liveSuggestions = searchQuery.trim().length > 0
+    ? locations.filter(loc => loc.name.toLowerCase().includes(searchQuery.toLowerCase()))
+    : [];
 
   const filteredLocations = locations.filter(loc => {
     const matchesFilter = activeFilter === "all" || loc.type === activeFilter;
@@ -69,11 +75,19 @@ export default function MapPage() {
     e.preventDefault();
     if (viewMode === "search" && filteredLocations.length > 0) {
       setMapFocus({ center: filteredLocations[0].coordinates, zoom: 15 });
+      setShowSuggestions(false);
     }
+  };
+
+  const handleSelectSuggestion = (loc) => {
+    setSearchQuery(loc.name);
+    setMapFocus({ center: loc.coordinates, zoom: 16 });
+    setShowSuggestions(false);
   };
 
   const toggleViewMode = () => {
     setViewMode(prev => (prev === "filter" ? "search" : "filter"));
+    setShowSuggestions(false);
   };
 
   return (
@@ -120,12 +134,12 @@ export default function MapPage() {
         <div className="absolute bottom-6 inset-x-4 sm:inset-x-6 z-30 flex items-center justify-center pointer-events-none">
           <div className="flex flex-row items-center justify-center gap-3 bg-[#081026]/90 backdrop-blur-md border border-amber-500 rounded-full px-4 py-2 shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out overflow-hidden max-w-full">
             
-            {/* Left Box Panel: Sliding Category Filters */}
+            {/* Left Box Panel: Swipeable Category Filters on Mobile */}
             <div 
-              className={`flex items-center gap-3 transition-all duration-500 ease-in-out overflow-hidden ${
+              className={`flex items-center gap-3 transition-all duration-500 ease-in-out ${
                 viewMode === 'filter' 
-                  ? 'max-w-[700px] opacity-100 pr-2' 
-                  : 'max-w-0 opacity-0 pointer-events-none'
+                  ? 'max-w-[700px] opacity-100 pr-2 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth py-1' 
+                  : 'max-w-0 opacity-0 pointer-events-none overflow-hidden'
               }`}
             >
               {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
@@ -134,7 +148,7 @@ export default function MapPage() {
                   <button
                     key={type}
                     onClick={() => setActiveFilter(type)}
-                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 ${
+                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 shrink-0 ${
                       isSelected
                         ? 'bg-amber-500 text-slate-950 px-4 py-2 rounded-full shadow-md scale-105'
                         : 'text-slate-400 hover:text-white px-2 py-2'
@@ -161,30 +175,54 @@ export default function MapPage() {
               </div>
             </button>
 
-            {/* Right Box Panel: Sliding Search Input Frame */}
-            <form 
-              onSubmit={handleSearchSubmit} 
-              className={`relative flex items-center transition-all duration-500 ease-in-out overflow-hidden ${
+            {/* Right Box Panel: Sliding Search Input & Instant Suggestions Popup */}
+            <div
+              className={`relative flex items-center transition-all duration-500 ease-in-out ${
                 viewMode === 'search' 
                   ? 'w-[260px] sm:w-[320px] opacity-100 pl-2' 
-                  : 'w-0 opacity-0 pointer-events-none'
+                  : 'w-0 opacity-0 pointer-events-none overflow-hidden'
               }`}
             >
-              <span className="absolute left-5 text-xs opacity-75">🔮</span>
-              <input
-                type="text"
-                placeholder="Type location..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-12 py-1.5 bg-slate-950 text-white placeholder-slate-500 text-[11px] font-medium rounded-full border border-amber-500 focus:outline-none focus:border-amber-400 transition-all"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 px-2.5 py-0.5 text-[9px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700"
-              >
-                Go
-              </button>
-            </form>
+              {/* UPWARD FLOATING LIVE SUGGESTIONS BOX */}
+              {showSuggestions && liveSuggestions.length > 0 && (
+                <div className="absolute bottom-full mb-3 left-2 right-0 bg-[#081026]/95 backdrop-blur-md border border-amber-500/40 rounded-2xl shadow-2xl max-h-48 overflow-y-auto p-1.5 space-y-0.5 z-50">
+                  {liveSuggestions.map((loc) => (
+                    <button
+                      key={loc.id}
+                      type="button"
+                      onClick={() => handleSelectSuggestion(loc)}
+                      className="w-full text-left px-3 py-2 rounded-xl text-slate-200 hover:bg-slate-800/80 hover:text-white transition-colors flex flex-col gap-0.5"
+                    >
+                      <span className="text-xs font-bold tracking-tight">{loc.name}</span>
+                      <span className="text-[9px] font-medium uppercase text-amber-500/80 tracking-wide">{loc.type}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <form onSubmit={handleSearchSubmit} className="relative w-full flex items-center">
+                <span className="absolute left-3 text-xs opacity-75">🔮</span>
+                <input
+                  type="text"
+                  placeholder="Type location..."
+                  value={searchQuery}
+                  onFocus={() => setShowSuggestions(true)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+                  className="w-full pl-9 pr-12 py-1.5 bg-slate-950 text-white placeholder-slate-500 text-[11px] font-medium rounded-full border border-amber-500 focus:outline-none focus:border-amber-400 transition-all"
+                />
+                <button
+                  type="submit"
+                  className="absolute right-2 px-2.5 py-0.5 text-[9px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700"
+                >
+                  Go
+                </button>
+              </form>
+
+              {/* Click Catcher Overlay to close suggestions panel layout gracefully */}
+              {showSuggestions && (
+                <div className="fixed inset-0 z-[-1]" onClick={() => setShowSuggestions(false)} />
+              )}
+            </div>
 
           </div>
         </div>
