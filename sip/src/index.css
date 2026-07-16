@@ -1,4 +1,4 @@
-/* 1. Force load the Leaflet positioning layer at the absolute top */
+/* 1. External Third-Party Core Assets Imports */
 @import "leaflet/dist/leaflet.css";
 
 .counter {
@@ -184,10 +184,8 @@
   }
 }
 
-/* --- FORCE BREAKOUT OVERRIDES FOR LEAFLET CONTAINER MAPS --- */
-.leaflet-container {
+/* --- ISOLATED TARGET BOUNDS FOR MAP ELEMENT CANVASES --- */
+.custom-map-bounds {
   width: 100% !important;
   height: 100% !important;
-  display: block !important;
-  background-color: #0f172a !important; /* Matches slate-900 background */
 }
