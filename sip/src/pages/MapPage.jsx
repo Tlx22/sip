@@ -14,7 +14,7 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// React 19 layout sizing safe-guard hook
+// Layout sizing safe-guard hook
 function MapResizeTrigger() {
   const map = useMap();
   useEffect(() => {
@@ -26,7 +26,7 @@ function MapResizeTrigger() {
   return null;
 }
 
-// Map frame fly-to controller
+// Map frame controller
 function ChangeMapView({ center, zoom }) {
   const map = useMap();
   useEffect(() => {
@@ -37,12 +37,25 @@ function ChangeMapView({ center, zoom }) {
   return null;
 }
 
-// Your actual, original location markers dataset
+// Expanded dataset featuring your real campus locations, food spots, and culture items
 const initialLocations = [
-  { id: 1, name: "SP Bouldering Wall", type: "hidden gems", coordinates: [1.30983, 103.77751], info: "V1 to V6+ slab and overhang training zones." },
-  { id: 2, name: "Gourmet Kampong", type: "food", coordinates: [1.31205, 103.77622], info: "Local economic rice, chicken rice, and coffee hubs." },
-  { id: 3, name: "Dover Forest Trail", type: "hidden gems", coordinates: [1.31152, 103.78214], info: "Lush green rustic canopy walkthrough." },
-  { id: 4, name: "FC5 / Concourse Plaza", type: "crowd watch", coordinates: [1.30895, 103.77912], info: "Peak hour campus traffic track." }
+  // --- HIDDEN GEMS ---
+  { id: 1, name: "SP Bouldering Wall", type: "hidden gems", coordinates: [1.30983, 103.77751], info: "High-quality climbing training setup featuring routes from V1 up to V6 slabs." },
+  { id: 2, name: "Dover Forest Eco-Trail", type: "hidden gems", coordinates: [1.31152, 103.78214], info: "A quiet, lush green canopy getaway right next to the MRT tracks." },
+  { id: 3, name: "Aerohub Flight Simulator Lab", type: "hidden gems", coordinates: [1.30940, 103.77580], info: "Advanced aviation setups running specialized fleet simulator training." },
+
+  // --- FOOD ---
+  { id: 4, name: "Gourmet Kampong Food Center", type: "food", coordinates: [1.31205, 103.77622], info: "Famous for local roasted delights, economic rice, and traditional coffee." },
+  { id: 5, name: "Food Court 5 (FC5)", type: "food", coordinates: [1.30840, 103.77970], info: "Huge selection of air-conditioned student food stalls and quick bites." },
+  { id: 6, name: "Marrow & Mingle Cafe", type: "food", coordinates: [1.31020, 103.77810], info: "Great spot for specialty iced matcha lattees and studying between modules." },
+
+  // --- CULTURAL SHOPS ---
+  { id: 7, name: "SP Library Music & Media Zone", type: "cultural shops", coordinates: [1.30910, 103.77820], info: "Stocked with audio gear and resources perfect for checking out music arrangements." },
+  { id: 8, name: "Campus Book & Vinyl Hub", type: "cultural shops", coordinates: [1.30790, 103.77690], info: "Quaint spot tracking student art, zines, and classic acoustic layout charts." },
+
+  // --- CROWD WATCH ---
+  { id: 9, name: "Main Student Concourse Plaza", type: "crowd watch", coordinates: [1.30895, 103.77912], info: "Highly crowded right now due to student club booths and CCA fairs." },
+  { id: 10, name: "Sports Complex Football Field", type: "crowd watch", coordinates: [1.30990, 103.77660], info: "Moderate activity with active recreational matches taking place under the lights." }
 ];
 
 export default function MapPage() {
@@ -51,7 +64,7 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [mapFocus, setMapFocus] = useState({ center: [1.30983, 103.77751], zoom: 16 });
 
-  // Filter logic pipeline
+  // Filter processing
   const filteredLocations = locations.filter(loc => {
     const matchesFilter = activeFilter === "all" || loc.type === activeFilter;
     const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -68,41 +81,16 @@ export default function MapPage() {
   return (
     <div className="flex-1 w-full text-left space-y-6 max-w-5xl mx-auto p-1">
       
-      {/* Upper header section */}
-      <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-xs">
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">📍 Shared Spaces Map</h1>
-        <p className="text-xs text-gray-400 mt-0.5">Explore crowdsourced student hubs, food spots, and active zones.</p>
+      {/* Header Banner */}
+      <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
+        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">📍 Interactive Campus Guide</h1>
+        <p className="text-xs text-gray-400 mt-0.5">Explore local food hubs, hidden gems, culture shops, and active zones.</p>
       </div>
 
-      {/* Main Container Frame */}
+      {/* Map Main Workspace Frame */}
       <div className="bg-[#050B1E] rounded-3xl border border-slate-950 shadow-2xl overflow-hidden p-3 relative flex flex-col min-h-[520px] h-[68vh] w-full">
         
-        {/* ========================================================= */}
-        {/* 🏈 SUNDAY NIGHT FOOTBALL BROADCAST BUG OVERLAY            */}
-        {/* ========================================================= */}
-        <div className="absolute top-6 left-6 z-30 flex items-center bg-[#0d0d0d]/95 text-white font-mono border-b-2 border-amber-400 rounded shadow-xl overflow-hidden select-none h-8 text-[11px]">
-          <div className="bg-gradient-to-r from-blue-900 via-slate-900 to-black px-2.5 h-full flex items-center font-sans italic font-black text-amber-400 tracking-tighter">
-            NBC
-          </div>
-          <div className="flex items-center h-full">
-            <div className="w-2 h-full bg-red-600" />
-            <div className="px-2.5 font-black tracking-wide bg-neutral-900 h-full flex items-center">MIN</div>
-            <div className="px-2 font-bold bg-neutral-800 text-xs h-full flex items-center border-r border-neutral-700">24</div>
-          </div>
-          <div className="flex items-center h-full">
-            <div className="w-2 h-full bg-emerald-700" />
-            <div className="px-2.5 font-black tracking-wide bg-neutral-900 h-full flex items-center">PHI</div>
-            <div className="px-2 font-bold bg-neutral-800 text-xs h-full flex items-center border-r border-neutral-700">27</div>
-          </div>
-          <div className="bg-black px-2.5 h-full flex items-center font-sans font-bold text-[10px] text-gray-300 border-r border-neutral-700">
-            4TH <span className="text-white font-mono ml-1">2:14</span>
-          </div>
-          <div className="bg-amber-400 text-neutral-950 px-2.5 h-full flex items-center font-sans font-black text-[10px]">
-            3RD & 4
-          </div>
-        </div>
-
-        {/* Leaflet Map Target Canvas */}
+        {/* Leaflet Map Window */}
         <div className="flex-1 w-full h-full rounded-2xl overflow-hidden relative z-10 bg-slate-950">
           <MapContainer center={mapFocus.center} zoom={mapFocus.zoom} zoomControl={false} className="h-full w-full">
             <TileLayer
@@ -115,10 +103,10 @@ export default function MapPage() {
             {filteredLocations.map((loc) => (
               <Marker key={loc.id} position={loc.coordinates}>
                 <Popup>
-                  <div className="text-slate-900 p-1 font-sans text-xs max-w-[180px]">
-                    <p className="font-bold border-b border-gray-100 pb-0.5 capitalize">{loc.name}</p>
-                    <p className="text-[10px] mt-1 text-gray-500 leading-tight">{loc.info}</p>
-                    <span className="inline-block mt-1.5 px-1.5 py-0.5 bg-slate-100 text-slate-700 font-bold text-[8px] uppercase rounded">
+                  <div className="text-slate-900 p-1 font-sans text-xs max-w-[190px]">
+                    <p className="font-bold border-b border-gray-100 pb-0.5 capitalize text-slate-950">{loc.name}</p>
+                    <p className="text-[10px] mt-1 text-gray-600 leading-normal">{loc.info}</p>
+                    <span className="inline-block mt-2 px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-[8px] uppercase tracking-wider rounded">
                       {loc.type}
                     </span>
                   </div>
@@ -129,14 +117,14 @@ export default function MapPage() {
         </div>
 
         {/* ========================================================= */}
-        {/* 🎛️ ORIGINAL SLICK CAPSULE CONTROL CONSOLE LOG PANELS     */}
+        {/* 🎛️ ORIGINAL CAPSULE CONTROL PANEL DISPLAY                 */}
         {/* ========================================================= */}
-        <div className="absolute bottom-6 inset-x-6 z-35 flex items-center justify-center pointer-events-none">
+        <div className="absolute bottom-6 inset-x-6 z-30 flex items-center justify-center pointer-events-none">
           <div className="flex flex-wrap items-center gap-3 bg-[#0a1128]/85 backdrop-blur-md border border-amber-500/80 rounded-full px-5 py-2.5 shadow-2xl pointer-events-auto max-w-full">
             
-            {/* Tag Selection Row */}
-            <div className="flex items-center gap-1">
-              {['all', 'food', 'hidden gems', 'crowd watch'].map((type) => {
+            {/* Category Filter Pills */}
+            <div className="flex flex-wrap items-center gap-1">
+              {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
                 const isSelected = activeFilter === type;
                 return (
                   <button
@@ -154,16 +142,16 @@ export default function MapPage() {
               })}
             </div>
 
-            {/* Separator Divider Indicator Capsule */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-950/80 border border-slate-800 rounded-lg px-2 py-1 text-[8px] font-black tracking-tight text-slate-400">
+            {/* Middle Badge Panel Indicator */}
+            <div className="hidden lg:flex items-center gap-1 bg-slate-950/80 border border-slate-800 rounded-lg px-2 py-1 text-[8px] font-black tracking-tight text-slate-400">
               <span>🔹 FILT</span>
               <span className="text-gray-600">|</span>
               <span className="text-amber-400">SRCH 🔹</span>
             </div>
 
-            {/* Search Action Input Module */}
-            <form onSubmit={handleSearchSubmit} className="relative flex items-center min-w-[160px] sm:min-w-[200px]">
-              <span className="absolute left-3 text-xs opacity-70">🔍</span>
+            {/* Custom Text Search Input Box */}
+            <form onSubmit={handleSearchSubmit} className="relative flex items-center min-w-[160px] sm:min-w-[190px]">
+              <span className="absolute left-3 text-[10px] opacity-70">🔍</span>
               <input
                 type="text"
                 placeholder="Type location..."
@@ -173,7 +161,7 @@ export default function MapPage() {
               />
               <button
                 type="submit"
-                className="absolute right-2 px-2 py-0.5 text-[8px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700 transition-colors"
+                className="absolute right-2 px-2 py-0.5 text-[8px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700"
               >
                 Go
               </button>
