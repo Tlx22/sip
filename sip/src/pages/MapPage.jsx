@@ -1,23 +1,57 @@
 import React, { useState } from 'react';
+// Import React Leaflet components
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L from 'leaflet';
 
+// Fix for default Leaflet marker icons not showing up correctly in React builds
+import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
+import markerIcon from 'leaflet/dist/images/marker-icon.png';
+import markerShadow from 'leaflet/dist/images/marker-shadow.png';
+
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: markerIcon2x,
+  iconUrl: markerIcon,
+  shadowUrl: markerShadow,
+});
+
+// Mock Festival dataset with actual coordinates (Latitude, Longitude) in Singapore
 const mockItems = [
-  { id: 1, name: "Lau Pa Sat Food Village", category: "Food", desc: "Local hawker delights & satay street." },
-  { id: 2, name: "Armenian Street Vault", category: "Hidden Gems", desc: "Secret underground art display alley." },
-  { id: 3, name: "Dhoby Ghaut Green (High Density)", category: "Crowd Watch", desc: "Peak attendance alert: 85% capacity." },
-  { id: 4, name: "National Museum Mapping", category: "Location", desc: "Main projection light show venue." }
+  { id: 1, name: "Lau Pa Sat Food Village", category: "Food", desc: "Local hawker delights & satay street.", coords: [1.2806, 103.8504] },
+  { id: 2, name: "Armenian Street Vault", category: "Hidden Gems", desc: "Secret underground art display alley.", coords: [1.2942, 103.8492] },
+  { id: 3, name: "Dhoby Ghaut Green", category: "Crowd Watch", desc: "Peak attendance alert: 85% capacity.", coords: [1.2993, 103.8454] },
+  { id: 4, name: "National Museum Mapping", category: "Location", desc: "Main projection light show venue.", coords: [1.2966, 103.8485] }
 ];
 
+// Helper component to dynamically pan the map when a location is selected from the scorebug
+function MapRecenter({ coords }) {
+  const map = useMap();
+  if (coords) {
+    map.setView(coords, 16, { animate: true, duration: 1.5 });
+  }
+  return null;
+}
+
 export default function MapPage() {
-  const [sliderMode, setSliderMode] = useState("search"); // "filter" (Left) or "search" (Right)
+  const [sliderMode, setSliderMode] = useState("search");
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCoords, setSelectedCoords] = useState(null);
 
+  // Filter items based on active SNF panel state
   const filteredItems = mockItems.filter(item => {
     if (sliderMode === "filter") {
       return activeCategory ? item.category === activeCategory : ["Food", "Hidden Gems", "Crowd Watch"].includes(item.category);
     }
     return item.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
+
+  const handleItemSelect = (item) => {
+    setSelectedCoords(item.coords);
+    if (sliderMode === "search") {
+      setSearchQuery(item.name);
+    }
+  };
 
   return (
     <div className="space-y-6 max-w-5xl mx-auto">
@@ -26,25 +60,60 @@ export default function MapPage() {
         <p className="text-sm text-gray-500">Discover interesting places and events.</p>
       </div>
 
-      {/* Canvas Window */}
-      <div className="relative w-full h-[580px] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-slate-800">
+      {/* Map + HUD Frame Window Container */}
+      {/* CRITICAL: Leaflet requires a global style import for tiles to align properly! */}
+      <div className="relative w-full h-[580px] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-slate-800 z-0">
         
-        {/* --- BACKGROUND MAP GRAPHIC GRID --- */}
-        <div className="w-full h-full flex flex-col items-center justify-center bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:20px_20px]">
-          <div className="text-center opacity-40">
-            <span className="text-5xl block">🏟️</span>
-            <span className="text-[11px] text-slate-400 font-mono tracking-widest uppercase mt-3 block">HUD Canvas Display Active</span>
-          </div>
-        </div>
+        {/* --- LEAFLET CSS CDN INJECTION --- */}
+        <link 
+          rel="stylesheet" 
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+          crossOrigin=""
+        />
+
+        {/* --- REAL INTERACTIVE MAP --- */}
+        <MapContainer 
+          center={[1.2906, 103.8504]} 
+          zoom={13} 
+          zoomControl={false} // Hides default +/- buttons to keep the HUD pristine
+          className="w-full h-full z-10"
+        >
+          {/* CartoDB Dark Matter Map Tiles to complement the dark blue SNF aesthetic */}
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          />
+
+          {/* Dynamic Map Markers mapping our data array */}
+          {mockItems.map((item) => (
+            <Marker key={item.id} position={item.coords}>
+              <Popup>
+                <div className="p-1 font-sans">
+                  <span className="text-[9px] uppercase font-black tracking-wider text-emerald-600 block mb-0.5">{item.category}</span>
+                  <strong className="text-xs text-slate-900 block">{item.name}</strong>
+                  <p className="text-[10px] text-slate-600 mt-1 m-0 leading-tight">{item.desc}</p>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
+
+          {/* Recenter controller element */}
+          <MapRecenter coords={selectedCoords} />
+        </MapContainer>
 
         {/* --- BOTTOM HUD INTERACTIVE ANCHOR ZONE --- */}
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-2xl px-4 flex flex-col items-center">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-2xl px-4 flex flex-col items-center pointer-events-auto">
           
-          {/* DYNAMIC RESULTS POPUP (Now renders ABOVE the search bar) */}
+          {/* DYNAMIC RESULTS POPUP */}
           {(searchQuery || activeCategory || sliderMode === 'filter') && (
             <div className="w-full mb-3 bg-slate-950/95 backdrop-blur-md rounded-2xl border border-amber-400/30 shadow-2xl max-h-48 overflow-y-auto p-2 space-y-1 animate-in slide-in-from-bottom-2 duration-200">
               {filteredItems.map(item => (
-                <div key={item.id} className="p-2.5 hover:bg-slate-900 rounded-xl transition-colors border border-transparent hover:border-slate-800 flex items-center justify-between gap-4">
+                <button 
+                  key={item.id} 
+                  onClick={() => handleItemSelect(item)}
+                  className="w-full text-left p-2.5 hover:bg-slate-900 rounded-xl transition-colors border border-transparent hover:border-slate-800 flex items-center justify-between gap-4"
+                >
                   <div className="min-w-0">
                     <h4 className="text-xs font-bold text-white truncate">{item.name}</h4>
                     <p className="text-[10px] text-slate-400 mt-0.5 truncate">{item.desc}</p>
@@ -52,14 +121,13 @@ export default function MapPage() {
                   <span className="text-[9px] shrink-0 font-black bg-amber-400/10 text-amber-400 px-2 py-0.5 rounded-md border border-amber-400/20">
                     {item.category}
                   </span>
-                </div>
+                </button>
               ))}
             </div>
           )}
 
           {/* --- THE SCOREBUG BAR --- */}
-          {/* Uses flex-wrap and responsive scaling to ensure visibility on mobile screens */}
-          <div className="w-full flex items-center justify-between bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 rounded-full md:rounded-full border-2 border-amber-400/60 shadow-[0_0_15px_rgba(251,191,36,0.2)] h-auto min-h-[3.5rem] md:h-14 py-2 md:py-0 px-2 gap-1 md:gap-2">
+          <div className="w-full flex items-center justify-between bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 rounded-full border-2 border-amber-400/60 shadow-[0_0_15px_rgba(251,191,36,0.2)] min-h-[3.5rem] md:h-14 py-2 md:py-0 px-2 gap-2">
             
             {/* LEFT SIDE: Mode Filters */}
             <div className={`flex-1 flex items-center justify-center gap-1.5 transition-all duration-300 px-1 ${
@@ -69,23 +137,24 @@ export default function MapPage() {
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
-                  className={`text-[9px] md:text-[11px] font-black uppercase tracking-wider px-2 md:px-3 py-1.5 rounded-full border transition-all white-space-nowrap ${
+                  className={`text-[9px] md:text-[11px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full border transition-all ${
                     activeCategory === cat 
                       ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-md' 
                       : 'bg-slate-800/80 text-gray-200 border-slate-700 hover:border-amber-400/40'
                   }`}
                 >
-                  {cat.replace("Watch", "").replace("Gems", "Gems")} {/* Soft truncation for small phones */}
+                  {cat}
                 </button>
               ))}
             </div>
 
-            {/* CENTER CONTROL DIAL (The SNF Medallion Toggle) */}
+            {/* CENTER CONTROL DIAL */}
             <div 
               onClick={() => { 
                 setSliderMode(sliderMode === "search" ? "filter" : "search"); 
                 setActiveCategory(null); 
                 setSearchQuery(""); 
+                setSelectedCoords(null);
               }}
               className="relative z-40 shrink-0 w-24 md:w-28 h-10 md:h-11 flex flex-col items-center justify-center bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-amber-400 rounded-xl shadow-lg font-black text-center cursor-pointer select-none active:scale-95 transition-transform"
             >
