@@ -3,12 +3,23 @@ import Sidebar from './components/Sidebar';
 import SocialPane from './components/SocialPane';
 import Home from './pages/Home';
 import MapPage from './pages/MapPage';
-import EventsPage from './pages/Events'; // 1. Import the new Events Page component
+import EventsPage from './pages/Events';
+import SettingsPage from './pages/Settings'; // Import the new settings page
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState('home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isMessagingOpen, setIsMessagingOpen] = useState(false);
+
+  // Simulated Global Auth State: null | { type: 'personal' | 'org', name: '', ... }
+  const [currentUser, setCurrentUser] = useState({
+    type: 'personal',
+    name: 'Chiew',
+    handle: 'chiew_climbs',
+    email: 'chiew@sp.edu.sg',
+    bio: 'Boulder enthusiast 🧗‍♂️ | Audio tinkerer 🥁 | Aspiring Engineer',
+    interests: ['Bouldering', 'Drums', 'Python', 'Football']
+  });
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-[#FBFBFA] font-sans text-gray-800 relative">
@@ -35,8 +46,8 @@ export default function App() {
           {currentPage === 'home' && <Home />}
           {currentPage === 'map' && <MapPage />}
           
-          {/* 2. Swapped out the static text for the full jobboard component */}
-          {currentPage === 'events' && <EventsPage />}
+          {/* Events Page gets access to user state to auto-fill or restrict hosting */}
+          {currentPage === 'events' && <EventsPage currentUser={currentUser} />}
           
           {currentPage === 'community' && (
             <div className="max-w-4xl mx-auto space-y-4">
@@ -49,6 +60,11 @@ export default function App() {
               <h1 className="text-3xl font-serif font-bold text-gray-900">Arcade & Games</h1>
               <p className="text-sm text-gray-500">Unwind with simple local web games.</p>
             </div>
+          )}
+
+          {/* New Settings Route Entry */}
+          {currentPage === 'settings' && (
+            <SettingsPage currentUser={currentUser} setCurrentUser={setCurrentUser} />
           )}
         </main>
       </div>
