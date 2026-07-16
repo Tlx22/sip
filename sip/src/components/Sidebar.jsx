@@ -1,7 +1,6 @@
 import React from 'react';
 
 export default function Sidebar({ currentPage, setCurrentPage }) {
-  // Navigation configuration array
   const navItems = [
     { id: 'home', label: 'Home Feed', icon: '🏠' },
     { id: 'map', label: 'Shared Spaces Map', icon: '📍' },
@@ -13,8 +12,6 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
 
   return (
     <div className="w-64 h-full bg-white border-r border-gray-100 flex flex-col justify-between p-4 shadow-sm text-left">
-      
-      {/* --- TOP BRAND / HEADER SECTION --- */}
       <div className="space-y-6">
         <div className="px-3 py-2 flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-xl bg-emerald-800 flex items-center justify-center text-white font-serif font-black shadow-sm">
@@ -26,12 +23,8 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
           </div>
         </div>
 
-        {/* --- CORE NAVIGATION PIPELINES --- */}
         <nav className="space-y-1">
-          <span className="block px-3 text-[9px] font-black tracking-widest text-gray-400 uppercase mb-2">
-            Main Directory
-          </span>
-          
+          <span className="block px-3 text-[9px] font-black tracking-widest text-gray-400 uppercase mb-2">Main Directory</span>
           {navItems.map((item) => {
             const isActive = currentPage === item.id;
             return (
@@ -44,21 +37,15 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
                     : 'bg-transparent text-gray-500 border-transparent hover:bg-gray-50 hover:text-slate-900'
                 }`}
               >
-                <span className={`text-base transition-transform group-hover:scale-110 duration-200 ${isActive ? 'filter drop-shadow' : ''}`}>
-                  {item.icon}
-                </span>
+                <span className={`text-base transition-transform group-hover:scale-110 duration-200`}>{item.icon}</span>
                 <span className="flex-1 truncate">{item.label}</span>
-                
-                {isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                )}
+                {isActive && <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />}
               </button>
             );
           })}
         </nav>
       </div>
 
-      {/* --- BOTTOM SYSTEM CONTEXT CARD --- */}
       <div className="border-t border-gray-50 pt-4">
         <div 
           onClick={() => setCurrentPage('settings')}
@@ -74,7 +61,6 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
           <span className="text-gray-300 text-[10px] group-hover:text-emerald-800 transition-colors">→</span>
         </div>
       </div>
-
     </div>
   );
 }
