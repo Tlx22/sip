@@ -60,7 +60,7 @@ export default function MapPage() {
   const [viewMode, setViewMode] = useState("filter"); // toggles between 'filter' and 'search'
   const [showSuggestions, setShowSuggestions] = useState(false);
 
-  // Compute live search suggestions based on current query typing
+  // Live matching results array evaluated as the user types
   const liveSuggestions = searchQuery.trim().length > 0
     ? locations.filter(loc => loc.name.toLowerCase().includes(searchQuery.toLowerCase()))
     : [];
@@ -132,14 +132,14 @@ export default function MapPage() {
         {/* 🎛️ DYNAMIC SLIDING CENTERED CAPSULE CONTROL CONSOLE      */}
         {/* ========================================================= */}
         <div className="absolute bottom-6 inset-x-4 sm:inset-x-6 z-30 flex items-center justify-center pointer-events-none">
-          <div className="flex flex-row items-center justify-center gap-3 bg-[#081026]/90 backdrop-blur-md border border-amber-500 rounded-full px-4 py-2 shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out overflow-hidden max-w-full">
+          <div className="flex flex-row items-center justify-center gap-3 bg-[#081026]/90 backdrop-blur-md border border-amber-500 rounded-full px-4 py-2 shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out overflow-visible max-w-full">
             
-            {/* Left Box Panel: Swipeable Category Filters on Mobile */}
+            {/* Left Box Panel: Sliding Category Filters */}
             <div 
-              className={`flex items-center gap-3 transition-all duration-500 ease-in-out ${
+              className={`flex items-center gap-3 transition-all duration-500 ease-in-out overflow-hidden ${
                 viewMode === 'filter' 
-                  ? 'max-w-[700px] opacity-100 pr-2 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth py-1' 
-                  : 'max-w-0 opacity-0 pointer-events-none overflow-hidden'
+                  ? 'max-w-[700px] opacity-100 pr-2' 
+                  : 'max-w-0 opacity-0 pointer-events-none'
               }`}
             >
               {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
@@ -148,7 +148,7 @@ export default function MapPage() {
                   <button
                     key={type}
                     onClick={() => setActiveFilter(type)}
-                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 shrink-0 ${
+                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 ${
                       isSelected
                         ? 'bg-amber-500 text-slate-950 px-4 py-2 rounded-full shadow-md scale-105'
                         : 'text-slate-400 hover:text-white px-2 py-2'
@@ -175,15 +175,15 @@ export default function MapPage() {
               </div>
             </button>
 
-            {/* Right Box Panel: Sliding Search Input & Instant Suggestions Popup */}
-            <div
+            {/* Right Box Panel: Sliding Search Input Box Wrapper */}
+            <div 
               className={`relative flex items-center transition-all duration-500 ease-in-out ${
                 viewMode === 'search' 
                   ? 'w-[260px] sm:w-[320px] opacity-100 pl-2' 
                   : 'w-0 opacity-0 pointer-events-none overflow-hidden'
               }`}
             >
-              {/* UPWARD FLOATING LIVE SUGGESTIONS BOX */}
+              {/* INSTANT INTERACTIVE RESULTS DRAWER (Pops upward over the map) */}
               {showSuggestions && liveSuggestions.length > 0 && (
                 <div className="absolute bottom-full mb-3 left-2 right-0 bg-[#081026]/95 backdrop-blur-md border border-amber-500/40 rounded-2xl shadow-2xl max-h-48 overflow-y-auto p-1.5 space-y-0.5 z-50">
                   {liveSuggestions.map((loc) => (
@@ -218,7 +218,7 @@ export default function MapPage() {
                 </button>
               </form>
 
-              {/* Click Catcher Overlay to close suggestions panel layout gracefully */}
+              {/* Click catcher overlay layer to close suggestion box automatically when clicking out */}
               {showSuggestions && (
                 <div className="fixed inset-0 z-[-1]" onClick={() => setShowSuggestions(false)} />
               )}
