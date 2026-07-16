@@ -1,5 +1,8 @@
 /* 1. External Third-Party Core Assets Imports */
 @import "leaflet/dist/leaflet.css";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 .counter {
   font-size: 16px;
