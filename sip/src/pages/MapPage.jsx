@@ -37,7 +37,7 @@ function ChangeMapView({ center, zoom }) {
   return null;
 }
 
-// Expanded dataset featuring general Singapore hubs and hotspots
+// Expanded Singapore dataset
 const initialLocations = [
   // --- FOOD ---
   { id: 1, name: "Maxwell Food Centre", type: "food", coordinates: [1.2804, 103.8448], info: "Iconic hawker center famous for Tian Tian Chicken Rice and local delights." },
@@ -56,21 +56,18 @@ const initialLocations = [
 
   // --- CROWD WATCH ---
   { id: 10, name: "Marina Bay Waterfront", type: "crowd watch", coordinates: [1.2852, 103.8545], info: "Highly crowded spot, especially during weekend drone shows and evening walks." },
-  { id: 11, name: "Orchard Road Central Pedestrian Walk", type: "crowd watch", coordinates: [1.3024, 103.8379], info: "Heavy weekend foot traffic along the main shopping belts and street buskers." }
+  { id: 11, name: "Orchard Road Pedestrian Walk", type: "crowd watch", coordinates: [1.3024, 103.8379], info: "Heavy weekend foot traffic along the main shopping belts and street buskers." }
 ];
 
 export default function MapPage() {
   const [locations] = useState(initialLocations);
   const [activeFilter, setActiveFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-  
-  // Default centered view showing a macro look of Singapore island
   const [mapFocus, setMapFocus] = useState({ center: [1.3140, 103.8448], zoom: 12 });
   
-  // viewMode manages the interactive toggle button: 'filter' or 'search'
+  // viewMode handles the state for what section is active: 'filter' or 'search'
   const [viewMode, setViewMode] = useState("filter"); 
 
-  // Filter processing pipeline
   const filteredLocations = locations.filter(loc => {
     const matchesFilter = activeFilter === "all" || loc.type === activeFilter;
     const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase());
@@ -79,7 +76,7 @@ export default function MapPage() {
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    if (filteredLocations.length > 0) {
+    if (viewMode === "search" && filteredLocations.length > 0) {
       setMapFocus({ center: filteredLocations[0].coordinates, zoom: 15 });
     }
   };
@@ -89,7 +86,7 @@ export default function MapPage() {
   };
 
   return (
-    <div className="flex-1 w-full text-left space-y-6 max-w-5xl mx-auto p-1">
+    <div className="flex-1 w-full text-left space-y-6 max-w-7xl mx-auto p-1">
       
       {/* Upper Header Banner */}
       <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
@@ -98,7 +95,7 @@ export default function MapPage() {
       </div>
 
       {/* Map Main Workspace Frame */}
-      <div className="bg-[#050B1E] rounded-3xl border border-slate-950 shadow-2xl overflow-hidden p-3 relative flex flex-col min-h-[520px] h-[68vh] w-full">
+      <div className="bg-[#050B1E] rounded-3xl border border-slate-950 shadow-2xl overflow-hidden p-3 relative flex flex-col min-h-[550px] h-[70vh] w-full">
         
         {/* Leaflet Map Window */}
         <div className="flex-1 w-full h-full rounded-2xl overflow-hidden relative z-10 bg-slate-950">
@@ -127,61 +124,71 @@ export default function MapPage() {
         </div>
 
         {/* ========================================================= */}
-        {/* 🎛️ ORIGINAL SLICK CAPSULE CONTROL CONSOLE               */}
+        {/* 🎛️ ORIGINAL DUAL-SIDE CONSOLE PANEL INTERFACE            */}
         {/* ========================================================= */}
-        <div className="absolute bottom-6 inset-x-6 z-30 flex items-center justify-center pointer-events-none">
-          <div className="flex items-center gap-4 bg-[#070e24]/90 backdrop-blur-md border border-amber-500 rounded-full px-5 py-2.5 shadow-2xl pointer-events-auto max-w-full">
+        <div className="absolute bottom-6 inset-x-4 sm:inset-x-6 z-30 flex items-center justify-center pointer-events-none">
+          <div className="flex flex-row items-center justify-between gap-4 bg-[#081026]/90 backdrop-blur-md border border-amber-500 rounded-full px-4 py-2 shadow-2xl pointer-events-auto w-full max-w-5xl overflow-x-auto no-scrollbar">
             
-            {/* CONDITIONAL CONDENSING FRAME LAYOUT */}
-            {viewMode === "filter" ? (
-              /* Category Filter Pills */
-              <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-                {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
-                  const isSelected = activeFilter === type;
-                  return (
-                    <button
-                      key={type}
-                      onClick={() => setActiveFilter(type)}
-                      className={`text-[10px] font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full transition-all duration-150 whitespace-nowrap select-none ${
-                        isSelected
-                          ? 'bg-amber-500 text-slate-950 font-black shadow-md'
-                          : 'bg-transparent text-slate-400 hover:text-white'
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  );
-                })}
-              </div>
-            ) : (
-              /* Custom Text Search Input Box */
-              <form onSubmit={handleSearchSubmit} className="relative flex items-center w-[300px] sm:w-[420px] animate-fade-in">
-                <span className="absolute left-3 text-[10px] opacity-70">🔍</span>
-                <input
-                  type="text"
-                  placeholder="Type location..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-8 pr-12 py-1.5 bg-slate-950 text-white placeholder-slate-500 text-[11px] font-medium rounded-full border border-slate-800 focus:outline-none focus:border-amber-500 transition-all"
-                />
-                <button
-                  type="submit"
-                  className="absolute right-2 px-2.5 py-0.5 text-[8px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700"
-                >
-                  Go
-                </button>
-              </form>
-            )}
+            {/* Left Side: Category Filters (Dimmed if search mode is active) */}
+            <div className={`flex items-center gap-4 transition-opacity duration-300 ${viewMode === 'filter' ? 'opacity-100' : 'opacity-25 pointer-events-none'}`}>
+              {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
+                const isSelected = activeFilter === type && viewMode === 'filter';
+                return (
+                  <button
+                    key={type}
+                    disabled={viewMode !== 'filter'}
+                    onClick={() => setActiveFilter(type)}
+                    className={`text-[10px] font-bold tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 ${
+                      isSelected
+                        ? 'bg-amber-500 text-slate-950 font-black px-4 py-2 rounded-full shadow-md scale-105'
+                        : 'text-slate-300 hover:text-white px-2 py-2'
+                    }`}
+                  >
+                    {type}
+                  </button>
+                );
+              })}
+            </div>
 
-            {/* INTERACTIVE TOGGLE BADGE PANEL BUTTON */}
+            {/* Center Component: Interactive Switcher Toggle */}
             <button
               onClick={toggleViewMode}
-              className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 hover:border-amber-500/50 rounded-lg px-2.5 py-1 text-[8px] font-black tracking-tight cursor-pointer select-none transition-all active:scale-95 text-slate-400"
+              className={`flex flex-col items-center justify-center bg-[#060c1f] border rounded-xl px-4 py-1.5 transition-all active:scale-95 cursor-pointer select-none shrink-0 ${
+                viewMode === 'filter' ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'border-slate-700'
+              }`}
             >
-              <span>{viewMode === "filter" ? "🔹 FILT" : "FILT"}</span>
-              <span className="text-gray-700">|</span>
-              <span className={viewMode === "search" ? "text-amber-400 font-bold" : "text-slate-400"}>SRCH 🔹</span>
+              <span className="text-[8px] font-black tracking-widest text-amber-500 uppercase mb-0.5">Map Panel</span>
+              <div className="flex items-center gap-1 text-[9px] font-bold font-mono">
+                <span className={viewMode === 'filter' ? 'text-blue-400' : 'text-slate-500'}>◀ FILT</span>
+                <span className="text-slate-700">|</span>
+                <span className={viewMode === 'search' ? 'text-amber-400' : 'text-slate-500'}>SRCH ▶</span>
+              </div>
             </button>
+
+            {/* Right Side: Search Input Frame (Dimmed if filter mode is active) */}
+            <form 
+              onSubmit={handleSearchSubmit} 
+              className={`relative flex items-center min-w-[200px] sm:w-[280px] transition-opacity duration-300 ${viewMode === 'search' ? 'opacity-100' : 'opacity-25 pointer-events-none'}`}
+            >
+              <span className="absolute left-3 text-xs opacity-75">🔮</span>
+              <input
+                type="text"
+                placeholder="Type location..."
+                value={searchQuery}
+                disabled={viewMode !== 'search'}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full pl-8 pr-12 py-1.5 bg-slate-950 text-white placeholder-slate-500 text-[11px] font-medium rounded-full border transition-all ${
+                  viewMode === 'search' ? 'border-amber-400/80 focus:outline-none focus:border-amber-400' : 'border-slate-800'
+                }`}
+              />
+              <button
+                type="submit"
+                disabled={viewMode !== 'search'}
+                className="absolute right-2 px-2.5 py-0.5 text-[9px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700"
+              >
+                Go
+              </button>
+            </form>
 
           </div>
         </div>
