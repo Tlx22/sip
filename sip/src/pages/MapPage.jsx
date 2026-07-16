@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
-// Fix for default marker asset reference bugs in React build bundlers
+// Secure the asset paths for bundling engines
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -50,25 +50,25 @@ export default function MapPage() {
   };
 
   return (
-    <div className="space-y-6 max-w-5xl mx-auto">
+    <div className="space-y-6 max-w-5xl mx-auto p-4">
       <div>
         <h1 className="text-3xl font-serif font-bold text-gray-900">Explore Map</h1>
         <p className="text-sm text-gray-500">Discover interesting places and events.</p>
       </div>
 
-      {/* Frame Container Window - Set relative and explicit height block */}
+      {/* Outer framing wrapper viewport container card */}
       <div className="relative w-full h-[580px] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-slate-800 z-0">
         
-        {/* LIVE RENDER MAP CONTAINER LAYER */}
+        {/* INTERACTIVE TILED CANVAS ENGINE MAP LAYER */}
         <MapContainer 
           center={[1.2906, 103.8504]} 
           zoom={13} 
           zoomControl={false}
           style={{ width: '100%', height: '100%' }}
-          className="w-full h-full z-10"
+          className="z-10"
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+            attribution='&copy; OpenStreetMap &copy; CARTO'
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
 
@@ -87,12 +87,12 @@ export default function MapPage() {
           <MapRecenter coords={selectedCoords} />
         </MapContainer>
 
-        {/* HUD FLOATING CONTROL STACK BAR CONTAINER */}
+        {/* HUD OVERLAY CONTROL CONSOLE FLOATING STACK */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-2xl px-4 flex flex-col items-center pointer-events-auto">
           
-          {/* POPUP RESULT VIEWS */}
+          {/* FLOATING UPPER CONTENT RESULTS INTERACTION PANEL */}
           {(searchQuery || activeCategory || sliderMode === 'filter') && (
-            <div className="w-full mb-3 bg-slate-950/95 backdrop-blur-md rounded-2xl border border-amber-400/30 shadow-2xl max-h-48 overflow-y-auto p-2 space-y-1 animate-in slide-in-from-bottom-2 duration-200">
+            <div className="w-full mb-3 bg-slate-950/95 backdrop-blur-md rounded-2xl border border-amber-400/30 shadow-2xl max-h-48 overflow-y-auto p-2 space-y-1">
               {filteredItems.map(item => (
                 <button 
                   key={item.id} 
@@ -111,7 +111,7 @@ export default function MapPage() {
             </div>
           )}
 
-          {/* THE HUD INTERACTIVE TOGGLE SCOREBUG BAR */}
+          {/* LOWER INTERACTIVE HUB SELECTOR CONTROL BAR */}
           <div className="w-full flex items-center justify-between bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 rounded-full border-2 border-amber-400/60 shadow-[0_0_15px_rgba(251,191,36,0.2)] min-h-[3.5rem] md:h-14 py-2 md:py-0 px-2 gap-2">
             
             <div className={`flex-1 flex items-center justify-center gap-1.5 transition-all duration-300 px-1 ${
