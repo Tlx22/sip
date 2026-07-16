@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-// Import React Leaflet components
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
-// Fix for default Leaflet marker icons not showing up correctly in React builds
+// Fix for default marker asset reference bugs in React build bundlers
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -15,7 +14,6 @@ L.Icon.Default.mergeOptions({
   shadowUrl: markerShadow,
 });
 
-// Mock Festival dataset with actual coordinates (Latitude, Longitude) in Singapore
 const mockItems = [
   { id: 1, name: "Lau Pa Sat Food Village", category: "Food", desc: "Local hawker delights & satay street.", coords: [1.2806, 103.8504] },
   { id: 2, name: "Armenian Street Vault", category: "Hidden Gems", desc: "Secret underground art display alley.", coords: [1.2942, 103.8492] },
@@ -23,7 +21,6 @@ const mockItems = [
   { id: 4, name: "National Museum Mapping", category: "Location", desc: "Main projection light show venue.", coords: [1.2966, 103.8485] }
 ];
 
-// Helper component to dynamically pan the map when a location is selected from the scorebug
 function MapRecenter({ coords }) {
   const map = useMap();
   if (coords) {
@@ -38,7 +35,6 @@ export default function MapPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCoords, setSelectedCoords] = useState(null);
 
-  // Filter items based on active SNF panel state
   const filteredItems = mockItems.filter(item => {
     if (sliderMode === "filter") {
       return activeCategory ? item.category === activeCategory : ["Food", "Hidden Gems", "Crowd Watch"].includes(item.category);
@@ -60,32 +56,22 @@ export default function MapPage() {
         <p className="text-sm text-gray-500">Discover interesting places and events.</p>
       </div>
 
-      {/* Map + HUD Frame Window Container */}
-      {/* CRITICAL: Leaflet requires a global style import for tiles to align properly! */}
+      {/* Frame Container Window - Set relative and explicit height block */}
       <div className="relative w-full h-[580px] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-slate-800 z-0">
         
-        {/* --- LEAFLET CSS CDN INJECTION --- */}
-        <link 
-          rel="stylesheet" 
-          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-          crossOrigin=""
-        />
-
-        {/* --- REAL INTERACTIVE MAP --- */}
+        {/* LIVE RENDER MAP CONTAINER LAYER */}
         <MapContainer 
           center={[1.2906, 103.8504]} 
           zoom={13} 
-          zoomControl={false} // Hides default +/- buttons to keep the HUD pristine
+          zoomControl={false}
+          style={{ width: '100%', height: '100%' }}
           className="w-full h-full z-10"
         >
-          {/* CartoDB Dark Matter Map Tiles to complement the dark blue SNF aesthetic */}
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
             url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
           />
 
-          {/* Dynamic Map Markers mapping our data array */}
           {mockItems.map((item) => (
             <Marker key={item.id} position={item.coords}>
               <Popup>
@@ -98,14 +84,13 @@ export default function MapPage() {
             </Marker>
           ))}
 
-          {/* Recenter controller element */}
           <MapRecenter coords={selectedCoords} />
         </MapContainer>
 
-        {/* --- BOTTOM HUD INTERACTIVE ANCHOR ZONE --- */}
+        {/* HUD FLOATING CONTROL STACK BAR CONTAINER */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-2xl px-4 flex flex-col items-center pointer-events-auto">
           
-          {/* DYNAMIC RESULTS POPUP */}
+          {/* POPUP RESULT VIEWS */}
           {(searchQuery || activeCategory || sliderMode === 'filter') && (
             <div className="w-full mb-3 bg-slate-950/95 backdrop-blur-md rounded-2xl border border-amber-400/30 shadow-2xl max-h-48 overflow-y-auto p-2 space-y-1 animate-in slide-in-from-bottom-2 duration-200">
               {filteredItems.map(item => (
@@ -126,10 +111,9 @@ export default function MapPage() {
             </div>
           )}
 
-          {/* --- THE SCOREBUG BAR --- */}
+          {/* THE HUD INTERACTIVE TOGGLE SCOREBUG BAR */}
           <div className="w-full flex items-center justify-between bg-gradient-to-r from-blue-950 via-slate-900 to-blue-950 rounded-full border-2 border-amber-400/60 shadow-[0_0_15px_rgba(251,191,36,0.2)] min-h-[3.5rem] md:h-14 py-2 md:py-0 px-2 gap-2">
             
-            {/* LEFT SIDE: Mode Filters */}
             <div className={`flex-1 flex items-center justify-center gap-1.5 transition-all duration-300 px-1 ${
               sliderMode === 'filter' ? 'opacity-100 translate-x-0' : 'opacity-25 -translate-x-2 pointer-events-none hidden md:flex'
             }`}>
@@ -148,7 +132,6 @@ export default function MapPage() {
               ))}
             </div>
 
-            {/* CENTER CONTROL DIAL */}
             <div 
               onClick={() => { 
                 setSliderMode(sliderMode === "search" ? "filter" : "search"); 
@@ -166,7 +149,6 @@ export default function MapPage() {
               </div>
             </div>
 
-            {/* RIGHT SIDE: Input Search Box */}
             <div className={`flex-1 flex items-center transition-all duration-300 px-2 ${
               sliderMode === 'search' ? 'opacity-100 translate-x-0' : 'opacity-25 translate-x-2 pointer-events-none hidden md:flex'
             }`}>
