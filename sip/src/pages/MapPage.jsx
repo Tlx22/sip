@@ -1,194 +1,174 @@
-import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L from 'leaflet';
+import React, { useState } from 'react';
+import { Search, MapPin, Layers } from 'lucide-react';
 
-// Fix default Leaflet marker assets in production builds
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
-
-// Layout sizing safe-guard hook
-function MapResizeTrigger() {
-  const map = useMap();
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      map.invalidateSize();
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [map]);
-  return null;
-}
-
-// Map frame controller
-function ChangeMapView({ center, zoom }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.setView(center, zoom, { animate: true, duration: 0.8 });
-    }
-  }, [center, zoom, map]);
-  return null;
-}
-
-// Singapore data points
-const initialLocations = [
-  { id: 1, name: "Maxwell Food Centre", type: "food", coordinates: [1.2804, 103.8448], info: "Iconic hawker center famous for Tian Tian Chicken Rice and local delights." },
-  { id: 2, name: "Old Airport Road Food Centre", type: "food", coordinates: [1.3082, 103.8858], info: "One of Singapore's legendary food havens packed with char kway teow and hokkien mee." },
-  { id: 3, name: "Chomp Chomp Food Centre", type: "food", coordinates: [1.3544, 103.8667], info: "Late-night favorite hotspot for sambal stingray and satay." },
-  { id: 4, name: "Bukit Timah Bouldering Quarry", type: "hidden gems", coordinates: [1.3620, 103.7740], info: "Scenic abandoned granite quarry with surrounding rustic hiking paths." },
-  { id: 5, name: "Hampstead Wetlands Park", type: "hidden gems", coordinates: [1.4147, 103.8672], info: "A quiet, rustic sanctuary hidden away in Seletar Aerospace Park." },
-  { id: 6, name: "Wessex Estate Trails", type: "hidden gems", coordinates: [1.2965, 103.7995], info: "Colonial-era black and white houses nestled in quiet, lush greenery." },
-  { id: 7, name: "Sultan Gate Vinyls & Crafts", type: "cultural shops", coordinates: [1.3025, 103.8601], info: "Indie shop in Kampong Glam stocking vintage physical media and records." },
-  { id: 8, name: "BooksActually Vintage Hub", type: "cultural shops", coordinates: [1.2842, 103.8315], info: "Charming independent bookstore promoting local literature and art zines." },
-  { id: 9, name: "Katong Antique House", type: "cultural shops", coordinates: [1.3051, 103.9048], info: "A private museum shop filled with rich Peranakan heritage heirlooms." },
-  { id: 10, name: "Marina Bay Waterfront", type: "crowd watch", coordinates: [1.2852, 103.8545], info: "Highly crowded spot, especially during weekend drone shows and evening walks." },
-  { id: 11, name: "Orchard Road Pedestrian Walk", type: "crowd watch", coordinates: [1.3024, 103.8379], info: "Heavy weekend foot traffic along the main shopping belts and street buskers." }
+// Centralized location corpus database
+const communityLocations = [
+  { id: 'loc-1', name: 'Maxwell Community Studio Booth', area: 'Central', category: 'media', description: 'Co-working and podcasting facilities.' },
+  { id: 'loc-2', name: 'Redhill Bouldering Slab Hub', area: 'Queenstown', category: 'active', description: 'Public climbing wall facility.' },
+  { id: 'loc-3', name: 'Kampong Glam Music Jam Space', area: 'Rochor', category: 'media', description: 'Acoustic instruments and drums array.' },
+  { id: 'loc-4', name: 'Tampines Green Ridge Study Corner', area: 'East', category: 'heritage', description: 'Quiet dynamic collaborative workspace spaces.' },
+  { id: 'loc-5', name: 'Old Airport Road Hawker Hub', area: 'Mountbatten', category: 'food', description: 'Legendary local food stalls.' },
+  { id: 'loc-6', name: 'Zion Riverside Food Centre', area: 'River Valley', category: 'food', description: 'Popular riverside char kway teow master.' }
 ];
 
 export default function MapPage() {
-  const [locations] = useState(initialLocations);
-  const [activeFilter, setActiveFilter] = useState("all");
-  const [searchQuery, setSearchQuery] = useState("");
-  const [mapFocus, setMapFocus] = useState({ center: [1.3140, 103.8448], zoom: 12 });
-  const [viewMode, setViewMode] = useState("filter"); // toggles between 'filter' and 'search'
+  const [currentFilter, setCurrentFilter] = useState('all');
+  const [panelMode, setPanelMode] = useState('filt'); // 'filt' or 'srch'
+  const [searchQuery, setSearchQuery] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
-  const filteredLocations = locations.filter(loc => {
-    const matchesFilter = activeFilter === "all" || loc.type === activeFilter;
-    const matchesSearch = loc.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesFilter && matchesSearch;
-  });
+  // Filter map suggestions dynamically based on user input string lengths
+  const filteredSuggestions = searchQuery.trim().length > 0 
+    ? communityLocations.filter(loc => 
+        loc.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        loc.area.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : [];
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (viewMode === "search" && filteredLocations.length > 0) {
-      setMapFocus({ center: filteredLocations[0].coordinates, zoom: 15 });
-    }
-  };
-
-  const toggleViewMode = () => {
-    setViewMode(prev => (prev === "filter" ? "search" : "filter"));
+  const handleSelectLocation = (locationName) => {
+    setSearchQuery(locationName);
+    setShowSuggestions(false);
   };
 
   return (
-    <div className="flex-1 w-full text-left space-y-6 max-w-7xl mx-auto p-1">
+    <div className="max-w-5xl mx-auto space-y-4 text-left relative h-[calc(100vh-8rem)] flex flex-col">
       
-      {/* Upper Header Banner */}
-      <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">📍 Singapore Interactive Guide</h1>
-        <p className="text-xs text-gray-400 mt-0.5">Explore local food havens, hidden gems, cultural media shops, and active zones.</p>
+      {/* Top Title Header Section */}
+      <div className="shrink-0">
+        <h1 className="text-2xl font-serif font-bold text-gray-950 tracking-tight">
+          📍 Singapore Interactive Guide
+        </h1>
+        <p className="text-xs text-gray-500 mt-0.5">
+          Explore local food havens, hidden gems, cultural media shops, and active zones.
+        </p>
       </div>
 
-      {/* Map Main Workspace Frame */}
-      <div className="bg-[#050B1E] rounded-3xl border border-slate-950 shadow-2xl overflow-hidden p-3 relative flex flex-col min-h-[550px] h-[70vh] w-full">
+      {/* Main Map Viewport Canvas Wrapper Container */}
+      <div className="flex-1 w-full rounded-[2.5rem] bg-[#0B1220] border border-slate-900 shadow-inner overflow-hidden relative">
         
-        {/* Leaflet Map Window */}
-        <div className="flex-1 w-full h-full rounded-2xl overflow-hidden relative z-10 bg-slate-950">
-          <MapContainer center={mapFocus.center} zoom={mapFocus.zoom} zoomControl={false} className="h-full w-full">
-            <TileLayer
-              url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-              attribution='&copy; CARTO'
-            />
-            <MapResizeTrigger />
-            <ChangeMapView center={mapFocus.center} zoom={mapFocus.zoom} />
+        {/* Mock Map Background Layer Canvas Grid Graphic */}
+        <div className="absolute inset-0 opacity-20 pointer-events-none select-none bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:16px_16px]" />
 
-            {filteredLocations.map((loc) => (
-              <Marker key={loc.id} position={loc.coordinates}>
-                <Popup>
-                  <div className="text-slate-900 p-1 font-sans text-xs max-w-[190px]">
-                    <p className="font-bold border-b border-gray-100 pb-0.5 capitalize text-slate-950">{loc.name}</p>
-                    <p className="text-[10px] mt-1 text-gray-600 leading-normal">{loc.info}</p>
-                    <span className="inline-block mt-2 px-1.5 py-0.5 bg-amber-100 text-amber-800 font-bold text-[8px] uppercase tracking-wider rounded">
-                      {loc.type}
-                    </span>
-                  </div>
-                </Popup>
-              </Marker>
-            ))}
-          </MapContainer>
+        {/* MOCK MAP PIN OVERLAYS */}
+        <div className="absolute top-[40%] left-[45%] text-emerald-400 animate-bounce cursor-pointer z-10">
+          <MapPin size={28} fill="currentColor" className="text-emerald-500/30" />
+        </div>
+        <div className="absolute top-[55%] left-[38%] text-amber-400 animate-bounce cursor-pointer z-10">
+          <MapPin size={28} fill="currentColor" className="text-amber-500/30" />
+        </div>
+        <div className="absolute top-[60%] left-[58%] text-sky-400 animate-bounce cursor-pointer z-10">
+          <MapPin size={28} fill="currentColor" className="text-sky-500/30" />
         </div>
 
-        {/* ========================================================= */}
-        {/* 🎛️ DYNAMIC SLIDING CENTERED CAPSULE CONTROL CONSOLE      */}
-        {/* ========================================================= */}
-        <div className="absolute bottom-6 inset-x-4 sm:inset-x-6 z-30 flex items-center justify-center pointer-events-none">
-          <div className="flex flex-row items-center justify-center gap-3 bg-[#081026]/90 backdrop-blur-md border border-amber-500 rounded-full px-4 py-2 shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out overflow-hidden max-w-full">
-            
-            {/* Left Box Panel: Sliding Category Filters */}
-            <div 
-              className={`flex items-center gap-3 transition-all duration-500 ease-in-out overflow-hidden ${
-                viewMode === 'filter' 
-                  ? 'max-w-[700px] opacity-100 pr-2' 
-                  : 'max-w-0 opacity-0 pointer-events-none'
-              }`}
-            >
-              {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
-                const isSelected = activeFilter === type;
+        {/* DYNAMIC COMBINED FLOATING CONTROLS CONTROL PILL TRAY */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[92%] max-w-xl bg-[#0F172A]/90 backdrop-blur-md border border-slate-700/50 rounded-full px-4 py-2 flex items-center justify-between gap-3 z-30 shadow-2xl">
+          
+          {/* CONDITION 1: MODE CONTROLLER RENDERS HORIZONTALLY SCROLLABLE FILTER TRACK */}
+          {panelMode === 'filt' && (
+            <div className="flex-1 flex items-center gap-1 overflow-x-auto no-scrollbar whitespace-nowrap scroll-smooth py-1 pr-1">
+              {[
+                { id: 'all', label: 'ALL' },
+                { id: 'food', label: 'FOOD' },
+                { id: 'heritage', label: 'HERITAGE' },
+                { id: 'media', label: 'MEDIA' },
+                { id: 'active', label: 'ACTIVE' }
+              ].map((filter) => {
+                const isActive = currentFilter === filter.id;
                 return (
                   <button
-                    key={type}
-                    onClick={() => setActiveFilter(type)}
-                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 ${
-                      isSelected
-                        ? 'bg-amber-500 text-slate-950 px-4 py-2 rounded-full shadow-md scale-105'
-                        : 'text-slate-400 hover:text-white px-2 py-2'
+                    key={filter.id}
+                    onClick={() => setCurrentFilter(filter.id)}
+                    className={`shrink-0 text-[10px] font-black tracking-wider px-3.5 py-2 rounded-full transition-all duration-200 ${
+                      isActive
+                        ? 'bg-amber-500 text-slate-950 shadow-md scale-105 font-black'
+                        : 'text-slate-400 hover:text-white bg-transparent'
                     }`}
                   >
-                    {type}
+                    {filter.label}
                   </button>
                 );
               })}
             </div>
+          )}
 
-            {/* Center Component: Anchor Switcher Toggle */}
-            <button
-              onClick={toggleViewMode}
-              className={`flex flex-col items-center justify-center bg-[#060c1f] border rounded-xl px-4 py-1.5 transition-all active:scale-95 cursor-pointer select-none shrink-0 ${
-                viewMode === 'filter' ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'border-slate-700'
-              }`}
-            >
-              <span className="text-[8px] font-black tracking-widest text-amber-500 uppercase mb-0.5">Map Panel</span>
-              <div className="flex items-center gap-1 text-[9px] font-bold font-mono">
-                <span className={viewMode === 'filter' ? 'text-blue-400' : 'text-slate-500'}>◀ FILT</span>
-                <span className="text-slate-700">|</span>
-                <span className={viewMode === 'search' ? 'text-amber-400' : 'text-slate-500'}>SRCH ▶</span>
+          {/* CONDITION 2: MODE CONTROLLER RENDERS LIVE AUTO-SUGGESTION UPWARD SEARCH CONTAINER */}
+          {panelMode === 'srch' && (
+            <div className="flex-1 relative">
+              
+              {/* UPWARD DYNAMIC AUTOCOMPLETE DROPDOWN SEARCH POPUP BOARD */}
+              {showSuggestions && filteredSuggestions.length > 0 && (
+                <div className="absolute bottom-full left-0 right-0 mb-4 bg-[#0F172A]/95 backdrop-blur-lg border border-slate-700/60 rounded-2xl shadow-2xl max-h-56 overflow-y-auto p-2 space-y-1 z-50 animate-in fade-in slide-in-from-bottom-3">
+                  <div className="px-2.5 py-1 text-[9px] font-black tracking-widest text-slate-500 uppercase border-b border-slate-800/60 mb-1">
+                    Locations Found
+                  </div>
+                  {filteredSuggestions.map((loc) => (
+                    <button
+                      key={loc.id}
+                      onClick={() => handleSelectLocation(loc.name)}
+                      className="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/60 transition-colors flex items-center gap-3 group text-slate-200"
+                    >
+                      <span className="p-1.5 bg-slate-800 rounded-lg group-hover:bg-amber-500 group-hover:text-slate-950 transition-colors">
+                        <MapPin size={12} />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <h4 className="text-xs font-bold truncate leading-tight">{loc.name}</h4>
+                        <p className="text-[9px] text-slate-400 truncate">{loc.area} Area • {loc.description}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              {/* Input Core Node Layout */}
+              <div className="relative flex items-center">
+                <Search className="absolute left-3 text-slate-400 pointer-events-none" size={14} />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onFocus={() => setShowSuggestions(true)}
+                  onChange={(e) => { setSearchQuery(e.target.value); setShowSuggestions(true); }}
+                  placeholder="Search locations..."
+                  className="w-full bg-slate-900/60 border border-slate-800 text-white rounded-full py-1.5 pl-9 pr-4 text-xs font-medium placeholder-slate-500 outline-none focus:ring-1 focus:ring-amber-500/50 transition-all"
+                />
               </div>
-            </button>
 
-            {/* Right Box Panel: Sliding Search Input Frame */}
-            <form 
-              onSubmit={handleSearchSubmit} 
-              className={`relative flex items-center transition-all duration-500 ease-in-out overflow-hidden ${
-                viewMode === 'search' 
-                  ? 'w-[260px] sm:w-[320px] opacity-100 pl-2' 
-                  : 'w-0 opacity-0 pointer-events-none'
-              }`}
-            >
-              <span className="absolute left-5 text-xs opacity-75">🔮</span>
-              <input
-                type="text"
-                placeholder="Type location..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-12 py-1.5 bg-slate-950 text-white placeholder-slate-500 text-[11px] font-medium rounded-full border border-amber-500 focus:outline-none focus:border-amber-400 transition-all"
-              />
-              <button
-                type="submit"
-                className="absolute right-2 px-2.5 py-0.5 text-[9px] font-black uppercase bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-full border border-slate-700"
-              >
-                Go
-              </button>
-            </form>
+              {/* Transparent click catcher panel to dim suggestions context cleanly */}
+              {showSuggestions && (
+                <div className="fixed inset-0 z-[-1]" onClick={() => setShowSuggestions(false)} />
+              )}
+            </div>
+          )}
 
+          {/* SECTION CONTROLLERS TOGGLE LOCK TRAY DECK */}
+          <div className="shrink-0 flex items-center border-l border-slate-800 pl-3">
+            <div className="border border-slate-800 bg-slate-950/40 rounded-xl px-2 py-1 flex items-center gap-2">
+              <span className="text-[8px] font-extrabold tracking-widest text-slate-500 uppercase hidden sm:inline">
+                Deck
+              </span>
+              <div className="flex items-center gap-1.5 text-[9px] font-black tracking-wide text-slate-400">
+                <button 
+                  onClick={() => setPanelMode('filt')} 
+                  className={`px-1.5 py-0.5 rounded transition-colors ${panelMode === 'filt' ? 'text-amber-400 font-extrabold bg-slate-800/60' : 'hover:text-white'}`}
+                >
+                  FILT
+                </button>
+                <span className="text-slate-800 font-normal">|</span>
+                <button 
+                  onClick={() => setPanelMode('srch')} 
+                  className={`px-1.5 py-0.5 rounded transition-colors ${panelMode === 'srch' ? 'text-amber-400 font-extrabold bg-slate-800/60' : 'hover:text-white'}`}
+                >
+                  SRCH
+                </button>
+              </div>
+            </div>
           </div>
+
         </div>
-        {/* ========================================================= */}
+
+        {/* Map Vendor Engine Bottom Tag Attribution Label Grid */}
+        <div className="absolute bottom-0 right-0 bg-slate-900/90 text-[9px] font-medium tracking-tight text-slate-500 px-3 py-1 rounded-tl-xl border-t border-l border-slate-800 z-10">
+          Leaflet Engine Framework Map View Canvas 
+        </div>
 
       </div>
     </div>
