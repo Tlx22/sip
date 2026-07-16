@@ -1,18 +1,5 @@
-import React, { useState } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import React, { useState, useEffect, useRef } from 'react';
 import L from 'leaflet';
-
-// Secure the asset paths for bundling engines
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x,
-  iconUrl: markerIcon,
-  shadowUrl: markerShadow,
-});
 
 const mockItems = [
   { id: 1, name: "Lau Pa Sat Food Village", category: "Food", desc: "Local hawker delights & satay street.", coords: [1.2806, 103.8504] },
@@ -21,19 +8,14 @@ const mockItems = [
   { id: 4, name: "National Museum Mapping", category: "Location", desc: "Main projection light show venue.", coords: [1.2966, 103.8485] }
 ];
 
-function MapRecenter({ coords }) {
-  const map = useMap();
-  if (coords) {
-    map.setView(coords, 16, { animate: true, duration: 1.5 });
-  }
-  return null;
-}
-
 export default function MapPage() {
   const [sliderMode, setSliderMode] = useState("search");
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCoords, setSelectedCoords] = useState(null);
+  
+  const mapContainerRef = useRef(null);
+  const mapInstanceRef = useRef(null);
+  const markersRef = useRef([]);
 
   const filteredItems = mockItems.filter(item => {
     if (sliderMode === "filter") {
@@ -42,10 +24,57 @@ export default function MapPage() {
     return item.name.toLowerCase().includes(searchQuery.toLowerCase());
   });
 
+  // Initialize Raw Leaflet Map directly into the DOM container element
+  useEffect(() => {
+    if (!mapContainerRef.current || mapInstanceRef.current) return;
+
+    // Create Leaflet instance directly
+    mapInstanceRef.current = L.map(mapContainerRef.current, {
+      center: [1.2906, 103.8504],
+      zoom: 13,
+      zoomControl: false
+    });
+
+    // Dark Map Style Tiles
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO'
+    }).addTo(mapInstanceRef.current);
+
+    // Render Markers
+    mockItems.forEach(item => {
+      const marker = L.marker(item.coords)
+        .bindPopup(`
+          <div style="font-family: sans-serif; padding: 4px;">
+            <span style="font-size: 9px; font-weight: 900; color: #059669; text-transform: uppercase;">${item.category}</span>
+            <strong style="font-size: 12px; display: block; margin-top: 2px;">${item.name}</strong>
+            <p style="font-size: 10px; color: #475569; margin: 4px 0 0;">${item.desc}</p>
+          </div>
+        `)
+        .addTo(mapInstanceRef.current);
+      
+      markersRef.current.push({ id: item.id, marker, coords: item.coords });
+    });
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
   const handleItemSelect = (item) => {
-    setSelectedCoords(item.coords);
     if (sliderMode === "search") {
       setSearchQuery(item.name);
+    }
+    
+    // Pan map directly to destination coordinates smoothly
+    if (mapInstanceRef.current) {
+      mapInstanceRef.current.setView(item.coords, 16, { animate: true, duration: 1.5 });
+      
+      // Find and open popup programmatically
+      const target = markersRef.current.find(m => m.id === item.id);
+      if (target) target.marker.openPopup();
     }
   };
 
@@ -56,36 +85,10 @@ export default function MapPage() {
         <p className="text-sm text-gray-500">Discover interesting places and events.</p>
       </div>
 
-      {/* Outer framing wrapper viewport container card */}
       <div className="relative w-full h-[580px] rounded-3xl overflow-hidden bg-slate-900 shadow-2xl border border-slate-800 z-0">
         
-        {/* INTERACTIVE TILED CANVAS ENGINE MAP LAYER */}
-        <MapContainer 
-          center={[1.2906, 103.8504]} 
-          zoom={13} 
-          zoomControl={false}
-          style={{ width: '100%', height: '100%' }}
-          className="z-10"
-        >
-          <TileLayer
-            attribution='&copy; OpenStreetMap &copy; CARTO'
-            url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-          />
-
-          {mockItems.map((item) => (
-            <Marker key={item.id} position={item.coords}>
-              <Popup>
-                <div className="p-1 font-sans">
-                  <span className="text-[9px] uppercase font-black tracking-wider text-emerald-600 block mb-0.5">{item.category}</span>
-                  <strong className="text-xs text-slate-900 block">{item.name}</strong>
-                  <p className="text-[10px] text-slate-600 mt-1 m-0 leading-tight">{item.desc}</p>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-
-          <MapRecenter coords={selectedCoords} />
-        </MapContainer>
+        {/* Raw Ref Leaflet Anchor Container */}
+        <div ref={mapContainerRef} className="w-full h-full z-10" />
 
         {/* HUD OVERLAY CONTROL CONSOLE FLOATING STACK */}
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1000] w-full max-w-2xl px-4 flex flex-col items-center pointer-events-auto">
@@ -122,9 +125,7 @@ export default function MapPage() {
                   key={cat}
                   onClick={() => setActiveCategory(activeCategory === cat ? null : cat)}
                   className={`text-[9px] md:text-[11px] font-black uppercase tracking-wider px-2.5 py-1.5 rounded-full border transition-all ${
-                    activeCategory === cat 
-                      ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-md' 
-                      : 'bg-slate-800/80 text-gray-200 border-slate-700 hover:border-amber-400/40'
+                    activeCategory === cat ? 'bg-amber-400 text-slate-950 border-amber-400 shadow-md' : 'bg-slate-800/80 text-gray-200 border-slate-700 hover:border-amber-400/40'
                   }`}
                 >
                   {cat}
@@ -137,7 +138,6 @@ export default function MapPage() {
                 setSliderMode(sliderMode === "search" ? "filter" : "search"); 
                 setActiveCategory(null); 
                 setSearchQuery(""); 
-                setSelectedCoords(null);
               }}
               className="relative z-40 shrink-0 w-24 md:w-28 h-10 md:h-11 flex flex-col items-center justify-center bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-amber-400 rounded-xl shadow-lg font-black text-center cursor-pointer select-none active:scale-95 transition-transform"
             >
