@@ -23,7 +23,7 @@ export default function MapPage() {
     <div className="space-y-6 max-w-5xl mx-auto">
       <div>
         <h1 className="text-3xl font-serif font-bold text-gray-900">Explore Map</h1>
-        <p className="text-sm text-gray-500">Control features via the SNF scorebug dashboard.</p>
+        <p className="text-sm text-gray-500">Discover interesting places and events.</p>
       </div>
 
       {/* Canvas Window */}
@@ -48,7 +48,7 @@ export default function MapPage() {
 
             {/* CENTER CONTROL DIAL (The SNF Medallion) */}
             <div className="relative z-40 shrink-0 w-28 h-12 flex flex-col items-center justify-center bg-gradient-to-b from-slate-800 to-slate-950 border-2 border-amber-400 rounded-xl shadow-lg font-black text-center cursor-pointer select-none" onClick={() => { setSliderMode(sliderMode === "search" ? "filter" : "search"); setActiveCategory(null); setSearchQuery(""); }}>
-              <span className="text-[9px] text-amber-400 tracking-widest font-bold">SNF PANEL</span>
+              <span className="text-[9px] text-amber-400 tracking-widest font-bold">MAP PANEL</span>
               <div className="flex items-center gap-1.5 mt-0.5">
                 <span className={`text-[10px] transition-colors ${sliderMode === 'filter' ? 'text-amber-400 font-extrabold' : 'text-gray-500'}`}>◀ FILT</span>
                 <span className="text-gray-400 text-[9px]">|</span>
