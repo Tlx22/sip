@@ -37,19 +37,28 @@ function ChangeMapView({ center, zoom }) {
   return null;
 }
 
-// Singapore data points
+// Updated Singapore locations reflecting MDW & MW communities
 const initialLocations = [
-  { id: 1, name: "Maxwell Food Centre", type: "food", coordinates: [1.2804, 103.8448], info: "Iconic hawker center famous for Tian Tian Chicken Rice and local delights." },
-  { id: 2, name: "Old Airport Road Food Centre", type: "food", coordinates: [1.3082, 103.8858], info: "One of Singapore's legendary food havens packed with char kway teow and hokkien mee." },
-  { id: 3, name: "Chomp Chomp Food Centre", type: "food", coordinates: [1.3544, 103.8667], info: "Late-night favorite hotspot for sambal stingray and satay." },
-  { id: 4, name: "Bukit Timah Bouldering Quarry", type: "hidden gems", coordinates: [1.3620, 103.7740], info: "Scenic abandoned granite quarry with surrounding rustic hiking paths." },
-  { id: 5, name: "Hampstead Wetlands Park", type: "hidden gems", coordinates: [1.4147, 103.8672], info: "A quiet, rustic sanctuary hidden away in Seletar Aerospace Park." },
-  { id: 6, name: "Wessex Estate Trails", type: "hidden gems", coordinates: [1.2965, 103.7995], info: "Colonial-era black and white houses nestled in quiet, lush greenery." },
-  { id: 7, name: "Sultan Gate Vinyls & Crafts", type: "cultural shops", coordinates: [1.3025, 103.8601], info: "Indie shop in Kampong Glam stocking vintage physical media and records." },
-  { id: 8, name: "BooksActually Vintage Hub", type: "cultural shops", coordinates: [1.2842, 103.8315], info: "Charming independent bookstore promoting local literature and art zines." },
-  { id: 9, name: "Katong Antique House", type: "cultural shops", coordinates: [1.3051, 103.9048], info: "A private museum shop filled with rich Peranakan heritage heirlooms." },
-  { id: 10, name: "Marina Bay Waterfront", type: "crowd watch", coordinates: [1.2852, 103.8545], info: "Highly crowded spot, especially during weekend drone shows and evening walks." },
-  { id: 11, name: "Orchard Road Pedestrian Walk", type: "crowd watch", coordinates: [1.3024, 103.8379], info: "Heavy weekend foot traffic along the main shopping belts and street buskers." }
+  // FOOD: Authentic home country cuisines
+  { id: 1, name: "Lucky Plaza (Jollibee & Carinderias)", type: "food", coordinates: [1.3045, 103.8341], info: "Popular hub for authentic Filipino dishes like Lechon Kawali, Sinigang, and Jollibee." },
+  { id: 2, name: "City Plaza (Penyet & Padang Outlets)", type: "food", coordinates: [1.3148, 103.8927], info: "A favorite for Indonesian home-style cooking, Ayam Penyet, and traditional snacks." },
+  { id: 3, name: "Peninsula Plaza (Little Yangon Eats)", type: "food", coordinates: [1.2922, 103.8509], info: "The heart of Myanmar cuisine in SG—famous for Mohinga, Tea Leaf Salad, and Shan Noodles." },
+  { id: 4, name: "Mustafa/Desker Road Bangladeshi Dining", type: "food", coordinates: [1.3090, 103.8568], info: "Authentic Bangladeshi eateries serving traditional Kacchi Biryani, Tehari, and Mustard Fish." },
+
+  // HIDDEN GEMS: Murals, art & spaces celebrating MW/MDW heritage
+  { id: 5, name: "Little India Heritage Murals (Kerbau Rd)", type: "hidden gems", coordinates: [1.3061, 103.8518], info: "Vibrant street art murals by Psyfool and Yip Yew Chong capturing traditional trades and migrant stories." },
+  { id: 6, name: "Kampong Glam Batik & Craft Murals", type: "hidden gems", coordinates: [1.3012, 103.8590], info: "Colorful alleyways featuring Southeast Asian cultural heritage, batik motifs, and community art." },
+  { id: 7, name: "Lemonade Mural at Tanjong Pagar", type: "hidden gems", coordinates: [1.2788, 103.8436], info: "Street art celebrating community diversity and shared heritage amidst heritage shop houses." },
+
+  // CULTURAL SHOPS: Traditional clothing, groceries & native items
+  { id: 8, name: "Peninsula Plaza Burmese Grocery & Tailors", type: "hidden gems", coordinates: [1.2925, 103.8505], info: "Shops offering traditional Burmese Longyi (sarongs), Thanaka cosmetics, and imported goods." },
+  { id: 9, name: "City Plaza Indonesian Batik & Hijab Fashion", type: "cultural shops", coordinates: [1.3145, 103.8931], info: "Boutiques offering authentic Batik dresses, traditional Kebaya, and imported Indonesian spices." },
+  { id: 10, name: "Tekka Centre Spice & Sari Marts", type: "cultural shops", coordinates: [1.3063, 103.8507], info: "Vibrant market for silk Saris, Kurti tops, South Asian spices, and traditional remedies." },
+
+  // CROWD WATCH: Popular gathering spots on rest days
+  { id: 11, name: "Paya Lebar Quarter Open Plaza", type: "crowd watch", coordinates: [1.3175, 103.8928], info: "Lively Sunday gathering spot for MDWs to relax, share meals, and socialize on rest days." },
+  { id: 12, name: "Fort Canning Green Lawns", type: "crowd watch", coordinates: [1.2953, 103.8463], info: "Popular scenic park lawn where groups gather for picnics, music, and rest day leisure." },
+  { id: 13, name: "Mustafa Centre & Lembu Park Zone", type: "crowd watch", coordinates: [1.3101, 103.8553], info: "Bustling gathering point for migrant workers to meet friends, shop, and catch up." }
 ];
 
 export default function MapPage() {
@@ -95,8 +104,8 @@ export default function MapPage() {
       
       {/* Upper Header Banner */}
       <div className="bg-white rounded-3xl p-5 border border-gray-100 shadow-sm">
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">📍 Singapore Interactive Guide</h1>
-        <p className="text-xs text-gray-400 mt-0.5">Explore local food havens, hidden gems, cultural media shops, and active zones.</p>
+        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">📍 Singapore Community Map</h1>
+        <p className="text-xs text-gray-400 mt-0.5">Explore authentic home cuisines, cultural shops, heritage murals, and community gathering spots.</p>
       </div>
 
       {/* Map Main Workspace Frame */}
