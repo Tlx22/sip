@@ -132,14 +132,14 @@ export default function MapPage() {
         {/* 🎛️ DYNAMIC SLIDING CENTERED CAPSULE CONTROL CONSOLE      */}
         {/* ========================================================= */}
         <div className="absolute bottom-6 inset-x-4 sm:inset-x-6 z-30 flex items-center justify-center pointer-events-none">
-          <div className="flex flex-row items-center justify-center gap-3 bg-[#081026]/90 backdrop-blur-md border border-amber-500 rounded-full px-4 py-2 shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out overflow-visible max-w-full">
+          <div className="flex flex-row items-center justify-center gap-2 bg-[#081026]/95 backdrop-blur-md border border-amber-500 rounded-full px-3 py-2 shadow-2xl pointer-events-auto transition-all duration-500 ease-in-out overflow-visible max-w-full">
             
-            {/* Left Box Panel: Sliding Category Filters */}
+            {/* Left Box Panel: Sliding & Touch-Scrollable Category Filters */}
             <div 
-              className={`flex items-center gap-3 transition-all duration-500 ease-in-out overflow-hidden ${
+              className={`flex items-center gap-2 transition-all duration-500 ease-in-out scrollbar-none ${
                 viewMode === 'filter' 
-                  ? 'max-w-[700px] opacity-100 pr-2' 
-                  : 'max-w-0 opacity-0 pointer-events-none'
+                  ? 'max-w-[80vw] sm:max-w-[500px] opacity-100 overflow-x-auto touch-pan-x pr-1 py-1' 
+                  : 'max-w-0 opacity-0 pointer-events-none overflow-hidden'
               }`}
             >
               {['all', 'food', 'hidden gems', 'cultural shops', 'crowd watch'].map((type) => {
@@ -148,10 +148,10 @@ export default function MapPage() {
                   <button
                     key={type}
                     onClick={() => setActiveFilter(type)}
-                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none transition-all duration-150 ${
+                    className={`text-[10px] font-black tracking-wider uppercase whitespace-nowrap select-none shrink-0 transition-all duration-150 ${
                       isSelected
-                        ? 'bg-amber-500 text-slate-950 px-4 py-2 rounded-full shadow-md scale-105'
-                        : 'text-slate-400 hover:text-white px-2 py-2'
+                        ? 'bg-amber-500 text-slate-950 px-3.5 py-1.5 rounded-full shadow-md scale-105'
+                        : 'text-slate-400 hover:text-white px-2.5 py-1.5'
                     }`}
                   >
                     {type}
@@ -163,7 +163,7 @@ export default function MapPage() {
             {/* Center Component: Anchor Switcher Toggle */}
             <button
               onClick={toggleViewMode}
-              className={`flex flex-col items-center justify-center bg-[#060c1f] border rounded-xl px-4 py-1.5 transition-all active:scale-95 cursor-pointer select-none shrink-0 ${
+              className={`flex flex-col items-center justify-center bg-[#060c1f] border rounded-xl px-3 py-1 transition-all active:scale-95 cursor-pointer select-none shrink-0 ${
                 viewMode === 'filter' ? 'border-amber-500 shadow-[0_0_10px_rgba(245,158,11,0.2)]' : 'border-slate-700'
               }`}
             >
@@ -179,13 +179,13 @@ export default function MapPage() {
             <div 
               className={`relative flex items-center transition-all duration-500 ease-in-out ${
                 viewMode === 'search' 
-                  ? 'w-[260px] sm:w-[320px] opacity-100 pl-2' 
+                  ? 'w-[240px] sm:w-[300px] opacity-100 pl-1' 
                   : 'w-0 opacity-0 pointer-events-none overflow-hidden'
               }`}
             >
-              {/* INSTANT INTERACTIVE RESULTS DRAWER (Pops upward over the map) */}
+              {/* INSTANT INTERACTIVE RESULTS DRAWER */}
               {showSuggestions && liveSuggestions.length > 0 && (
-                <div className="absolute bottom-full mb-3 left-2 right-0 bg-[#081026]/95 backdrop-blur-md border border-amber-500/40 rounded-2xl shadow-2xl max-h-48 overflow-y-auto p-1.5 space-y-0.5 z-50">
+                <div className="absolute bottom-full mb-3 left-1 right-0 bg-[#081026]/95 backdrop-blur-md border border-amber-500/40 rounded-2xl shadow-2xl max-h-48 overflow-y-auto p-1.5 space-y-0.5 z-50">
                   {liveSuggestions.map((loc) => (
                     <button
                       key={loc.id}
@@ -218,7 +218,7 @@ export default function MapPage() {
                 </button>
               </form>
 
-              {/* Click catcher overlay layer to close suggestion box automatically when clicking out */}
+              {/* Overlay listener to close drawer on outside tap */}
               {showSuggestions && (
                 <div className="fixed inset-0 z-[-1]" onClick={() => setShowSuggestions(false)} />
               )}
