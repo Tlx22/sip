@@ -1,151 +1,171 @@
 import React, { useState } from 'react';
-import Sidebar from './components/Sidebar';
-import SocialPane from './components/SocialPane';
-import Home from './pages/Home';
-import MapPage from './pages/MapPage'; 
-import EventsPage from './pages/Events';
-import SettingsPage from './pages/Settings';
-import Community from './pages/Community';
-import { ArrowLeft, Search } from 'lucide-react';
 
-const allArticles = [
-  { id: 1, category: "Hawker Culture", title: "The Secret Heritage of Maxwell Hawker Masters", content: "Behind the neon signs of Maxwell Food Centre lies generations of culinary dedication..." },
-  { id: 2, category: "Urban Exploration", title: "Hidden Quarry Trails You Haven't Explored Yet", content: "Nestled deep past urban buffers..." },
-  { id: 3, category: "Music Scene", title: "Vinyl Revivals: The Indie Record Stores of Kampong Glam", content: "From rare city-pop pressings to indie local rock bands..." }
+// Mock data
+const upcomingEvents = [
+  {
+    id: 1,
+    title: "Nature Walk & Clean-up",
+    image: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 2,
+    title: "Community Coffee & Read",
+    image: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 3,
+    title: "Tech & Design Co-working",
+    image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80",
+  },
+  {
+    id: 4,
+    title: "Dinner & Cultural Exchange",
+    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
+  },
 ];
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isMessagingOpen, setIsMessagingOpen] = useState(false);
-  const [articleSearchQuery, setArticleSearchQuery] = useState('');
-  
-  // WhatsApp State
-  const [chatRooms, setChatRooms] = useState([
-    { id: '1', name: 'Alfie (Bouldering)', handle: 'alfie_v7', messages: [{ sender: 'them', text: 'Yo, down to run some sets on the slab wall tonight?', time: '4:15 PM' }] },
-    { id: '2', name: 'Jem (SP Band)', handle: 'jem_drums', messages: [{ sender: 'you', text: 'Double hit on hi-hat sounds clean for the chorus!', time: 'Yesterday' }] }
-  ]);
-
-  const [currentUser, setCurrentUser] = useState({
-    type: 'personal',
-    name: 'Chiew',
-    handle: 'chiew_climbs',
-    email: 'chiew@sp.edu.sg',
-    bio: 'Boulder enthusiast 🧗‍♂️ | Audio tinkerer 🥁',
-    interests: ['Bouldering', 'Drums', 'Python', 'Football']
-  });
-
-  const filteredArticles = allArticles.filter(article =>
-    article.title.toLowerCase().includes(articleSearchQuery.toLowerCase()) ||
-    article.category.toLowerCase().includes(articleSearchQuery.toLowerCase())
-  );
-
-  const handleDirectConnectMessagingSeed = (constructedTargetRoom) => {
-    setChatRooms(prevRooms => {
-      const roomExists = prevRooms.find(r => r.id === constructedTargetRoom.id);
-      if (!roomExists) return [...prevRooms, constructedTargetRoom];
-      return prevRooms;
-    });
-    setIsMessagingOpen(true);
-  };
+  const [activeTab, setActiveTab] = useState('homepage');
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#FBFBFA] font-sans text-gray-800 relative">
+    <div className="flex h-screen w-screen bg-[#f8faf9] text-slate-800 font-sans overflow-hidden">
       
-      {/* Mobile Sidebar Backdrop */}
-      {isSidebarOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsSidebarOpen(false)} />
-      )}
-      
-      {/* Sidebar Layout */}
-      <div className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
-        <Sidebar currentPage={currentPage} setCurrentPage={(page) => { setCurrentPage(page); setIsSidebarOpen(false); }} />
-      </div>
+      {/* 🟢 1. SINGLE COMPACT LEFT SIDEBAR */}
+      <aside className="w-20 bg-[#e8f3ee] border-r border-emerald-100 flex flex-col items-center justify-between py-6 shrink-0 z-20">
+        <div className="flex flex-col items-center gap-6 w-full">
+          {/* Top Profile Avatar Button */}
+          <button 
+            onClick={() => setActiveTab('profile')}
+            className={`w-11 h-11 rounded-full bg-white border shadow-sm flex items-center justify-center text-xl transition-all ${
+              activeTab === 'profile' ? 'border-emerald-500 ring-2 ring-emerald-200' : 'border-emerald-200 hover:scale-105'
+            }`}
+            title="Profile"
+          >
+            👤
+          </button>
 
-      {/* Main Framework Content Panel Router */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-white">
+          {/* Navigation Icons */}
+          <nav className="flex flex-col gap-4 w-full px-2">
+            {[
+              { id: 'homepage', label: 'homepage', icon: '🏠' },
+              { id: 'events', label: 'events', icon: '📅' },
+              { id: 'community', label: 'community', icon: '👥' },
+              { id: 'map', label: 'map', icon: '🗺️' },
+              { id: 'games', label: 'games', icon: '🎮' },
+              { id: 'profile', label: 'profile', icon: '👤' },
+            ].map((item) => {
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  className={`flex flex-col items-center justify-center p-2 rounded-2xl transition-all ${
+                    isActive
+                      ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
+                      : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
+                  }`}
+                >
+                  <span className="text-xl">{item.icon}</span>
+                  <span className="text-[10px] mt-0.5 font-semibold tracking-tight">{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Footer Version Tag */}
+        <div className="text-[9px] font-mono text-emerald-600/70 tracking-tight select-none">
+          COCO v1.0
+        </div>
+      </aside>
+
+      {/* ⚪ 2. MAIN MIDDLE WORKSPACE */}
+      <main className="flex-1 h-full overflow-y-auto p-8 space-y-8">
         
-        {/* Mobile Header Menu Bar */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 md:hidden bg-white shrink-0">
-          <button onClick={() => setIsSidebarOpen(true)} className="p-2 text-xl hover:bg-gray-100 rounded-xl">🍔</button>
-          <span className="font-serif font-bold text-lg text-[#046A4E]">COCO</span>
-          <button onClick={() => setIsMessagingOpen(!isMessagingOpen)} className="p-2 text-xl hover:bg-gray-100 rounded-xl">💬</button>
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-          
-          {currentPage === 'home' && <Home setCurrentTab={(targetTab) => setCurrentPage(targetTab)} />}
-          {currentPage === 'map' && <MapPage />}
-          {currentPage === 'events' && <EventsPage currentUser={currentUser} />}
-          {currentPage === 'community' && <Community triggerDirectMessage={handleDirectConnectMessagingSeed} />}
-          
-          {currentPage === 'nsf' && (
-            <div className="max-w-4xl mx-auto space-y-4 text-left">
-              <h1 className="text-3xl font-serif font-bold text-gray-900">NSF Portfolio Hub</h1>
-              <p className="text-sm text-gray-500">Track your SAT, ACT, and private H2 Math progression during service days.</p>
-            </div>
-          )}
-
-          {currentPage === 'games' && (
-            <div className="max-w-4xl mx-auto space-y-4 text-left">
-              <h1 className="text-3xl font-serif font-bold text-gray-900">Arcade & Games</h1>
-            </div>
-          )}
-          
-          {currentPage === 'settings' && <SettingsPage currentUser={currentUser} setCurrentUser={setCurrentUser} />}
-
-          {/* Dedicated Articles Hub */}
-          {currentPage === 'articles' && (
-            <div className="max-w-3xl mx-auto space-y-6 text-left pb-12">
-              <button onClick={() => setCurrentPage('home')} className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors">
-                <ArrowLeft size={14} /> Back to Feed
-              </button>
-              <div className="relative w-full">
-                <Search className="absolute left-3 top-3.5 text-gray-400" size={18} />
-                <input 
-                  type="text" 
-                  value={articleSearchQuery}
-                  onChange={(e) => setArticleSearchQuery(e.target.value)}
-                  placeholder="Search articles..." 
-                  className="w-full px-4 py-3 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[#046A4E]/20"
-                />
-              </div>
-              <div className="space-y-4">
-                {filteredArticles.map((article) => (
-                  <div key={article.id} className="bg-white border border-slate-100 p-6 rounded-2xl shadow-sm space-y-2">
-                    <h2 className="text-lg font-bold text-slate-900">{article.title}</h2>
-                    <p className="text-sm text-slate-600 leading-relaxed">{article.content}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
-
-      {/* CLEAN OVERLAY SIDE PANEL (Overlapping issue resolved) */}
-      {isMessagingOpen && (
-        <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsMessagingOpen(false)} />
-      )}
-      
-      <div className={`fixed inset-y-0 right-0 z-50 md:z-auto md:relative transform transition-transform duration-300 ease-in-out h-full ${
-        isMessagingOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
-      }`}>
-        <div className="h-full bg-white border-l border-gray-100 flex flex-col relative">
-          
-          {/* Top internal header bar close trigger visible ONLY on mobile */}
-          <div className="p-2 border-b border-gray-100 flex justify-end md:hidden bg-slate-50">
-            <button 
-              onClick={() => setIsMessagingOpen(false)}
-              className="text-xs font-bold px-3 py-1.5 bg-slate-900 text-white rounded-xl shadow-sm hover:bg-slate-800 transition-colors"
-            >
-              ✕ Close Messaging
+        {/* Mission Banner Section */}
+        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="max-w-md space-y-4">
+            <h1 className="text-3xl font-serif font-bold text-slate-900 tracking-tight">
+              Our Mission
+            </h1>
+            <p className="text-sm text-slate-500 leading-relaxed">
+              Grow2gether aims to inspire users to initiate and foster harmonious communities in Singapore.
+            </p>
+            <button className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
+              Read more
             </button>
           </div>
 
-          <SocialPane chatRoomsData={chatRooms} onAppendNewRoom={(updatedSet) => setChatRooms(updatedSet)} />
+          <div className="w-full md:w-[380px] h-48 rounded-2xl bg-gradient-to-tr from-amber-100 via-emerald-100 to-teal-200 flex items-center justify-center border border-white/60 shadow-inner p-4 text-center">
+            <span className="text-xs font-mono text-slate-500 bg-white/70 px-3 py-1.5 rounded-md backdrop-blur-sm">
+              [ Canva Mission Asset Image Here ]
+            </span>
+          </div>
         </div>
-      </div>
+
+        {/* Upcoming Events Section */}
+        <div className="space-y-4">
+          <h2 className="text-2xl font-serif font-bold text-slate-900 tracking-tight">
+            Upcoming Events
+          </h2>
+
+          <div className="relative flex items-center">
+            <button className="absolute -left-4 z-10 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs">
+              &lt;
+            </button>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+              {upcomingEvents.map((evt) => (
+                <div key={evt.id} className="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm flex flex-col space-y-3">
+                  <div className="h-36 rounded-xl overflow-hidden bg-slate-100">
+                    <img 
+                      src={evt.image} 
+                      alt={evt.title} 
+                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <button className="w-full py-2 bg-[#e8f3ee] hover:bg-[#d8e8e0] text-emerald-900 text-xs font-bold rounded-xl transition-colors">
+                    Sign up
+                  </button>
+                </div>
+              ))}
+            </div>
+
+            <button className="absolute -right-4 z-10 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs">
+              &gt;
+            </button>
+          </div>
+        </div>
+
+      </main>
+
+      {/* 💬 3. SINGLE RIGHT MESSAGING PANEL */}
+      <aside className="w-80 bg-white border-l border-slate-100 flex flex-col justify-between p-5 shrink-0 z-10">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="text-xl font-serif font-bold text-slate-900">Messaging</h3>
+            <span className="text-slate-400 text-sm">💬</span>
+          </div>
+
+          <button className="w-full py-2 px-3 border border-dashed border-emerald-300 bg-[#f4f9f6] text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-[#e8f3ee] transition-colors">
+            <span>+</span> Add friends
+          </button>
+
+          <div className="h-[420px] rounded-2xl bg-[#fbfdfc] border border-slate-100 flex flex-col items-center justify-center p-6 text-center space-y-2">
+            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg mb-1">
+              👥
+            </div>
+            <p className="text-xs font-bold text-slate-700">No active conversations</p>
+            <p className="text-[11px] text-slate-400 leading-normal">
+              Add friends to start sharing and coordinating activities.
+            </p>
+          </div>
+        </div>
+
+        <button className="w-full py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-bold transition-colors">
+          Read more
+        </button>
+      </aside>
 
     </div>
   );
