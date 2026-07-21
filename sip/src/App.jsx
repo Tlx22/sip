@@ -9,9 +9,46 @@ import Community from './pages/Community';
 import { ArrowLeft, Search } from 'lucide-react';
 
 const allArticles = [
-  { id: 1, category: "Hawker Culture", title: "The Secret Heritage of Maxwell Hawker Masters", content: "Behind the neon signs of Maxwell Food Centre lies generations of culinary dedication..." },
-  { id: 2, category: "Urban Exploration", title: "Hidden Quarry Trails You Haven't Explored Yet", content: "Nestled deep past urban buffers..." },
-  { id: 3, category: "Music Scene", title: "Vinyl Revivals: The Indie Record Stores of Kampong Glam", content: "From rare city-pop pressings to indie local rock bands..." }
+{ 
+    id: 1, 
+    category: "MDW Safety & Well-being", 
+    title: "Essential Safety Guidelines for High-Rise Home Cleaning", 
+    readTime: "4 min read", 
+    snippet: "Crucial MOM height-safety regulations and precautions when cleaning window exteriors or balconies.", 
+    content: "Safety at home is paramount..."
+  },
+  { 
+    id: 2, 
+    category: "Cultural Exposure", 
+    title: "Tastes of Home: Traditional Indonesian & Tagalog Festive Dishes", 
+    readTime: "6 min read", 
+    snippet: "Exploring the heritage and ingredients behind iconic dishes prepared during cultural celebrations.", 
+    content: "Food is one of the strongest bridges..."
+  },
+  { 
+    id: 3, 
+    category: "Community Highlights", 
+    title: "Highlights from the Sunday Community Culinary Exchange", 
+    readTime: "5 min read", 
+    snippet: "Recap of last weekend's cooking masterclass...", 
+    content: "Over 80 participants gathered..."
+  },
+  { 
+    id: 4, 
+    category: "MDW Safety & Well-being", 
+    title: "Navigating Rest Days, Helplines & Mental Wellness Resources", 
+    readTime: "5 min read", 
+    snippet: "Key contacts, support channels, and recreational hubs...", 
+    content: "Rest days are vital..."
+  },
+  { 
+    id: 5, 
+    category: "Cultural Exposure", 
+    title: "Basic Conversational Phrases: Connecting Through Language", 
+    readTime: "4 min read", 
+    snippet: "Simple everyday Bahasa Indonesia, Tagalog, and English phrases...", 
+    content: "Clear and empathetic communication..."
+  }
 ];
 
 export default function App() {
