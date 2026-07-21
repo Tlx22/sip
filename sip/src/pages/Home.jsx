@@ -1,241 +1,149 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BookOpen, Clock, Search, ChevronDown, ChevronUp, ArrowRight } from 'lucide-react';
 
-// Mock upcoming events data
-const upcomingEvents = [
-  {
-    id: 1,
-    title: "Nature Walk & Clean-up",
-    image: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: 2,
-    title: "Community Coffee & Read",
-    image: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: 3,
-    title: "Tech & Design Co-working",
-    image: "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=600&q=80",
-  },
-  {
-    id: 4,
-    title: "Dinner & Cultural Exchange",
-    image: "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80",
-  },
+const exampleArticles = [
+  { id: 1, category: "Hawker Culture", title: "The Secret Heritage of Maxwell Hawker Masters", readTime: "5 min read", snippet: "Uncovering the multi-generational spice blends and traditional methods kept alive behind local stalls.", content: "Behind the neon signs of Maxwell Food Centre lies generations of culinary dedication. We sit down with third-generation hawker owners who reveal the painstaking hours spent preparing traditional stocks and heritage balance before dawn breaks." },
+  { id: 2, category: "Urban Exploration", title: "Hidden Quarry Trails You Haven't Explored Yet", readTime: "7 min read", snippet: "A complete visual mapping of rustic green corridors hidden off the standard urban pathways.", content: "Nestled deep past urban buffers, Singapore's old granite quarries have transformed into rich green hubs. This guide maps out entry gates, wildlife precautions, and the best vantage points for morning mist photography away from standard crowds." },
+  { id: 3, category: "Music Scene", title: "Vinyl Revivals: The Indie Record Stores of Kampong Glam", readTime: "4 min read", snippet: "Why analog media collection is making a massive comeback among young local musicians.", content: "From rare city-pop pressings to indie local rock bands, the physical crate-digging scene is booming. Shop owners share how physical spaces are creating communities that digital streaming platforms simply cannot duplicate." },
+  { id: 4, category: "Fitness & Sport", title: "Mastering the Slab Wall: Balance Over Power", readTime: "6 min read", snippet: "Technical climbing movements required to send complex routes without exhausting your grip.", content: "Climbing vertical or rock-face slab walls demands total weight management, hip flexibility, and high reliance on absolute foot precision rather than upper body dynamic pulling strength. We analyze route-setting patterns for advanced grades." },
+  { id: 5, category: "Campus Tech", title: "Building Responsive Leaflet Maps in Modern React Components", readTime: "8 min read", snippet: "Optimizing window bounds and DOM scaling triggers to handle rich customized application overlays.", content: "Map layout render failures often map back to unhandled layout size adjustments. Learn how implementing resize timeouts and custom tile cache engines preserves silky responsive map rendering during rapid panel shifting." }
 ];
 
-export default function HomePage() {
-  const [activeTab, setActiveTab] = useState('home');
+export default function Home({ setCurrentTab }) {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [expandedArticleId, setExpandedArticleId] = useState(null);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (expandedArticleId === null) {
+        setCurrentIndex((prev) => (prev + 1) % exampleArticles.length);
+      }
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [expandedArticleId]);
+
+  const toggleExpand = (id) => {
+    setExpandedArticleId(expandedArticleId === id ? null : id);
+  };
+
+  const currentArticle = exampleArticles[currentIndex];
 
   return (
-    <div className="flex h-screen w-full bg-[#f8faf9] text-slate-800 font-sans overflow-hidden">
+    <div className="w-full space-y-8 pb-48 text-left">
       
-      {/* ========================================================= */}
-      {/* 🟢 LEFT SIDEBAR (Compact Icon-Only Layout from Image 2)    */}
-      {/* ========================================================= */}
-      <aside className="w-20 bg-[#e8f3ee] border-r border-emerald-100 flex flex-col items-center justify-between py-6 shrink-0 z-20">
-        
-        {/* Top: User Avatar Button (Navigates to Profile) */}
-        <div className="flex flex-col items-center gap-6 w-full">
-          <button 
-            onClick={() => setActiveTab('profile')}
-            className="w-11 h-11 rounded-full bg-white border border-emerald-200 shadow-sm flex items-center justify-center text-xl hover:scale-105 transition-transform"
-            title="Profile"
-          >
-            👤
+      {/* 1. MISSION HERO HERO CARD PANEL */}
+      <div className="bg-white border border-gray-100 rounded-3xl p-8 shadow-sm flex flex-col md:flex-row gap-6 justify-between items-center">
+        <div className="flex-1 space-y-4">
+          <h1 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">Our Mission</h1>
+          <p className="text-sm text-gray-500 max-w-md leading-relaxed">
+            Grow2gether aims to inspire users to initiate and foster harmonious communities in Singapore.
+          </p>
+          <button className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-colors shadow-sm">
+            Read more
           </button>
-
-          {/* Navigation Items (Icon + Small Sublabel) */}
-          <nav className="flex flex-col gap-5 w-full px-2">
-            
-            {/* Homepage / Home Feed */}
-            <button
-              onClick={() => setActiveTab('home')}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all ${
-                activeTab === 'home'
-                  ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
-                  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
-              }`}
-            >
-              <span className="text-xl">🏠</span>
-              <span className="text-[10px] mt-1 font-semibold tracking-tight">homepage</span>
-            </button>
-
-            {/* Events */}
-            <button
-              onClick={() => setActiveTab('events')}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all ${
-                activeTab === 'events'
-                  ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
-                  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
-              }`}
-            >
-              <span className="text-xl">📅</span>
-              <span className="text-[10px] mt-1 font-semibold tracking-tight">events</span>
-            </button>
-
-            {/* Community */}
-            <button
-              onClick={() => setActiveTab('community')}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all ${
-                activeTab === 'community'
-                  ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
-                  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
-              }`}
-            >
-              <span className="text-xl">👥</span>
-              <span className="text-[10px] mt-1 font-semibold tracking-tight">community</span>
-            </button>
-
-            {/* Map */}
-            <button
-              onClick={() => setActiveTab('map')}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all ${
-                activeTab === 'map'
-                  ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
-                  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
-              }`}
-            >
-              <span className="text-xl">🗺️</span>
-              <span className="text-[10px] mt-1 font-semibold tracking-tight">map</span>
-            </button>
-
-            {/* Games */}
-            <button
-              onClick={() => setActiveTab('games')}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all ${
-                activeTab === 'games'
-                  ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
-                  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
-              }`}
-            >
-              <span className="text-xl">🎮</span>
-              <span className="text-[10px] mt-1 font-semibold tracking-tight">games</span>
-            </button>
-
-            {/* Profile Only (Settings Removed) */}
-            <button
-              onClick={() => setActiveTab('profile')}
-              className={`flex flex-col items-center justify-center p-2.5 rounded-2xl transition-all ${
-                activeTab === 'profile'
-                  ? 'bg-white text-emerald-800 shadow-sm border border-emerald-100 font-bold'
-                  : 'text-slate-500 hover:text-emerald-700 hover:bg-emerald-100/50'
-              }`}
-            >
-              <span className="text-xl">👤</span>
-              <span className="text-[10px] mt-1 font-semibold tracking-tight">profile</span>
-            </button>
-
-          </nav>
         </div>
-
-        {/* Bottom Version Tag */}
-        <div className="text-[9px] font-mono text-emerald-600/70 tracking-tight">
-          COCO v1.0
+        <div className="w-full md:w-[45%] h-48 bg-gradient-to-tr from-amber-100 via-orange-50 to-emerald-200 rounded-2xl flex items-center justify-center border border-white shadow-inner select-none text-gray-400 font-mono text-[10px]">
+          [ Canva Mission Asset Image Here ]
         </div>
-      </aside>
+      </div>
 
-      {/* ========================================================= */}
-      {/* ⚪ CENTER MAIN CONTENT AREA                                */}
-      {/* ========================================================= */}
-      <main className="flex-1 h-full overflow-y-auto p-8 space-y-8">
+      {/* 2. DYNAMIC EVENTS ROUTER NAVIGATION CAROUSEL */}
+      <div className="space-y-4">
+        <h2 className="text-2xl font-serif font-bold text-gray-900">Upcoming Events</h2>
         
-        {/* Mission Banner Section */}
-        <div className="bg-white rounded-3xl p-8 border border-slate-100 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="max-w-md space-y-4">
-            <h1 className="text-3xl font-serif font-bold text-slate-900 tracking-tight">
-              Our Mission
-            </h1>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Grow2gether aims to inspire users to initiate and foster harmonious communities in Singapore.
-            </p>
-            <button className="px-5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition-colors">
-              Read more
-            </button>
-          </div>
-
-          {/* Canva Asset Graphic Container */}
-          <div className="w-full md:w-[380px] h-48 rounded-2xl bg-gradient-to-tr from-amber-100 via-emerald-100 to-teal-200 flex items-center justify-center border border-white/60 shadow-inner p-4 text-center">
-            <span className="text-xs font-mono text-slate-500 bg-white/70 px-3 py-1.5 rounded-md backdrop-blur-sm">
-              [ Canva Mission Asset Image Here ]
-            </span>
-          </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[
+            { id: 1, img: "https://images.unsplash.com/photo-1511497584788-876760111969?auto=format&fit=crop&w=300&q=80" },
+            { id: 2, img: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=300&q=80" },
+            { id: 3, img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&w=300&q=80" },
+            { id: 4, img: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=300&q=80" }
+          ].map((item) => (
+            <div key={item.id} className="bg-white border border-gray-100 rounded-2xl p-3 shadow-sm flex flex-col items-center space-y-3 group hover:border-slate-200 transition-all">
+              <div className="w-full h-32 rounded-xl overflow-hidden bg-gray-50 relative">
+                <img src={item.img} alt="Event Cover" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+              </div>
+              <button 
+                onClick={() => setCurrentTab && setCurrentTab('events')}
+                className="w-full py-2 bg-slate-50 hover:bg-slate-900 hover:text-white text-slate-700 text-xs font-bold rounded-xl transition-all"
+              >
+                Sign up
+              </button>
+            </div>
+          ))}
         </div>
+      </div>
 
-        {/* Upcoming Events Carousel Section */}
-        <div className="space-y-4">
-          <h2 className="text-2xl font-serif font-bold text-slate-900 tracking-tight">
-            Upcoming Events
-          </h2>
-
-          <div className="relative flex items-center">
-            {/* Left Scroll Arrow Button */}
-            <button className="absolute -left-4 z-10 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs">
-              &lt;
-            </button>
-
-            {/* Events Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
-              {upcomingEvents.map((evt) => (
-                <div key={evt.id} className="bg-white rounded-2xl p-3 border border-slate-100 shadow-sm flex flex-col space-y-3">
-                  <div className="h-36 rounded-xl overflow-hidden bg-slate-100">
-                    <img 
-                      src={evt.image} 
-                      alt={evt.title} 
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                    />
-                  </div>
-                  <button className="w-full py-2 bg-[#e8f3ee] hover:bg-[#d8e8e0] text-emerald-900 text-xs font-bold rounded-xl transition-colors">
-                    Sign up
-                  </button>
-                </div>
+      {/* 3. STICKY FLOATING FOOTER ARTICLE SLIDER CONTAINER */}
+      <div className="fixed bottom-4 left-4 right-4 md:left-[288px] md:right-[390px] z-30 bg-white/95 backdrop-blur-md border border-gray-100 rounded-2xl p-4 shadow-xl shadow-slate-200/50 space-y-3 transition-all duration-300">
+        
+        {/* Slider Meta Controls */}
+        <div className="flex items-center justify-between border-b border-gray-50 pb-2">
+          <div className="flex items-center gap-2">
+            <BookOpen className="text-amber-500" size={14} />
+            <h2 className="text-[10px] font-black uppercase tracking-wider text-slate-900">Featured Stories</h2>
+            <span className="text-[8px] bg-slate-100 text-slate-500 px-1 py-0.5 rounded font-mono">Auto-cycling</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex gap-1">
+              {exampleArticles.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => { setExpandedArticleId(null); setCurrentIndex(idx); }}
+                  className={`h-1 rounded-full transition-all ${idx === currentIndex ? 'w-3 bg-amber-500' : 'w-1 bg-gray-200'}`}
+                />
               ))}
             </div>
-
-            {/* Right Scroll Arrow Button */}
-            <button className="absolute -right-4 z-10 w-8 h-8 rounded-full bg-white border border-slate-200 shadow-md flex items-center justify-center text-slate-400 hover:text-slate-700 text-xs">
-              &gt;
+            <button 
+              onClick={() => setCurrentTab && setCurrentTab('articles')}
+              className="text-slate-400 hover:text-amber-500 transition-colors"
+            >
+              <Search size={14} />
             </button>
           </div>
         </div>
 
-      </main>
-
-      {/* ========================================================= */}
-      {/* 💬 RIGHT MESSAGING PANEL                                  */}
-      {/* ========================================================= */}
-      <aside className="w-80 bg-white border-l border-slate-100 flex flex-col justify-between p-5 shrink-0 z-10">
-        
-        {/* Header */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="text-xl font-serif font-bold text-slate-900">Messaging</h3>
-            <span className="text-slate-400 text-sm">💬</span>
+        {/* Dynamic Inner Text Content Frame */}
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="text-[8px] bg-amber-100 text-amber-900 font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wide">
+              {currentArticle.category}
+            </span>
+            <span className="flex items-center gap-0.5 text-[9px] text-gray-400">
+              <Clock size={10} /> {currentArticle.readTime}
+            </span>
           </div>
+          <h3 className="text-xs font-bold text-slate-900 tracking-tight">{currentArticle.title}</h3>
+          <p className="text-[11px] text-gray-500 truncate">{currentArticle.snippet}</p>
 
-          {/* Add Friends Button */}
-          <button className="w-full py-2 px-3 border border-dashed border-emerald-300 bg-[#f4f9f6] text-emerald-800 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 hover:bg-[#e8f3ee] transition-colors">
-            <span>+</span> Add friends
-          </button>
-
-          {/* Empty Messaging State Container */}
-          <div className="h-[420px] rounded-2xl bg-[#fbfdfc] border border-slate-100 flex flex-col items-center justify-center p-6 text-center space-y-2">
-            <div className="w-10 h-10 rounded-full bg-emerald-50 text-emerald-700 flex items-center justify-center text-lg mb-1">
-              👥
-            </div>
-            <p className="text-xs font-bold text-slate-700">No active conversations</p>
-            <p className="text-[11px] text-slate-400 leading-normal">
-              Add friends to start sharing and coordinating activities.
+          <div className={`transition-all duration-300 ease-in-out overflow-hidden ${expandedArticleId === currentArticle.id ? 'max-h-[150px] mt-2 opacity-100 pt-2 border-t border-dashed border-gray-100' : 'max-h-0 opacity-0'}`}>
+            <p className="text-[11px] text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-gray-50 max-h-24 overflow-y-auto leading-relaxed">
+              {currentArticle.content}
             </p>
           </div>
         </div>
 
-        {/* Bottom Panel Read More Button */}
-        <button className="w-full py-2.5 border border-slate-300 text-slate-700 hover:bg-slate-50 rounded-xl text-xs font-bold transition-colors">
-          Read more
-        </button>
+        {/* Card Interactive Footer Controls */}
+        <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+          <button
+            onClick={() => toggleExpand(currentArticle.id)}
+            className="flex items-center gap-0.5 text-[10px] font-bold text-slate-500 hover:text-amber-600 transition-colors"
+          >
+            {expandedArticleId === currentArticle.id ? (
+              <><span>Collapse</span><ChevronUp size={12} /></>
+            ) : (
+              <><span>Expand View</span><ChevronDown size={12} /></>
+            )}
+          </button>
 
-      </aside>
+          <button
+            onClick={() => setCurrentTab && setCurrentTab('articles')}
+            className="flex items-center gap-1 px-3 py-1 bg-slate-950 hover:bg-slate-800 text-white text-[10px] font-bold rounded-xl shadow-sm transition-all"
+          >
+            <span>Read More</span>
+            <ArrowRight size={10} />
+          </button>
+        </div>
+      </div>
 
     </div>
   );
