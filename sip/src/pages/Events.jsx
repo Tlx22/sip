@@ -58,7 +58,7 @@ export default function EventsPage() {
   const [viewMode, setViewMode] = useState("dashboard");
 
   // Registration Intake Form Local State
-  const [regFormData, setRegFormData] = useState({ name: '', contact: '', notes: '', watchedVideo: false });
+  const [regFormData, setRegFormData] = useState({ name: '', contact: '', notes: '', watchedVideo: false, role: 'Participant' });
 
   // Organization Event Creation Form Local State
   const [newEventData, setNewEventData] = useState({
@@ -94,7 +94,7 @@ export default function EventsPage() {
       alert("Please acknowledge that you have reviewed the safety brief protocols.");
       return;
     }
-    alert(`Success! Registered ${regFormData.name} for ${currentActiveEvent.title}.`);
+    alert(`Success! Registered ${regFormData.name} as a ${regFormData.role} for ${currentActiveEvent.title}.`);
     
     // Decrement spots left if available
     setEventsList(eventsList.map(item => 
@@ -103,7 +103,7 @@ export default function EventsPage() {
         : item
     ));
 
-    setRegFormData({ name: '', contact: '', notes: '', watchedVideo: false });
+    setRegFormData({ name: '', contact: '', notes: '', watchedVideo: false, role: 'Participant' });
     setViewMode("dashboard");
   };
 
@@ -348,6 +348,23 @@ export default function EventsPage() {
           )}
 
           <form onSubmit={handleRegisterSubmit} className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-gray-600 uppercase">Sign Up As</label>
+              <select
+                value={regFormData.role}
+                onChange={(e) => setRegFormData({ ...regFormData, role: e.target.value })}
+                className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:border-emerald-800 focus:outline-none"
+              >
+                <option value="Participant">Participant</option>
+                <option value="Volunteer">Volunteer</option>
+              </select>
+              <p className="text-[10px] text-gray-400 pt-0.5">
+                {regFormData.role === "Volunteer"
+                  ? "Volunteers help run the event - setup, facilitation, or support on the day."
+                  : "Participants join in and take part in the event itself."}
+              </p>
+            </div>
+
             <div className="space-y-1">
               <label className="block text-[10px] font-bold text-gray-600 uppercase">Full Name</label>
               <input 

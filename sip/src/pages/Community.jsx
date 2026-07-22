@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
-import { Search, MessageSquare, Calendar, Users, Megaphone, SlidersHorizontal, Heart, CheckCircle } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, MessageSquare, Calendar, Users, Megaphone, SlidersHorizontal, Heart, CheckCircle, X } from 'lucide-react';
 
 // Sample Dataset for Human Library updated with roles and quote-style bios
+// Pool includes extra people beyond the first 4 so the deck can repopulate
+// as people are connected with or dismissed.
 const humanLibraryData = [
   { id: 'hl-1', name: 'Lev', role: 'Chef', quote: 'Food connects us', bio: 'Audio engineer & indie rock drummer. Loves vintage analog record mixing.', interests: ['Drums', 'Vinyl', 'Music Scene'], spots: ['Maxwell Hub - Room A (Sat 2pm)', 'Tampines Hub - Booth 3 (Sun 4pm)'] },
   { id: 'hl-2', name: 'Siti', role: 'Mom', quote: 'My journey in SG', bio: 'Competes in regional slab bouldering. Expert in technical hip flexibility routes.', interests: ['Bouldering', 'Fitness', 'Sports Science'], spots: ['Outram Beta Vault - Spot 1 (Fri 7pm)'] },
   { id: 'hl-3', name: 'Sabrina', role: 'Student', quote: 'Learning and growing', bio: 'Full-stack developer building mapping plugins. Loves Python architecture.', interests: ['Python', 'React', 'Campus Tech'], spots: ['SP Tech Lab 4 (Mon 10am)'] },
-  { id: 'hl-4', name: 'Emily', role: 'Manager', quote: 'Communication is important', bio: 'Community organizer hosting neighbourhood workshops and heritage walks.', interests: ['Events', 'Community', 'Leadership'], spots: ['City Canvas - Table 2 (Thu 3pm)'] }
+  { id: 'hl-4', name: 'Emily', role: 'Manager', quote: 'Communication is important', bio: 'Community organizer hosting neighbourhood workshops and heritage walks.', interests: ['Events', 'Community', 'Leadership'], spots: ['City Canvas - Table 2 (Thu 3pm)'] },
+  { id: 'hl-5', name: 'Farid', role: 'Engineer', quote: 'Building things that last', bio: 'Structural engineer who restores vintage motorcycles on weekends.', interests: ['Motorcycles', 'Engineering', 'DIY'], spots: ['Toa Payoh Makerspace (Sat 11am)'] },
+  { id: 'hl-6', name: 'Wei Ling', role: 'Nurse', quote: 'Care is a language', bio: 'ICU nurse and weekend baker specialising in traditional kueh.', interests: ['Baking', 'Healthcare', 'Culture'], spots: ['Bedok Kitchen Collective (Sun 9am)'] },
+  { id: 'hl-7', name: 'Marcus', role: 'Retiree', quote: 'Stories from the docks', bio: 'Former dockworker with four decades of stories about old Singapore.', interests: ['History', 'Maritime', 'Storytelling'], spots: ['Clarke Quay Heritage Corner (Wed 5pm)'] },
+  { id: 'hl-8', name: 'Priya', role: 'Artist', quote: 'Colour is a mood', bio: 'Batik artist teaching traditional wax-resist techniques.', interests: ['Batik', 'Art', 'Textiles'], spots: ['Kampong Glam Studio (Fri 4pm)'] }
 ];
 
 // Sample Dataset for Community Groups
@@ -16,38 +22,88 @@ const groupAnnouncements = [
 ];
 
 // Sample Dataset for Connections from Past Events
-const pastConnections = [
+const initialPastConnections = [
   { id: 'p-1', name: 'Darren Goh', eventAttended: 'Maxwell Hawker Heritage Tour', handle: 'darren_eats', status: 'Online' },
   { id: 'p-2', name: 'Amanda Teo', eventAttended: 'Acoustic Analog Jam Session', handle: 'mandy_keys', status: 'Offline' }
 ];
+
+// Number of human book cards shown at once - the deck repopulates from the
+// remaining pool whenever a card is connected with or dismissed.
+const VISIBLE_COUNT = 4;
 
 export default function Community({ triggerDirectMessage }) {
   const [activeFilter, setActiveFilter] = useState('library');
   const [librarySearch, setLibrarySearch] = useState('');
   const [selectedBook, setSelectedBook] = useState(null);
   const [showBookingModal, setShowBookingModal] = useState(false);
-  const [connectedIds, setConnectedIds] = useState([]);
 
-  // Filter library cards based on search input across name, role, quote, or interests
-  const filteredLibrary = humanLibraryData.filter(person =>
-    person.name.toLowerCase().includes(librarySearch.toLowerCase()) ||
-    person.role.toLowerCase().includes(librarySearch.toLowerCase()) ||
-    person.quote.toLowerCase().includes(librarySearch.toLowerCase()) ||
-    person.interests.some(interest => interest.toLowerCase().includes(librarySearch.toLowerCase()))
-  );
+  // Ids of human-library people the user has connected with (moved to Connections tab)
+  const [connectedIds, setConnectedIds] = useState([]);
+  // Ids of human-library people the user has dismissed (removed from the deck for good)
+  const [dismissedIds, setDismissedIds] = useState([]);
+  // Full connection records created from library connects, merged into the Connections tab
+  const [libraryConnections, setLibraryConnections] = useState([]);
+
+  // Everyone not yet connected with or dismissed, matching the current search
+  const availablePool = useMemo(() => {
+    return humanLibraryData.filter(person =>
+      !connectedIds.includes(person.id) &&
+      !dismissedIds.includes(person.id) &&
+      (
+        person.name.toLowerCase().includes(librarySearch.toLowerCase()) ||
+        person.role.toLowerCase().includes(librarySearch.toLowerCase()) ||
+        person.quote.toLowerCase().includes(librarySearch.toLowerCase()) ||
+        person.interests.some(interest => interest.toLowerCase().includes(librarySearch.toLowerCase()))
+      )
+    );
+  }, [connectedIds, dismissedIds, librarySearch]);
+
+  // The visible deck is just the front of the pool - as entries are removed
+  // (connected/dismissed) the next person in the pool naturally slides in.
+  const visibleLibrary = availablePool.slice(0, VISIBLE_COUNT);
+
+  // Combined list for the Connections tab: past event connections + anyone
+  // connected with via the Human Library.
+  const allConnections = [...initialPastConnections, ...libraryConnections];
 
   const handleConnect = (person) => {
-    if (!connectedIds.includes(person.id)) {
-      setConnectedIds([...connectedIds, person.id]);
+    const isLibraryPerson = person.id?.toString().startsWith('hl-');
+
+    if (isLibraryPerson && !connectedIds.includes(person.id)) {
+      setConnectedIds(prev => [...prev, person.id]);
+      setLibraryConnections(prev => [
+        ...prev,
+        {
+          id: person.id,
+          name: person.name,
+          eventAttended: `Connected via Human Library • ${person.role}`,
+          handle: `${person.name.toLowerCase()}_book`,
+          status: 'Online'
+        }
+      ]);
+      if (selectedBook?.id === person.id) {
+        setSelectedBook(null);
+        setShowBookingModal(false);
+      }
     }
 
     if (triggerDirectMessage) {
       triggerDirectMessage({
         id: person.id,
         name: person.name,
-        handle: person.id.includes('hl') ? `${person.name.toLowerCase()}_book` : person.handle,
+        handle: isLibraryPerson ? `${person.name.toLowerCase()}_book` : person.handle,
         messages: [{ sender: 'them', text: `Hi! Thanks for connecting through the Human Library. Let's arrange a time to chat!`, time: 'Just now' }]
       });
+    }
+  };
+
+  // Dismiss a human book: removed from the deck for good, replaced by the
+  // next available person from the pool. No message is sent.
+  const handleDismiss = (person) => {
+    setDismissedIds(prev => prev.includes(person.id) ? prev : [...prev, person.id]);
+    if (selectedBook?.id === person.id) {
+      setSelectedBook(null);
+      setShowBookingModal(false);
     }
   };
 
@@ -78,7 +134,7 @@ export default function Community({ triggerDirectMessage }) {
           onClick={() => setActiveFilter('connects')} 
           className={`pb-2.5 transition-colors ${activeFilter === 'connects' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          🔄 Past Event Links
+          🔄 Connections / Past Connections
         </button>
       </div>
 
@@ -106,20 +162,31 @@ export default function Community({ triggerDirectMessage }) {
           </div>
 
           {/* Cards Grid Container */}
-          {filteredLibrary.length > 0 ? (
+          {visibleLibrary.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-              {filteredLibrary.map((person) => {
+              {visibleLibrary.map((person) => {
                 const isSelected = selectedBook?.id === person.id;
-                const isConnected = connectedIds.includes(person.id);
 
                 return (
                   <div 
                     key={person.id}
                     onClick={() => setSelectedBook(person)}
-                    className={`bg-[#F9F9F6] border-2 border-slate-900 rounded-2xl p-5 text-center flex flex-col items-center justify-between space-y-4 cursor-pointer transition-all hover:shadow-md ${
+                    className={`relative bg-[#F9F9F6] border-2 border-slate-900 rounded-2xl p-5 text-center flex flex-col items-center justify-between space-y-4 cursor-pointer transition-all hover:shadow-md ${
                       isSelected ? 'ring-2 ring-emerald-500 shadow-md' : ''
                     }`}
                   >
+                    {/* Dismiss (X) Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDismiss(person);
+                      }}
+                      aria-label={`Dismiss ${person.name}`}
+                      className="absolute top-2.5 right-2.5 p-1 rounded-full text-gray-400 hover:text-white hover:bg-slate-900 transition-colors"
+                    >
+                      <X size={14} />
+                    </button>
+
                     {/* Circle Avatar */}
                     <div className="w-20 h-20 rounded-full bg-amber-100/80 border border-slate-300 flex items-center justify-center text-2xl font-bold text-slate-700 shadow-xs">
                       {person.name.charAt(0)}
@@ -138,19 +205,9 @@ export default function Community({ triggerDirectMessage }) {
                         e.stopPropagation();
                         handleConnect(person);
                       }}
-                      className={`w-full py-2 border-2 border-slate-900 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 ${
-                        isConnected
-                          ? 'bg-emerald-800 text-white border-emerald-800'
-                          : 'bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900'
-                      }`}
+                      className="w-full py-2 border-2 border-slate-900 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900"
                     >
-                      {isConnected ? (
-                        <>
-                          <CheckCircle size={13} /> Connected
-                        </>
-                      ) : (
-                        'Connect'
-                      )}
+                      Connect
                     </button>
                   </div>
                 );
@@ -158,7 +215,9 @@ export default function Community({ triggerDirectMessage }) {
             </div>
           ) : (
             <div className="text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
-              No human books match your search filter.
+              {availablePool.length === 0 && (connectedIds.length > 0 || dismissedIds.length > 0)
+                ? "You've been through everyone in the library for now. Check back later for new human books!"
+                : 'No human books match your search filter.'}
             </div>
           )}
 
@@ -166,19 +225,20 @@ export default function Community({ triggerDirectMessage }) {
           <div className="pt-2">
             <button
               onClick={() => {
-                if (!selectedBook && filteredLibrary.length > 0) {
-                  setSelectedBook(filteredLibrary[0]);
+                if (!selectedBook && visibleLibrary.length > 0) {
+                  setSelectedBook(visibleLibrary[0]);
                 }
                 setShowBookingModal(true);
               }}
-              className="w-full max-w-xl mx-auto block py-3 border-2 border-slate-900 bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900 font-serif font-bold text-base rounded-2xl transition-all shadow-xs"
+              disabled={visibleLibrary.length === 0}
+              className="w-full max-w-xl mx-auto block py-3 border-2 border-slate-900 bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900 font-serif font-bold text-base rounded-2xl transition-all shadow-xs disabled:opacity-40 disabled:cursor-not-allowed"
             >
               Book a Conversation {selectedBook ? `with ${selectedBook.name}` : ''}
             </button>
           </div>
 
           {/* Booking Slots Drawer / Modal */}
-          {showBookingModal && (
+          {showBookingModal && selectedBook && (
             <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
               <div className="bg-white border-2 border-slate-900 rounded-3xl p-6 max-w-md w-full space-y-4 text-left shadow-xl">
                 <div className="flex justify-between items-center border-b border-gray-100 pb-3">
@@ -269,43 +329,51 @@ export default function Community({ triggerDirectMessage }) {
       )}
 
       {/* ========================================================= */}
-      {/* TAB 3: PAST EVENT CONNECTIONS                             */}
+      {/* TAB 3: CONNECTIONS / PAST CONNECTIONS                     */}
+      {/* Merges past-event connections with anyone connected with  */}
+      {/* via the Human Library.                                   */}
       {/* ========================================================= */}
       {activeFilter === 'connects' && (
         <div className="space-y-4">
           <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
-            <Calendar size={12}/> Connections from Past Events
+            <Calendar size={12}/> Connections / Past Connections
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {pastConnections.map((person) => (
-              <div key={person.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700">
-                    {person.name.charAt(0)}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <h4 className="text-sm font-bold text-slate-900">{person.name}</h4>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                        person.status === 'Online' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
-                      }`}>
-                        {person.status}
-                      </span>
+          {allConnections.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allConnections.map((person) => (
+                <div key={person.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700">
+                      {person.name.charAt(0)}
                     </div>
-                    <p className="text-xs text-gray-500">Event: {person.eventAttended}</p>
-                    <p className="text-[11px] text-gray-400">@{person.handle}</p>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-bold text-slate-900">{person.name}</h4>
+                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                          person.status === 'Online' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
+                        }`}>
+                          {person.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-gray-500">{person.eventAttended}</p>
+                      <p className="text-[11px] text-gray-400">@{person.handle}</p>
+                    </div>
                   </div>
-                </div>
 
-                <button 
-                  onClick={() => handleConnect(person)}
-                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
-                >
-                  <MessageSquare size={12} /> Message
-                </button>
-              </div>
-            ))}
-          </div>
+                  <button 
+                    onClick={() => handleConnect(person)}
+                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
+                  >
+                    <MessageSquare size={12} /> Message
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
+              No connections yet. Connect with a human book or attend an event to see them here.
+            </div>
+          )}
         </div>
       )}
 
