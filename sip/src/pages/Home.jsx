@@ -39,6 +39,7 @@ export default function Home({ setCurrentTab }) {
   const [expandedArticleId, setExpandedArticleId] = useState(null);
   const [selectedArticleModal, setSelectedArticleModal] = useState(null);
   const [showAllArticlesView, setShowAllArticlesView] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Auto-cycle carousel
   useEffect(() => {
@@ -70,6 +71,13 @@ export default function Home({ setCurrentTab }) {
     return "bg-emerald-100 text-emerald-800";
   };
 
+  // Filtered articles based on search bar input
+  const filteredArticles = exampleArticles.filter((article) =>
+    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    article.content.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="w-full space-y-8 pb-48 text-left relative font-sans select-none">
       
@@ -81,8 +89,15 @@ export default function Home({ setCurrentTab }) {
         <div className="relative w-48 sm:w-64">
           <input 
             type="text" 
-            placeholder="Search" 
-            className="w-full bg-slate-100 border border-slate-200 rounded-md py-1.5 pl-3 pr-8 text-xs focus:outline-none"
+            placeholder="Search articles..." 
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (e.target.value.trim() !== '') {
+                setShowAllArticlesView(true);
+              }
+            }}
+            className="w-full bg-slate-100 border border-slate-200 rounded-md py-1.5 pl-3 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
           />
           <Search size={14} className="absolute right-2.5 top-2.5 text-slate-400" />
         </div>
@@ -98,57 +113,66 @@ export default function Home({ setCurrentTab }) {
               Featured Articles
             </h2>
             <button 
-              onClick={() => setShowAllArticlesView(false)}
+              onClick={() => {
+                setShowAllArticlesView(false);
+                setSearchQuery("");
+              }}
               className="px-3 py-1 bg-slate-100 border border-slate-900 text-xs font-bold text-slate-900 rounded-lg hover:bg-slate-900 hover:text-white transition-all cursor-pointer"
             >
               Back to Home
             </button>
           </div>
 
-          {/* 3-COLUMN CARD GRID (MATCHES YOUR IMAGE DESIGN) */}
+          {/* 3-COLUMN CARD GRID */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {exampleArticles.map((article) => (
-              <div 
-                key={article.id}
-                className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow min-h-[380px]"
-              >
-                <div className="space-y-3">
-                  {/* Image Container (Optional/Conditional) */}
-                  {article.image ? (
-                    <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-900">
-                      <img 
-                        src={article.image} 
-                        alt={article.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : null}
+            {filteredArticles.length > 0 ? (
+              filteredArticles.map((article) => (
+                <div 
+                  key={article.id}
+                  className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow min-h-[380px]"
+                >
+                  <div className="space-y-3">
+                    {/* Image Container */}
+                    {article.image && (
+                      <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-900">
+                        <img 
+                          src={article.image} 
+                          alt={article.title} 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
 
-                  {/* Title */}
-                  <h3 className="text-lg font-bold text-slate-900 leading-snug">
-                    {article.title}
-                  </h3>
+                    {/* Title */}
+                    <h3 className="text-lg font-bold text-slate-900 leading-snug">
+                      {article.title}
+                    </h3>
 
-                  {/* Snippet / Description */}
-                  <p className="text-xs text-slate-600">
-                    {article.snippet}
-                  </p>
+                    {/* Snippet / Description */}
+                    <p className="text-xs text-slate-600">
+                      {article.snippet}
+                    </p>
+                  </div>
+
+                  {/* Card Footer Actions */}
+                  <div className="flex items-center justify-between pt-4 mt-auto">
+                    <button 
+                      onClick={() => openArticleModal(article)}
+                      className="px-4 py-1.5 bg-[#EAEAD7] hover:bg-slate-900 hover:text-white border border-slate-900 rounded-lg text-xs font-bold text-slate-900 transition-all cursor-pointer"
+                    >
+                      Read more
+                    </button>
+                    <span className="text-xs text-slate-500 font-medium">
+                      {article.date}
+                    </span>
+                  </div>
                 </div>
-
-                {/* Card Footer Actions */}
-                <div className="flex items-center justify-between pt-4 mt-auto">
-                  <button 
-                    onClick={() => openArticleModal(article)}
-                    className="px-4 py-1.5 bg-[#EAEAD7] hover:bg-slate-900 hover:text-white border border-slate-900 rounded-lg text-xs font-bold text-slate-900 transition-all cursor-pointer"
-                  >
-                    Read more
-                  </button>
-                  <span className="text-xs text-slate-500 font-medium">
-                    {article.date}
-                  </span>
-                </div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-12 text-slate-500">
+                No articles found matching "{searchQuery}".
               </div>
-            ))}
+            )}
           </div>
 
         </div>
@@ -296,34 +320,33 @@ export default function Home({ setCurrentTab }) {
               </div>
               <button 
                 onClick={closeArticleModal}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-200 transition-all cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Modal Content Body */}
-            <div className="space-y-3 text-xs text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
-              <p className="font-semibold text-slate-900 bg-white p-3 rounded-xl border-2 border-slate-900">
-                {selectedArticleModal.snippet}
-              </p>
-              <p className="text-sm leading-relaxed">{selectedArticleModal.content}</p>
+            {/* Optional Modal Image */}
+            {selectedArticleModal.image && (
+              <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-900">
+                <img 
+                  src={selectedArticleModal.image} 
+                  alt={selectedArticleModal.title} 
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )}
+
+            {/* Modal Content */}
+            <div className="text-xs text-slate-700 leading-relaxed max-h-60 overflow-y-auto pr-1">
+              <p>{selectedArticleModal.content}</p>
             </div>
 
-            {/* Modal Footer Controls */}
-            <div className="pt-3 border-t-2 border-slate-900 flex items-center justify-between">
-              <button
-                onClick={() => {
-                  closeArticleModal();
-                  setShowAllArticlesView(true);
-                }}
-                className="text-xs font-bold text-slate-900 hover:underline flex items-center gap-1 cursor-pointer"
-              >
-                View all featured articles <ArrowRight size={12} />
-              </button>
+            {/* Modal Footer */}
+            <div className="pt-2 border-t border-slate-200 flex justify-end">
               <button
                 onClick={closeArticleModal}
-                className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-all cursor-pointer"
+                className="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
               >
                 Close
               </button>
