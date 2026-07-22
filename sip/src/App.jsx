@@ -6,6 +6,8 @@ import MapPage from './pages/MapPage';
 import EventsPage from './pages/Events';
 import SettingsPage from './pages/Settings';
 import Community from './pages/Community';
+import MissionsPage from './pages/MissionsPage'; // IMPORT THIS
+import Games from './pages/Games'; // IMPORT THIS (Assuming filename is Games.jsx)
 import { ArrowLeft, Search, Clock, X, ChevronDown, ChevronUp } from 'lucide-react';
 
 const allArticles = [
@@ -122,11 +124,16 @@ export default function App() {
 
         <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
           
-          {currentPage === 'home' && <Home setCurrentTab={(targetTab) => setCurrentPage(targetTab)} />}
+          {/* PASSED prop named 'setCurrentTab' to match Home.jsx definition */}
+          {currentPage === 'home' && <Home setCurrentTab={setCurrentPage} />}
+          
           {currentPage === 'map' && <MapPage />}
           {currentPage === 'events' && <EventsPage currentUser={currentUser} />}
           {currentPage === 'community' && <Community triggerDirectMessage={handleDirectConnectMessagingSeed} />}
           
+          {/* PASSED prop named 'setCurrentTab' to match MissionsPage.jsx definition */}
+          {currentPage === 'missions' && <MissionsPage setCurrentTab={setCurrentPage} />}
+
           {currentPage === 'nsf' && (
             <div className="max-w-4xl mx-auto space-y-4 text-left">
               <h1 className="text-3xl font-serif font-bold text-gray-900">NSF Portfolio Hub</h1>
@@ -134,11 +141,8 @@ export default function App() {
             </div>
           )}
 
-          {currentPage === 'games' && (
-            <div className="max-w-4xl mx-auto space-y-4 text-left">
-              <h1 className="text-3xl font-serif font-bold text-gray-900">Arcade & Games</h1>
-            </div>
-          )}
+          {/* RENDER ACTUAL GAMES COMPONENT */}
+          {currentPage === 'games' && <Games />}
           
           {currentPage === 'settings' && <SettingsPage currentUser={currentUser} setCurrentUser={setCurrentUser} />}
 

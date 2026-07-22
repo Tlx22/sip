@@ -31,6 +31,7 @@ const exampleArticles = [
   }
 ];
 
+// Definition uses { setCurrentTab }
 export default function Home({ setCurrentTab }) {
   const [selectedArticleModal, setSelectedArticleModal] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -86,6 +87,7 @@ export default function Home({ setCurrentTab }) {
             Co-Co aims to inspire users to foster inclusive, safe, and harmonious communities in Singapore by supporting Migrant Domestic Worker (MDW) well-being and cultural integration.
           </p>
           
+          {/* CRITICAL FIX: Safe check for function existance */}
           <button 
             onClick={() => setCurrentTab && setCurrentTab('missions')}
             className="px-4 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 transition-all cursor-pointer"
@@ -94,6 +96,7 @@ export default function Home({ setCurrentTab }) {
           </button>
         </div>
 
+        {/* CRITICAL FIX: safe check for function existance */}
         <div 
           onClick={() => setCurrentTab && setCurrentTab('missions')}
           className="w-full md:w-[40%] h-40 bg-slate-100 rounded-xl overflow-hidden border-2 border-slate-900 cursor-pointer group relative"
@@ -186,6 +189,7 @@ export default function Home({ setCurrentTab }) {
                 <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
               </div>
               <p className="text-xs font-bold text-slate-900 text-center w-full truncate">{item.title}</p>
+              {/* Safe check for function existance */}
               <button 
                 onClick={() => setCurrentTab && setCurrentTab('events')}
                 className="w-full py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 transition-all cursor-pointer"
@@ -234,6 +238,7 @@ export default function Home({ setCurrentTab }) {
 
             {/* Modal Footer */}
             <div className="pt-3 border-t-2 border-slate-900 flex items-center justify-between">
+              {/* safe check for function existance */}
               <button
                 onClick={() => {
                   closeArticleModal();
