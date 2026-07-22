@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Search, X, Clock } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { Search, X, ArrowRight } from 'lucide-react';
 
 const exampleArticles = [
   { 
@@ -8,7 +8,7 @@ const exampleArticles = [
     title: "Why community Manners are important?", 
     date: "21 July 2026",
     image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80",
-    snippet: "Descriptions....", 
+    snippet: "Safety and consideration at home are paramount under MOM regulations.", 
     content: "Safety and consideration at home are paramount. Under Ministry of Manpower (MOM) regulations, cleaning the exterior of windows in high-rise homes requires strict adherence to safety conditions: adult supervision must be present, and window grilles must be locked at all times. Never stretch or lean out over balconies or ledges to clean exterior glass."
   },
   { 
@@ -16,8 +16,8 @@ const exampleArticles = [
     category: "Community Highlights", 
     title: "How I found my second home in Singapore..", 
     date: "21 July 2026",
-    image: null, // Card without image as shown in middle reference wireframe
-    snippet: "Descriptions....", 
+    image: null,
+    snippet: "A collaborative culinary workshop bringing families and MDWs together.", 
     content: "Over 80 participants gathered last Sunday at the local community hub for a collaborative culinary workshop. Local families learned traditional sambal-making techniques while MDWs were introduced to heritage hawker recipes. Beyond cooking, the event featured free basic health screenings and peer networking sessions."
   },
   { 
@@ -26,7 +26,7 @@ const exampleArticles = [
     title: "Understanding different Cultures...", 
     date: "21 July 2026",
     image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
-    snippet: "Descriptions....", 
+    snippet: "Discover how food bridges cultural gaps between Singaporean households and MDWs.", 
     content: "Food is one of the strongest bridges between cultures. From rich Indonesian Nasi Tumpeng to traditional Tagalog Adobo and Sinigang, learning the history of these comfort foods fosters mutual respect and appreciation in households."
   }
 ];
@@ -43,6 +43,18 @@ export default function Home({ setCurrentTab }) {
     setSelectedArticleModal(null);
   };
 
+  // Filter articles based on search query
+  const filteredArticles = useMemo(() => {
+    if (!searchQuery.trim()) return exampleArticles;
+    const query = searchQuery.toLowerCase();
+    return exampleArticles.filter(
+      (article) =>
+        article.title.toLowerCase().includes(query) ||
+        article.category.toLowerCase().includes(query) ||
+        article.content.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
   return (
     <div className="w-full space-y-10 pb-24 text-left font-sans select-none">
       
@@ -56,7 +68,7 @@ export default function Home({ setCurrentTab }) {
           <div className="relative w-full md:w-64">
             <input 
               type="text" 
-              placeholder="Search" 
+              placeholder="Search articles..." 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-slate-100 border border-slate-200 rounded-md py-1.5 pl-3 pr-8 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
@@ -94,59 +106,68 @@ export default function Home({ setCurrentTab }) {
         </div>
       </div>
 
-      {/* 3. FEATURED ARTICLES SECTION (MATCHES DESIGN REFERENCE) */}
+      {/* 3. FEATURED ARTICLES SECTION */}
       <div className="space-y-4">
         <h2 className="text-3xl font-serif font-normal text-slate-900">
           Featured Articles
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {exampleArticles.map((article) => (
-            <div 
-              key={article.id} 
-              className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between h-[380px] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] hover:shadow-none transition-all"
-            >
-              <div className="space-y-3">
-                {/* Optional Image Banner */}
-                {article.image ? (
-                  <div className="w-full h-40 rounded-xl border-2 border-slate-900 overflow-hidden bg-white">
-                    <img 
-                      src={article.image} 
-                      alt={article.title} 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-2" /> // Spacer for text-only card
-                )}
+        {filteredArticles.length === 0 ? (
+          <p className="text-sm text-slate-500 py-6">No articles found matching "{searchQuery}".</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {filteredArticles.map((article) => (
+              <div 
+                key={article.id} 
+                className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between h-[380px] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] hover:shadow-none transition-all"
+              >
+                <div className="space-y-3">
+                  {/* Category Tag */}
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    {article.category}
+                  </span>
 
-                {/* Article Title & Description */}
-                <div className="space-y-1">
-                  <h3 className="text-lg font-bold text-slate-900 leading-snug">
-                    {article.title}
-                  </h3>
-                  <p className="text-xs text-slate-600 font-medium">
-                    {article.snippet}
-                  </p>
+                  {/* Optional Image Banner */}
+                  {article.image ? (
+                    <div className="w-full h-36 rounded-xl border-2 border-slate-900 overflow-hidden bg-white">
+                      <img 
+                        src={article.image} 
+                        alt={article.title} 
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-2" />
+                  )}
+
+                  {/* Article Title & Snippet */}
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2">
+                      {article.title}
+                    </h3>
+                    <p className="text-xs text-slate-600 font-medium line-clamp-2">
+                      {article.snippet}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bottom Footer: Button + Date */}
+                <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                  <button
+                    onClick={() => openArticleModal(article)}
+                    className="px-4 py-1.5 bg-[#E2F1E7] hover:bg-[#d2e8db] border-2 border-slate-900 text-slate-900 text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
+                  >
+                    Read more
+                  </button>
+
+                  <span className="text-xs text-slate-500 font-medium">
+                    {article.date}
+                  </span>
                 </div>
               </div>
-
-              {/* Bottom Footer: Button + Date */}
-              <div className="flex items-center justify-between pt-4">
-                <button
-                  onClick={() => openArticleModal(article)}
-                  className="px-4 py-1.5 bg-[#E2F1E7] hover:bg-[#d2e8db] border-2 border-slate-900 text-slate-900 text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
-                >
-                  Read more
-                </button>
-
-                <span className="text-xs text-slate-500 font-medium">
-                  {article.date}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* 4. UPCOMING EVENTS */}
@@ -184,13 +205,17 @@ export default function Home({ setCurrentTab }) {
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b-2 border-slate-900 pb-3">
               <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                  {selectedArticleModal.category}
+                </span>
                 <h2 className="text-xl font-serif font-bold text-slate-900 leading-snug">
                   {selectedArticleModal.title}
                 </h2>
-                <span className="text-xs text-slate-500 font-bold">{selectedArticleModal.date}</span>
+                <span className="text-xs text-slate-500 font-bold block">{selectedArticleModal.date}</span>
               </div>
               <button 
                 onClick={closeArticleModal}
+                aria-label="Close modal"
                 className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-all cursor-pointer"
               >
                 <X size={20} />
@@ -199,10 +224,12 @@ export default function Home({ setCurrentTab }) {
 
             {/* Modal Content Body */}
             <div className="space-y-3 text-xs text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
-              <p className="font-semibold text-slate-900 bg-white p-3 rounded-xl border-2 border-slate-900">
-                {selectedArticleModal.snippet}
-              </p>
-              <p className="text-sm">{selectedArticleModal.content}</p>
+              {selectedArticleModal.snippet && (
+                <p className="font-semibold text-slate-900 bg-white p-3 rounded-xl border-2 border-slate-900">
+                  {selectedArticleModal.snippet}
+                </p>
+              )}
+              <p className="text-sm leading-relaxed">{selectedArticleModal.content}</p>
             </div>
 
             {/* Modal Footer */}
@@ -212,9 +239,9 @@ export default function Home({ setCurrentTab }) {
                   closeArticleModal();
                   if (setCurrentTab) setCurrentTab('articles');
                 }}
-                className="text-xs font-bold text-emerald-800 hover:underline cursor-pointer"
+                className="text-xs font-bold text-emerald-800 hover:underline flex items-center gap-1 cursor-pointer"
               >
-                Explore all articles →
+                Explore all articles <ArrowRight size={12} />
               </button>
               <button
                 onClick={closeArticleModal}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Heart, Users, Globe, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Heart, Users, ShieldCheck } from 'lucide-react';
 
 export default function MissionsPage({ setCurrentTab }) {
   return (
@@ -9,7 +9,7 @@ export default function MissionsPage({ setCurrentTab }) {
       {setCurrentTab && (
         <button 
           onClick={() => setCurrentTab('home')}
-          className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+          className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
         >
           <ArrowLeft size={14} /> Back to Home
         </button>

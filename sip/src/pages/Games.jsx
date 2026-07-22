@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { HelpCircle, Play, Users, Coins, Sparkles } from 'lucide-react';
+import { HelpCircle, Play, Sparkles } from 'lucide-react';
 
 export default function Games({ onStartGame, onPlayTogether }) {
   const [selectedTutorial, setSelectedTutorial] = useState(null);
@@ -12,7 +12,7 @@ export default function Games({ onStartGame, onPlayTogether }) {
       subtitle: 'Jigsaw Puzzle',
       image: 'https://images.unsplash.com/photo-1513542789411-b6a5d4f31634?auto=format&fit=crop&w=600&q=80',
       bgColor: 'bg-sky-200/80',
-      description: 'Work together with friends to assemble bright community jigsaw pieces!'
+      description: 'Work together with friends to assemble bright community jigsaw pieces and earn coins!'
     },
     {
       id: 2,
@@ -21,7 +21,7 @@ export default function Games({ onStartGame, onPlayTogether }) {
       subtitle: 'Strawberry Harvest',
       image: 'https://images.unsplash.com/photo-1587393855524-087f83d95bc9?auto=format&fit=crop&w=600&q=80',
       bgColor: 'bg-rose-100/90',
-      description: 'Climb the vines and harvest ripe strawberries in co-op mode.'
+      description: 'Climb the vines and harvest ripe strawberries in co-op mode before time runs out.'
     },
     {
       id: 3,
@@ -30,7 +30,7 @@ export default function Games({ onStartGame, onPlayTogether }) {
       subtitle: 'Item Merge Rush',
       image: 'https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=600&q=80',
       bgColor: 'bg-amber-100/90',
-      description: 'Match and merge cute items on the grid board to fulfill local orders.'
+      description: 'Match and merge cute items on the grid board to fulfill local neighborhood orders.'
     }
   ];
 
@@ -155,38 +155,30 @@ export default function Games({ onStartGame, onPlayTogether }) {
               </button>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <p className="text-xs font-semibold text-slate-700 leading-relaxed">
                 {selectedTutorial.description}
               </p>
-              <div className="bg-amber-50 border-2 border-amber-200 p-3 rounded-xl text-[11px] text-amber-900 space-y-1">
-                <p className="font-bold">🕹️ How to Play:</p>
-                <ul className="list-disc list-inside space-y-0.5 text-slate-600">
-                  <li>Gather 2-4 team members online.</li>
-                  <li>Complete shared objectives before timer runs out.</li>
-                  <li>Earn garden coins to unlock avatar accessories!</li>
-                </ul>
+              
+              <div className="bg-amber-50 border-2 border-amber-300 p-3 rounded-lg flex items-start gap-2">
+                <Sparkles size={16} className="text-amber-600 shrink-0 mt-0.5" />
+                <p className="text-[11px] text-amber-900 font-bold">
+                  Pro-tip: Play with friends in co-op mode to earn 2x Community Coins per session!
+                </p>
               </div>
             </div>
 
-            <button 
-              onClick={() => setSelectedTutorial(null)}
-              className="w-full py-2 bg-slate-900 text-white font-bold text-xs rounded-xl hover:bg-slate-800 transition-colors cursor-pointer"
-            >
-              Got it!
-            </button>
+            <div className="pt-2 flex justify-end">
+              <button
+                onClick={() => setSelectedTutorial(null)}
+                className="px-4 py-2 bg-slate-900 text-white border-2 border-slate-900 rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                Got it!
+              </button>
+            </div>
           </div>
         </div>
       )}
-
-      {/* FOOTER PIXEL GRASS DECORATION STRIP */}
-      <div className="pt-8">
-        <div className="w-full h-6 bg-emerald-600 border-t-4 border-slate-900 rounded-b-lg flex justify-around items-center overflow-hidden opacity-90">
-          {[...Array(24)].map((_, i) => (
-            <div key={i} className="w-2 h-3 bg-emerald-400 rotate-45 transform" />
-          ))}
-        </div>
-      </div>
 
     </div>
   );
