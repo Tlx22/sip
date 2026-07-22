@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Search, MessageSquare, BookOpen, Calendar, Users, Heart, X, Megaphone } from 'lucide-react';
+import { Search, MessageSquare, Calendar, Users, Megaphone, SlidersHorizontal, Heart, CheckCircle } from 'lucide-react';
 
-// Sample Dataset for Human Library
+// Sample Dataset for Human Library updated with roles and quote-style bios
 const humanLibraryData = [
-  { id: 'hl-1', name: 'Marcus Tan', bio: 'Audio engineer & indie rock drummer. Loves vintage analog record mixing.', interests: ['Drums', 'Vinyl', 'Music Scene'], spots: ['Maxwell Hub - Room A (Sat 2pm)', 'Tampines Hub - Booth 3 (Sun 4pm)'] },
-  { id: 'hl-2', name: 'Sarah Lim', bio: 'Competes in regional slab bouldering. Expert in technical hip flexibility routes.', interests: ['Bouldering', 'Fitness', 'Sports Science'], spots: ['Outram Beta Vault - Spot 1 (Fri 7pm)'] },
-  { id: 'hl-3', name: 'Viknesh Raj', bio: 'Full-stack developer building mapping plugins. Loves Python architecture.', interests: ['Python', 'React', 'Campus Tech'], spots: ['SP Tech Lab 4 (Mon 10am)'] }
+  { id: 'hl-1', name: 'Lev', role: 'Chef', quote: 'Food connects us', bio: 'Audio engineer & indie rock drummer. Loves vintage analog record mixing.', interests: ['Drums', 'Vinyl', 'Music Scene'], spots: ['Maxwell Hub - Room A (Sat 2pm)', 'Tampines Hub - Booth 3 (Sun 4pm)'] },
+  { id: 'hl-2', name: 'Siti', role: 'Mom', quote: 'My journey in SG', bio: 'Competes in regional slab bouldering. Expert in technical hip flexibility routes.', interests: ['Bouldering', 'Fitness', 'Sports Science'], spots: ['Outram Beta Vault - Spot 1 (Fri 7pm)'] },
+  { id: 'hl-3', name: 'Sabrina', role: 'Student', quote: 'Learning and growing', bio: 'Full-stack developer building mapping plugins. Loves Python architecture.', interests: ['Python', 'React', 'Campus Tech'], spots: ['SP Tech Lab 4 (Mon 10am)'] },
+  { id: 'hl-4', name: 'Emily', role: 'Manager', quote: 'Communication is important', bio: 'Community organizer hosting neighbourhood workshops and heritage walks.', interests: ['Events', 'Community', 'Leadership'], spots: ['City Canvas - Table 2 (Thu 3pm)'] }
 ];
 
 // Sample Dataset for Community Groups
@@ -23,169 +24,243 @@ const pastConnections = [
 export default function Community({ triggerDirectMessage }) {
   const [activeFilter, setActiveFilter] = useState('library');
   const [librarySearch, setLibrarySearch] = useState('');
-  const [currentCardIdx, setCurrentCardIdx] = useState(0);
-  const [showSpotsId, setShowSpotsId] = useState(null);
+  const [selectedBook, setSelectedBook] = useState(null);
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [connectedIds, setConnectedIds] = useState([]);
 
-  // Filter library cards dynamically based on searched interests
-  const filteredLibrary = humanLibraryData.filter(person => 
+  // Filter library cards based on search input across name, role, quote, or interests
+  const filteredLibrary = humanLibraryData.filter(person =>
+    person.name.toLowerCase().includes(librarySearch.toLowerCase()) ||
+    person.role.toLowerCase().includes(librarySearch.toLowerCase()) ||
+    person.quote.toLowerCase().includes(librarySearch.toLowerCase()) ||
     person.interests.some(interest => interest.toLowerCase().includes(librarySearch.toLowerCase()))
   );
 
-  const currentCard = filteredLibrary[currentCardIdx];
-
   const handleConnect = (person) => {
+    if (!connectedIds.includes(person.id)) {
+      setConnectedIds([...connectedIds, person.id]);
+    }
+
     if (triggerDirectMessage) {
       triggerDirectMessage({
         id: person.id,
         name: person.name,
-        handle: person.id.includes('hl') ? 'human_library_guest' : person.handle,
-        messages: [{ sender: 'them', text: `Hi! Thanks for connecting through the Community portal. Let's arrange a time to chat!`, time: 'Just now' }]
+        handle: person.id.includes('hl') ? `${person.name.toLowerCase()}_book` : person.handle,
+        messages: [{ sender: 'them', text: `Hi! Thanks for connecting through the Human Library. Let's arrange a time to chat!`, time: 'Just now' }]
       });
     }
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 text-left pb-24">
-      {/* Title Header */}
-      <div>
-        <h1 className="text-3xl font-serif font-bold text-gray-900 tracking-tight">Community Spaces</h1>
-        <p className="text-sm text-gray-500">Discover human books, join collaborative hubs, and link up with familiar faces.</p>
+    <div className="max-w-5xl mx-auto space-y-6 text-left pb-24 font-sans">
+      
+      {/* Page Title & Navigation Header */}
+      <div className="border-b border-gray-200 pb-4 space-y-1">
+        <h1 className="text-3xl font-serif font-normal text-slate-900">Co-Co</h1>
+        <h2 className="text-2xl font-serif font-semibold text-slate-800">Human Library</h2>
       </div>
 
-      {/* Filter Navigation Bar */}
-      <div className="flex border-b border-gray-100 gap-6 text-sm font-bold">
+      {/* Navigation Sub-Tabs */}
+      <div className="flex border-b border-gray-100 gap-6 text-xs font-bold">
         <button 
           onClick={() => setActiveFilter('library')} 
-          className={`pb-3 transition-colors ${activeFilter === 'library' ? 'border-b-2 border-[#046A4E] text-[#046A4E]' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`pb-2.5 transition-colors ${activeFilter === 'library' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-gray-400 hover:text-gray-600'}`}
         >
-          📖 Human Library
+          📖 Human Books
         </button>
         <button 
           onClick={() => setActiveFilter('groups')} 
-          className={`pb-3 transition-colors ${activeFilter === 'groups' ? 'border-b-2 border-[#046A4E] text-[#046A4E]' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`pb-2.5 transition-colors ${activeFilter === 'groups' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-gray-400 hover:text-gray-600'}`}
         >
           👥 Community Groups
         </button>
         <button 
           onClick={() => setActiveFilter('connects')} 
-          className={`pb-3 transition-colors ${activeFilter === 'connects' ? 'border-b-2 border-[#046A4E] text-[#046A4E]' : 'text-gray-400 hover:text-gray-600'}`}
+          className={`pb-2.5 transition-colors ${activeFilter === 'connects' ? 'border-b-2 border-slate-900 text-slate-900' : 'text-gray-400 hover:text-gray-600'}`}
         >
           🔄 Past Event Links
         </button>
       </div>
 
-      {/* INTERFACE 1: HUMAN LIBRARY (TINDER STYLE SWIPER + SEARCH) */}
+      {/* ========================================================= */}
+      {/* TAB 1: HUMAN LIBRARY (GRID LAYOUT MATCHING IMAGE)          */}
+      {/* ========================================================= */}
       {activeFilter === 'library' && (
         <div className="space-y-6">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-3 text-gray-400" size={16} />
-            <input 
-              type="text"
-              value={librarySearch}
-              onChange={(e) => { setLibrarySearch(e.target.value); setCurrentCardIdx(0); }}
-              placeholder="Search human books by shared interests (e.g., Drums, Bouldering, Python)..."
-              className="w-full px-4 py-2.5 pl-10 border border-gray-200 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#046A4E]/20"
-            />
+          
+          {/* Search Bar & Filter Button */}
+          <div className="flex items-center gap-3 max-w-sm">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-2.5 text-gray-400" size={14} />
+              <input 
+                type="text"
+                value={librarySearch}
+                onChange={(e) => setLibrarySearch(e.target.value)}
+                placeholder="Search"
+                className="w-full pl-9 pr-3 py-1.5 bg-gray-100/80 border border-transparent rounded-lg text-xs outline-none focus:bg-white focus:border-slate-300 transition-all"
+              />
+            </div>
+            <button className="p-2 border border-slate-900 rounded-lg hover:bg-slate-50 transition-colors">
+              <SlidersHorizontal size={14} className="text-slate-900" />
+            </button>
           </div>
 
-          {currentCard ? (
-            <div className="max-w-md mx-auto bg-white border border-gray-100 rounded-3xl shadow-xl overflow-hidden p-6 space-y-6 relative transition-all">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-bold text-gray-900">{currentCard.name}</h3>
-                  <span className="text-xs font-mono px-2 py-0.5 bg-emerald-50 text-[#046A4E] rounded-full border border-emerald-100">Human Book</span>
-                </div>
-                <p className="text-sm text-gray-600 leading-relaxed min-h-12">{currentCard.bio}</p>
-              </div>
+          {/* Cards Grid Container */}
+          {filteredLibrary.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              {filteredLibrary.map((person) => {
+                const isSelected = selectedBook?.id === person.id;
+                const isConnected = connectedIds.includes(person.id);
 
-              {/* Tags */}
-              <div className="flex flex-wrap gap-1.5">
-                {currentCard.interests.map((tag, i) => (
-                  <span key={i} className="text-[10px] bg-slate-100 font-bold uppercase tracking-wide text-slate-600 px-2 py-0.5 rounded-md">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
+                return (
+                  <div 
+                    key={person.id}
+                    onClick={() => setSelectedBook(person)}
+                    className={`bg-[#F9F9F6] border-2 border-slate-900 rounded-2xl p-5 text-center flex flex-col items-center justify-between space-y-4 cursor-pointer transition-all hover:shadow-md ${
+                      isSelected ? 'ring-2 ring-emerald-500 shadow-md' : ''
+                    }`}
+                  >
+                    {/* Circle Avatar */}
+                    <div className="w-20 h-20 rounded-full bg-amber-100/80 border border-slate-300 flex items-center justify-center text-2xl font-bold text-slate-700 shadow-xs">
+                      {person.name.charAt(0)}
+                    </div>
 
-              {/* Booking Segment Toggler */}
-              <div className="border-t border-dashed border-gray-100 pt-3">
-                <button 
-                  onClick={() => setShowSpotsId(showSpotsId === currentCard.id ? null : currentCard.id)}
-                  className="flex items-center gap-1 text-xs text-amber-600 hover:text-amber-700 font-bold transition-colors"
-                >
-                  <Calendar size={12} /> {showSpotsId === currentCard.id ? 'Hide Booking Spots' : 'View Available Spots to Book'}
-                </button>
-                
-                {showSpotsId === currentCard.id && (
-                  <div className="mt-2 space-y-1 bg-amber-50/50 border border-amber-100/40 p-2 rounded-xl">
-                    {currentCard.spots.map((spot, i) => (
-                      <div key={i} className="text-[11px] text-amber-900 flex justify-between items-center py-0.5">
-                        <span>📍 {spot}</span>
-                        <button className="px-2 py-0.5 bg-amber-600 hover:bg-amber-700 text-white rounded font-bold text-[9px] uppercase tracking-wide">Book</button>
-                      </div>
-                    ))}
+                    {/* Name, Role & Quote */}
+                    <div className="space-y-1 flex-1">
+                      <h3 className="text-lg font-serif font-semibold text-slate-900">{person.name}</h3>
+                      <p className="text-xs font-semibold text-slate-600">{person.role}</p>
+                      <p className="text-xs italic text-slate-500 pt-1">"{person.quote}"</p>
+                    </div>
+
+                    {/* Connect Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleConnect(person);
+                      }}
+                      className={`w-full py-2 border-2 border-slate-900 rounded-xl font-bold text-xs transition-colors flex items-center justify-center gap-1.5 ${
+                        isConnected
+                          ? 'bg-emerald-800 text-white border-emerald-800'
+                          : 'bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900'
+                      }`}
+                    >
+                      {isConnected ? (
+                        <>
+                          <CheckCircle size={13} /> Connected
+                        </>
+                      ) : (
+                        'Connect'
+                      )}
+                    </button>
                   </div>
-                )}
-              </div>
-
-              {/* Tinder Action Buttons */}
-              <div className="flex items-center justify-center gap-6 pt-2">
-                <button 
-                  onClick={() => setCurrentCardIdx((prev) => (prev + 1) % filteredLibrary.length)}
-                  className="w-12 h-12 rounded-full bg-slate-50 border border-slate-100 shadow-sm flex items-center justify-center text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all scale-100 hover:scale-105 active:scale-95"
-                >
-                  <X size={20} />
-                </button>
-                <button 
-                  onClick={() => { handleConnect(currentCard); handleConnect(currentCard); }}
-                  className="px-6 h-12 rounded-full bg-[#046A4E] hover:bg-[#03543e] text-white font-bold text-xs uppercase tracking-wider shadow-md flex items-center gap-2 transition-all scale-100 hover:scale-105 active:scale-95"
-                >
-                  <Heart size={14} className="fill-white" /> Connect Box
-                </button>
-              </div>
+                );
+              })}
             </div>
           ) : (
-            <div className="text-center py-12 bg-slate-50 border border-dashed border-slate-200 rounded-2xl text-gray-400 text-sm">
-              No human books matching those specific catalog parameters. Try checking alternative terms!
+            <div className="text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
+              No human books match your search filter.
             </div>
           )}
+
+          {/* Bottom Action: Book a Conversation Button */}
+          <div className="pt-2">
+            <button
+              onClick={() => {
+                if (!selectedBook && filteredLibrary.length > 0) {
+                  setSelectedBook(filteredLibrary[0]);
+                }
+                setShowBookingModal(true);
+              }}
+              className="w-full max-w-xl mx-auto block py-3 border-2 border-slate-900 bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900 font-serif font-bold text-base rounded-2xl transition-all shadow-xs"
+            >
+              Book a Conversation {selectedBook ? `with ${selectedBook.name}` : ''}
+            </button>
+          </div>
+
+          {/* Booking Slots Drawer / Modal */}
+          {showBookingModal && (
+            <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+              <div className="bg-white border-2 border-slate-900 rounded-3xl p-6 max-w-md w-full space-y-4 text-left shadow-xl">
+                <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                  <div>
+                    <h3 className="font-serif font-bold text-lg text-slate-900">
+                      Book Session with {selectedBook ? selectedBook.name : 'Human Book'}
+                    </h3>
+                    <p className="text-xs text-gray-500">{selectedBook?.role} • "{selectedBook?.quote}"</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowBookingModal(false)}
+                    className="p-1 text-gray-400 hover:text-slate-900 rounded-lg text-sm font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <p className="text-xs font-bold text-slate-700 uppercase tracking-wider">Available Locations & Times</p>
+                  {selectedBook?.spots?.map((spot, idx) => (
+                    <div key={idx} className="flex justify-between items-center p-3 bg-gray-50 border border-gray-200 rounded-xl">
+                      <span className="text-xs font-medium text-slate-800">📍 {spot}</span>
+                      <button 
+                        onClick={() => {
+                          alert(`🗓️ Conversation booked with ${selectedBook.name} at ${spot}!`);
+                          setShowBookingModal(false);
+                        }}
+                        className="px-3 py-1 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors"
+                      >
+                        Book
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                <button 
+                  onClick={() => setShowBookingModal(false)}
+                  className="w-full py-2 bg-gray-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+
         </div>
       )}
 
-      {/* INTERFACE 2: COMMUNITY GROUPS (FACEBOOK ANN-BOARD STYLE) */}
+      {/* ========================================================= */}
+      {/* TAB 2: COMMUNITY GROUPS                                   */}
+      {/* ========================================================= */}
       {activeFilter === 'groups' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-          {/* Main Feed Column */}
           <div className="md:col-span-2 space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Megaphone size={12}/> Group Announcements</h3>
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Megaphone size={12}/> Group Announcements</h3>
             {groupAnnouncements.map((ann) => (
-              <div key={ann.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm space-y-2">
+              <div key={ann.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs font-black text-[#046A4E] bg-emerald-50 px-2 py-0.5 rounded-md">{ann.group}</span>
+                  <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">{ann.group}</span>
                   <span className="text-[10px] text-gray-400">{ann.time}</span>
                 </div>
-                <p className="text-xs font-bold text-slate-500">Posted by {ann.author}</p>
+                <p className="text-xs font-semibold text-slate-500">Posted by {ann.author}</p>
                 <p className="text-sm text-slate-700 leading-relaxed pt-1">{ann.text}</p>
               </div>
             ))}
           </div>
 
-          {/* Group Chat Directories Sidebar Column */}
           <div className="space-y-4">
-            <h3 className="text-xs font-black uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Users size={12}/> Find/Create Channels</h3>
-            <div className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
+            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Users size={12}/> Find/Create Channels</h3>
+            <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs space-y-3">
               {['Redhill Climbers Hub', 'Kampong Glam Vinyl Crew', 'SP Tech Explorers'].map((grp, i) => (
-                <div key={i} className="flex justify-between items-center border-b border-gray-50 pb-2 last:border-0 last:pb-0">
-                  <span className="text-xs font-bold text-slate-800 truncate pr-2"># {grp}</span>
+                <div key={i} className="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                  <span className="text-xs font-semibold text-slate-800 truncate pr-2"># {grp}</span>
                   <button 
                     onClick={() => handleConnect({ id: `grp-${i}`, name: grp, handle: 'group_channel' })}
-                    className="p-1.5 bg-slate-50 hover:bg-[#046A4E] hover:text-white rounded-lg transition-colors text-slate-400"
+                    className="p-1.5 bg-gray-50 hover:bg-slate-900 hover:text-white rounded-lg transition-colors text-slate-400"
                   >
                     <MessageSquare size={12} />
                   </button>
                 </div>
               ))}
-              <button className="w-full mt-2 py-2 border border-dashed border-emerald-300 hover:bg-emerald-50/50 text-[#046A4E] font-bold text-xs rounded-xl transition-all">
+              <button className="w-full mt-2 py-2 border border-dashed border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl transition-all">
                 + Create New Space
               </button>
             </div>
@@ -193,28 +268,31 @@ export default function Community({ triggerDirectMessage }) {
         </div>
       )}
 
-      {/* INTERFACE 3: PAST EVENTS CONNECT ROSTER */}
+      {/* ========================================================= */}
+      {/* TAB 3: PAST EVENT CONNECTIONS                             */}
+      {/* ========================================================= */}
       {activeFilter === 'connects' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {pastConnections.map((user) => (
-            <div key={user.id} className="bg-white border border-gray-100 p-4 rounded-2xl shadow-sm flex justify-between items-center">
+            <div key={user.id} className="bg-white border border-gray-200 p-4 rounded-2xl shadow-xs flex justify-between items-center">
               <div className="space-y-1">
                 <div className="flex items-center gap-2">
                   <h4 className="text-sm font-bold text-slate-900">{user.name}</h4>
-                  <span className={`w-1.5 h-1.5 rounded-full ${user.status === 'Online' ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+                  <span className={`w-2 h-2 rounded-full ${user.status === 'Online' ? 'bg-emerald-500' : 'bg-gray-300'}`} />
                 </div>
-                <p className="text-[11px] text-gray-400">Met via: <span className="text-slate-600 font-medium">{user.eventAttended}</span></p>
+                <p className="text-xs text-gray-400">Met via: <span className="text-slate-700 font-medium">{user.eventAttended}</span></p>
               </div>
               <button 
                 onClick={() => handleConnect(user)}
-                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-[10px] rounded-xl uppercase tracking-wider transition-colors flex items-center gap-1.5"
+                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5"
               >
-                <MessageSquare size={10} /> Chat
+                <MessageSquare size={11} /> Chat
               </button>
             </div>
           ))}
         </div>
       )}
+
     </div>
   );
 }

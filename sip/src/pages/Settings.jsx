@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import RewardsPage from './RewardsPage'; // Adjust path if needed
 
 export default function SettingsPage({ currentUser, setCurrentUser }) {
   const [authMode, setAuthMode] = useState(currentUser ? "profile" : "auth");
@@ -6,16 +7,16 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
   const [editForm, setEditForm] = useState(currentUser || { type: 'personal', name: '', handle: '', email: '', bio: '', interests: [] });
   const [newInterest, setNewInterest] = useState("");
   const [authForm, setAuthForm] = useState({ type: 'personal', name: '', handle: '', email: '', password: '' });
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [showRewards, setShowRewards] = useState(false);
 
   const triggerSingpassLogin = () => {
     setIsSingpassLoading(true);
     setTimeout(() => {
       const mockSingpassData = {
         type: 'personal',
-        name: 'CHIEW JUN JIE (SIMULATED)',
-        handle: 'singpass_verified_chiew',
-        email: 'chiew.verified@singpass.gov.sg',
+        name: 'Carrie',
+        handle: 'carrrielovesfood',
+        email: 'carrie@example.com',
         bio: 'Identity secure verified via Singpass NDI cluster.',
         interests: ['Bouldering', 'Tech Hubs'],
         isSingpassVerified: true
@@ -49,8 +50,8 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
     e.preventDefault();
     const mockUser = {
       type: authForm.type,
-      name: authForm.name || "Community Guest Workspace",
-      handle: authForm.handle || "guest_account",
+      name: authForm.name || "Carrie",
+      handle: authForm.handle || "carrrielovesfood",
       email: authForm.email,
       bio: authForm.type === 'org' ? 'Verified neighborhood hosting group.' : 'Active participant.',
       interests: ['General']
@@ -60,6 +61,16 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
     setAuthMode("profile");
   };
 
+  // -------------------------------------------------------------
+  // RENDER REWARDS PAGE VIEW
+  // -------------------------------------------------------------
+  if (showRewards) {
+    return <RewardsPage currentUser={editForm} onBack={() => setShowRewards(false)} />;
+  }
+
+  // -------------------------------------------------------------
+  // RENDER AUTHENTICATION FORM (IF NOT LOGGED IN)
+  // -------------------------------------------------------------
   if (authMode === "auth" || !currentUser) {
     return (
       <div className="max-w-md mx-auto my-8 bg-white rounded-3xl border border-gray-100 shadow-sm p-6 text-left space-y-6">
@@ -109,14 +120,104 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
     );
   }
 
+  // -------------------------------------------------------------
+  // MAIN SETTINGS & PROFILE VIEW
+  // -------------------------------------------------------------
   return (
-    <div className="max-w-3xl mx-auto space-y-6 text-left">
-      <div>
-        <h1 className="text-xl md:text-2xl font-bold text-slate-900 tracking-tight">Account Settings</h1>
-        <p className="text-xs text-gray-400 mt-0.5">Adjust your display attributes, tags, credentials, and verification frameworks.</p>
+    <div className="max-w-4xl mx-auto space-y-6 text-left pb-16">
+      
+      {/* --- TOP PROFILE HEADER BAR (MATCHES PIC 1) --- */}
+      <div className="bg-[#FBFBFA] border border-gray-200 rounded-3xl p-6 shadow-xs space-y-6">
+        
+        {/* Title and Top Icons */}
+        <div className="flex justify-between items-center">
+          <h1 className="text-3xl font-serif font-normal text-slate-900">Profile</h1>
+          <div className="flex items-center gap-3">
+            <button className="p-2 text-slate-600 hover:text-slate-900 transition-colors relative">
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </button>
+            <div className="w-8 h-8 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-xs border border-slate-200 overflow-hidden">
+              {editForm.name ? editForm.name.charAt(0).toUpperCase() : "C"}
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Info & XP Progress Bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+          <div className="w-20 h-20 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center text-2xl font-bold border-2 border-slate-900 shadow-sm shrink-0">
+            {editForm.name ? editForm.name.charAt(0).toUpperCase() : "C"}
+          </div>
+
+          <div className="space-y-1 flex-1 w-full">
+            <h2 className="text-2xl font-serif font-bold text-slate-900">{editForm.name || "Carrie"}</h2>
+            <p className="text-xs text-slate-500 font-sans">@{editForm.handle || "carrrielovesfood"}</p>
+            
+            <div className="pt-2 space-y-1.5">
+              <p className="text-xs font-semibold text-slate-800">Level 10 - Community builder</p>
+              
+              <div className="flex items-center gap-3">
+                <div className="flex-1 max-w-md h-5 bg-white border border-slate-800 rounded-full p-0.5 overflow-hidden">
+                  <div className="h-full bg-emerald-200/80 rounded-full w-[56%]" />
+                </div>
+                <span className="text-xs font-medium text-slate-700">450 / 800 XP</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* --- STATS GRID WITH VIEW REWARDS BUTTON --- */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-2">
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-4 text-center space-y-1 shadow-xs">
+            <p className="text-xs text-slate-600 font-medium">Events Joined</p>
+            <p className="text-xl font-bold text-slate-900">12</p>
+          </div>
+
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-4 text-center space-y-1 shadow-xs">
+            <p className="text-xs text-slate-600 font-medium">Communities</p>
+            <p className="text-xl font-bold text-slate-900">9</p>
+          </div>
+
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-4 text-center space-y-1 shadow-xs">
+            <p className="text-xs text-slate-600 font-medium">Friends</p>
+            <p className="text-xl font-bold text-slate-900">28</p>
+          </div>
+
+          {/* Points Box with View Rewards Button */}
+          <div className="bg-white border-2 border-slate-900 rounded-2xl p-3 text-center space-y-1 shadow-xs flex flex-col justify-between items-center">
+            <div>
+              <p className="text-xs text-slate-600 font-medium">Points</p>
+              <p className="text-xl font-bold text-slate-900">2458</p>
+            </div>
+            <button 
+              onClick={() => setShowRewards(true)}
+              className="mt-1 px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 hover:bg-emerald-800 hover:text-white text-emerald-900 border border-emerald-300 rounded-lg transition-all"
+            >
+              View Rewards →
+            </button>
+          </div>
+        </div>
+
+        {/* --- BADGES BOX --- */}
+        <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 space-y-3">
+          <div className="flex justify-between items-center">
+            <h3 className="font-bold text-slate-900 text-sm">Badges</h3>
+            <button className="text-xs font-bold underline text-slate-800 hover:text-slate-600">View All</button>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <div className="w-24 h-24 rounded-full border-2 border-dashed border-emerald-600 bg-emerald-50/50 flex flex-col items-center justify-center text-center p-2">
+              <span className="text-xl">🤝</span>
+              <span className="text-[9px] font-extrabold uppercase text-emerald-900 tracking-tighter mt-1">Community Builder</span>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+      {/* --- ACCOUNT FORM & MANAGEMENT PANEL --- */}
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4">
         <div className="md:col-span-4 bg-white border border-gray-100 rounded-2xl p-3 space-y-1.5 shadow-sm">
           <button className="w-full text-left font-bold text-xs px-3 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">Edit Profile Elements</button>
           <button onClick={() => { setCurrentUser(null); setAuthMode("auth"); }} className="w-full text-left font-bold text-xs px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out / Disconnect</button>
@@ -181,6 +282,7 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
           </form>
         </div>
       </div>
+
     </div>
   );
 }
