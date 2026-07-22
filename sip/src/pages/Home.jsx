@@ -2,34 +2,34 @@ import React, { useState, useEffect } from 'react';
 import { BookOpen, Clock, Search, ChevronDown, ChevronUp, ArrowRight, X } from 'lucide-react';
 
 const exampleArticles = [
-  { 
-    id: 1, 
-    category: "MDW Safety & Well-being", 
-    title: "Why community Manners are important?", 
+  {
+    id: 1,
+    category: "MDW Safety & Well-being",
+    title: "Why community Manners are important?",
     date: "21 July 2026",
     readTime: "4 min read",
     image: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80",
-    snippet: "Descriptions....", 
+    snippet: "Descriptions....",
     content: "Safety and consideration at home are paramount. Under Ministry of Manpower (MOM) regulations, cleaning the exterior of windows in high-rise homes requires strict adherence to safety conditions: adult supervision must be present, and window grilles must be locked at all times. Never stretch or lean out over balconies or ledges to clean exterior glass."
   },
-  { 
-    id: 2, 
-    category: "Community Highlights", 
-    title: "How I found my second home in Singapore..", 
+  {
+    id: 2,
+    category: "Community Highlights",
+    title: "How I found my second home in Singapore..",
     date: "21 July 2026",
     readTime: "6 min read",
     image: null, // Card without image as shown in design
-    snippet: "Descriptions....", 
+    snippet: "Descriptions....",
     content: "Over 80 participants gathered last Sunday at the local community hub for a collaborative culinary workshop. Local families learned traditional sambal-making techniques while MDWs were introduced to heritage hawker recipes. Beyond cooking, the event featured free basic health screenings and peer networking sessions."
   },
-  { 
-    id: 3, 
-    category: "Cultural Exposure", 
-    title: "Understanding different Cultures...", 
+  {
+    id: 3,
+    category: "Cultural Exposure",
+    title: "Understanding different Cultures...",
     date: "21 July 2026",
     readTime: "5 min read",
     image: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=600&q=80",
-    snippet: "Descriptions....", 
+    snippet: "Descriptions....",
     content: "Food is one of the strongest bridges between cultures. From rich Indonesian Nasi Tumpeng to traditional Tagalog Adobo and Sinigang, learning the history of these comfort foods fosters mutual respect and appreciation in households."
   }
 ];
@@ -39,7 +39,6 @@ export default function Home({ setCurrentTab }) {
   const [expandedArticleId, setExpandedArticleId] = useState(null);
   const [selectedArticleModal, setSelectedArticleModal] = useState(null);
   const [showAllArticlesView, setShowAllArticlesView] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
 
   // Auto-cycle carousel
   useEffect(() => {
@@ -71,33 +70,19 @@ export default function Home({ setCurrentTab }) {
     return "bg-emerald-100 text-emerald-800";
   };
 
-  // Filtered articles based on search bar input
-  const filteredArticles = exampleArticles.filter((article) =>
-    article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    article.content.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
   return (
     <div className="w-full space-y-8 pb-48 text-left relative font-sans select-none">
-      
+
       {/* 1. BRAND HEADER & SEARCH BAR */}
       <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-center">
         <h1 className="text-4xl font-serif font-black text-slate-900 tracking-tight">
           Co-Co
         </h1>
         <div className="relative w-48 sm:w-64">
-          <input 
-            type="text" 
-            placeholder="Search articles..." 
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (e.target.value.trim() !== '') {
-                setShowAllArticlesView(true);
-              }
-            }}
-            className="w-full bg-slate-100 border border-slate-200 rounded-md py-1.5 pl-3 pr-8 text-xs focus:outline-none focus:ring-1 focus:ring-slate-900"
+          <input
+            type="text"
+            placeholder="Search"
+            className="w-full bg-slate-100 border border-slate-200 rounded-md py-1.5 pl-3 pr-8 text-xs focus:outline-none"
           />
           <Search size={14} className="absolute right-2.5 top-2.5 text-slate-400" />
         </div>
@@ -106,73 +91,64 @@ export default function Home({ setCurrentTab }) {
       {/* CONDITIONAL RENDER: FULL ARTICLES GRID VIEW */}
       {showAllArticlesView ? (
         <div className="space-y-6 animate-in fade-in duration-200">
-          
+
           {/* Header Controls for All Articles */}
           <div className="flex justify-between items-center">
             <h2 className="text-3xl font-serif font-bold text-slate-900 tracking-tight">
               Featured Articles
             </h2>
-            <button 
-              onClick={() => {
-                setShowAllArticlesView(false);
-                setSearchQuery("");
-              }}
+            <button
+              onClick={() => setShowAllArticlesView(false)}
               className="px-3 py-1 bg-slate-100 border border-slate-900 text-xs font-bold text-slate-900 rounded-lg hover:bg-slate-900 hover:text-white transition-all cursor-pointer"
             >
               Back to Home
             </button>
           </div>
 
-          {/* 3-COLUMN CARD GRID */}
+          {/* 3-COLUMN CARD GRID (MATCHES YOUR IMAGE DESIGN) */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredArticles.length > 0 ? (
-              filteredArticles.map((article) => (
-                <div 
-                  key={article.id}
-                  className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow min-h-[380px]"
-                >
-                  <div className="space-y-3">
-                    {/* Image Container */}
-                    {article.image && (
-                      <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-900">
-                        <img 
-                          src={article.image} 
-                          alt={article.title} 
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                    )}
+            {exampleArticles.map((article) => (
+              <div
+                key={article.id}
+                className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow min-h-[380px]"
+              >
+                <div className="space-y-3">
+                  {/* Image Container (Optional/Conditional) */}
+                  {article.image ? (
+                    <div className="w-full h-44 rounded-xl overflow-hidden border border-slate-900">
+                      <img
+                        src={article.image}
+                        alt={article.title}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  ) : null}
 
-                    {/* Title */}
-                    <h3 className="text-lg font-bold text-slate-900 leading-snug">
-                      {article.title}
-                    </h3>
+                  {/* Title */}
+                  <h3 className="text-lg font-bold text-slate-900 leading-snug">
+                    {article.title}
+                  </h3>
 
-                    {/* Snippet / Description */}
-                    <p className="text-xs text-slate-600">
-                      {article.snippet}
-                    </p>
-                  </div>
-
-                  {/* Card Footer Actions */}
-                  <div className="flex items-center justify-between pt-4 mt-auto">
-                    <button 
-                      onClick={() => openArticleModal(article)}
-                      className="px-4 py-1.5 bg-[#EAEAD7] hover:bg-slate-900 hover:text-white border border-slate-900 rounded-lg text-xs font-bold text-slate-900 transition-all cursor-pointer"
-                    >
-                      Read more
-                    </button>
-                    <span className="text-xs text-slate-500 font-medium">
-                      {article.date}
-                    </span>
-                  </div>
+                  {/* Snippet / Description */}
+                  <p className="text-xs text-slate-600">
+                    {article.snippet}
+                  </p>
                 </div>
-              ))
-            ) : (
-              <div className="col-span-3 text-center py-12 text-slate-500">
-                No articles found matching "{searchQuery}".
+
+                {/* Card Footer Actions */}
+                <div className="flex items-center justify-between pt-4 mt-auto">
+                  <button
+                    onClick={() => openArticleModal(article)}
+                    className="px-4 py-1.5 bg-[#EAEAD7] hover:bg-slate-900 hover:text-white border border-slate-900 rounded-lg text-xs font-bold text-slate-900 transition-all cursor-pointer"
+                  >
+                    Read more
+                  </button>
+                  <span className="text-xs text-slate-500 font-medium">
+                    {article.date}
+                  </span>
+                </div>
               </div>
-            )}
+            ))}
           </div>
 
         </div>
@@ -186,8 +162,8 @@ export default function Home({ setCurrentTab }) {
               <p className="text-xs text-slate-600 max-w-md leading-relaxed">
                 Co-Co aims to inspire users to foster inclusive, safe, and harmonious communities in Singapore by supporting Migrant Domestic Worker (MDW) well-being and cultural integration.
               </p>
-              
-              <button 
+
+              <button
                 onClick={() => setCurrentTab && setCurrentTab('missions')}
                 className="px-4 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 transition-all cursor-pointer"
               >
@@ -195,13 +171,13 @@ export default function Home({ setCurrentTab }) {
               </button>
             </div>
 
-            <div 
+            <div
               onClick={() => setCurrentTab && setCurrentTab('missions')}
               className="w-full md:w-[40%] h-40 bg-slate-100 rounded-xl overflow-hidden border-2 border-slate-900 cursor-pointer group relative"
             >
-              <img 
-                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" 
-                alt="Our Mission" 
+              <img
+                src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80"
+                alt="Our Mission"
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               />
             </div>
@@ -222,7 +198,7 @@ export default function Home({ setCurrentTab }) {
                     <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
                   </div>
                   <p className="text-xs font-bold text-slate-900 text-center w-full truncate">{item.title}</p>
-                  <button 
+                  <button
                     onClick={() => setCurrentTab && setCurrentTab('events')}
                     className="w-full py-2 bg-slate-100 hover:bg-slate-900 hover:text-white border border-slate-900 text-slate-900 text-xs font-bold rounded-xl transition-all cursor-pointer"
                   >
@@ -237,7 +213,7 @@ export default function Home({ setCurrentTab }) {
 
       {/* FLOATING CAROUSEL FOOTER (Appears at bottom) */}
       <div className="fixed bottom-4 left-4 right-4 md:left-[288px] md:right-[390px] z-30 bg-white/95 backdrop-blur-md border-2 border-slate-900 rounded-2xl p-4 shadow-xl space-y-3 transition-all duration-300">
-        
+
         {/* Slider Meta Controls */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-2">
           <div className="flex items-center gap-2">
@@ -255,9 +231,9 @@ export default function Home({ setCurrentTab }) {
                 />
               ))}
             </div>
-            
+
             {/* SEARCH BUTTON OPENS ALL ARTICLES IN-PAGE */}
-            <button 
+            <button
               onClick={() => setShowAllArticlesView(true)}
               className="text-slate-500 hover:text-slate-900 transition-colors cursor-pointer"
               title="View all articles grid"
@@ -314,7 +290,7 @@ export default function Home({ setCurrentTab }) {
       {selectedArticleModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
           <div className="bg-[#FBFBEE] border-4 border-slate-900 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative">
-            
+
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b-2 border-slate-900 pb-3">
               <div className="space-y-1">
@@ -330,35 +306,36 @@ export default function Home({ setCurrentTab }) {
                   <span className="flex items-center gap-1"><Clock size={12} /> {selectedArticleModal.readTime}</span>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={closeArticleModal}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-200 transition-colors cursor-pointer"
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-200 transition-all cursor-pointer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            {/* Optional Modal Image */}
-            {selectedArticleModal.image && (
-              <div className="w-full h-48 rounded-xl overflow-hidden border border-slate-900">
-                <img 
-                  src={selectedArticleModal.image} 
-                  alt={selectedArticleModal.title} 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            )}
-
-            {/* Modal Content */}
-            <div className="text-xs text-slate-700 leading-relaxed max-h-60 overflow-y-auto pr-1">
-              <p>{selectedArticleModal.content}</p>
+            {/* Modal Content Body */}
+            <div className="space-y-3 text-xs text-slate-700 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
+              <p className="font-semibold text-slate-900 bg-white p-3 rounded-xl border-2 border-slate-900">
+                {selectedArticleModal.snippet}
+              </p>
+              <p className="text-sm leading-relaxed">{selectedArticleModal.content}</p>
             </div>
 
-            {/* Modal Footer */}
-            <div className="pt-2 border-t border-slate-200 flex justify-end">
+            {/* Modal Footer Controls */}
+            <div className="pt-3 border-t-2 border-slate-900 flex items-center justify-between">
+              <button
+                onClick={() => {
+                  closeArticleModal();
+                  setShowAllArticlesView(true);
+                }}
+                className="text-xs font-bold text-slate-900 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                View all featured articles <ArrowRight size={12} />
+              </button>
               <button
                 onClick={closeArticleModal}
-                className="px-4 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors cursor-pointer"
+                className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 transition-all cursor-pointer"
               >
                 Close
               </button>
