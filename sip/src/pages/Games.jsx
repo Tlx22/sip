@@ -128,11 +128,7 @@ export default function Games({ onStartGame, onPlayTogether }) {
               >
                 <Play size={14} className="fill-slate-900" /> Start
               </button>
-
-              {/* Coin Decor Icon */}
-              <div className="w-8 h-8 rounded-full bg-amber-400 border-2 border-slate-900 flex items-center justify-center text-xs font-bold text-amber-900 shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] animate-pulse">
-                🪙
-              </div>
+          
             </div>
 
           </div>

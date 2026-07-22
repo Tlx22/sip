@@ -7,7 +7,6 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
     { id: 'events', label: 'Events Hub', icon: '🗓️' },
     { id: 'community', label: 'Community Spaces', icon: '👥' },
     { id: 'games', label: 'Arcade & Games', icon: '🎮' },
-    { id: 'settings', label: 'Profile & Settings', icon: '⚙️' },
   ];
 
   return (
@@ -20,7 +19,7 @@ export default function Sidebar({ currentPage, setCurrentPage }) {
             C
           </div>
           <div className="flex flex-col">
-            <span className="font-serif font-black text-xl text-[#046A4E] tracking-tight leading-none mb-0.5">COCO</span>
+            <span className="font-serif font-black text-xl text-[#046A4E] tracking-tight leading-none mb-0.5">Co-Co</span>
             <span className="text-[9px] font-black uppercase tracking-widest text-slate-400 leading-none">Collective Hub</span>
           </div>
         </div>

@@ -83,7 +83,7 @@ export default function Community({ triggerDirectMessage }) {
       </div>
 
       {/* ========================================================= */}
-      {/* TAB 1: HUMAN LIBRARY (GRID LAYOUT MATCHING IMAGE)          */}
+      {/* TAB 1: HUMAN LIBRARY                                      */}
       {/* ========================================================= */}
       {activeFilter === 'library' && (
         <div className="space-y-6">
@@ -272,24 +272,40 @@ export default function Community({ triggerDirectMessage }) {
       {/* TAB 3: PAST EVENT CONNECTIONS                             */}
       {/* ========================================================= */}
       {activeFilter === 'connects' && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {pastConnections.map((user) => (
-            <div key={user.id} className="bg-white border border-gray-200 p-4 rounded-2xl shadow-xs flex justify-between items-center">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="text-sm font-bold text-slate-900">{user.name}</h4>
-                  <span className={`w-2 h-2 rounded-full ${user.status === 'Online' ? 'bg-emerald-500' : 'bg-gray-300'}`} />
+        <div className="space-y-4">
+          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
+            <Calendar size={12}/> Connections from Past Events
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {pastConnections.map((person) => (
+              <div key={person.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700">
+                    {person.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-sm font-bold text-slate-900">{person.name}</h4>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                        person.status === 'Online' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
+                      }`}>
+                        {person.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-gray-500">Event: {person.eventAttended}</p>
+                    <p className="text-[11px] text-gray-400">@{person.handle}</p>
+                  </div>
                 </div>
-                <p className="text-xs text-gray-400">Met via: <span className="text-slate-700 font-medium">{user.eventAttended}</span></p>
+
+                <button 
+                  onClick={() => handleConnect(person)}
+                  className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
+                >
+                  <MessageSquare size={12} /> Message
+                </button>
               </div>
-              <button 
-                onClick={() => handleConnect(user)}
-                className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-xl transition-colors flex items-center gap-1.5"
-              >
-                <MessageSquare size={11} /> Chat
-              </button>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       )}
 
