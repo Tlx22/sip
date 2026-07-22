@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Search, X, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, X, ArrowRight, ChevronRight, BookOpen } from 'lucide-react';
 
 const exampleArticles = [
   { 
@@ -31,10 +31,9 @@ const exampleArticles = [
   }
 ];
 
-// Definition uses { setCurrentTab }
 export default function Home({ setCurrentTab }) {
   const [selectedArticleModal, setSelectedArticleModal] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showAllArticlesModal, setShowAllArticlesModal] = useState(false);
 
   const openArticleModal = (article) => {
     setSelectedArticleModal(article);
@@ -44,39 +43,14 @@ export default function Home({ setCurrentTab }) {
     setSelectedArticleModal(null);
   };
 
-  // Filter articles based on search query
-  const filteredArticles = useMemo(() => {
-    if (!searchQuery.trim()) return exampleArticles;
-    const query = searchQuery.toLowerCase();
-    return exampleArticles.filter(
-      (article) =>
-        article.title.toLowerCase().includes(query) ||
-        article.category.toLowerCase().includes(query) ||
-        article.content.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
-
   return (
     <div className="w-full space-y-10 pb-24 text-left font-sans select-none">
       
-      {/* 1. BRAND HEADER & SEARCH BAR */}
-      <div className="border-b-2 border-slate-900 pb-4">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-          <h1 className="text-4xl font-serif font-black text-slate-900 tracking-tight">
-            Co-Co
-          </h1>
-          
-          <div className="relative w-full md:w-64">
-            <input 
-              type="text" 
-              placeholder="Search articles..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-slate-100 border border-slate-200 rounded-md py-1.5 pl-3 pr-8 text-xs font-medium text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-slate-400"
-            />
-            <Search className="absolute right-2.5 top-2 text-slate-400 pointer-events-none" size={14} />
-          </div>
-        </div>
+      {/* 1. BRAND HEADER */}
+      <div className="border-b-2 border-slate-900 pb-4 flex justify-between items-center">
+        <h1 className="text-4xl font-serif font-black text-slate-900 tracking-tight">
+          Co-Co
+        </h1>
       </div>
 
       {/* 2. MISSION HERO CARD PANEL */}
@@ -87,7 +61,6 @@ export default function Home({ setCurrentTab }) {
             Co-Co aims to inspire users to foster inclusive, safe, and harmonious communities in Singapore by supporting Migrant Domestic Worker (MDW) well-being and cultural integration.
           </p>
           
-          {/* CRITICAL FIX: Safe check for function existance */}
           <button 
             onClick={() => setCurrentTab && setCurrentTab('missions')}
             className="px-4 py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 transition-all cursor-pointer"
@@ -96,7 +69,6 @@ export default function Home({ setCurrentTab }) {
           </button>
         </div>
 
-        {/* CRITICAL FIX: safe check for function existance */}
         <div 
           onClick={() => setCurrentTab && setCurrentTab('missions')}
           className="w-full md:w-[40%] h-40 bg-slate-100 rounded-xl overflow-hidden border-2 border-slate-900 cursor-pointer group relative"
@@ -109,73 +81,17 @@ export default function Home({ setCurrentTab }) {
         </div>
       </div>
 
-      {/* 3. FEATURED ARTICLES SECTION */}
-      <div className="space-y-4">
-        <h2 className="text-3xl font-serif font-normal text-slate-900">
-          Featured Articles
-        </h2>
-
-        {filteredArticles.length === 0 ? (
-          <p className="text-sm text-slate-500 py-6">No articles found matching "{searchQuery}".</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {filteredArticles.map((article) => (
-              <div 
-                key={article.id} 
-                className="bg-[#FBFBEE] border-2 border-slate-900 rounded-2xl p-4 flex flex-col justify-between h-[380px] shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] hover:shadow-none transition-all"
-              >
-                <div className="space-y-3">
-                  {/* Category Tag */}
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                    {article.category}
-                  </span>
-
-                  {/* Optional Image Banner */}
-                  {article.image ? (
-                    <div className="w-full h-36 rounded-xl border-2 border-slate-900 overflow-hidden bg-white">
-                      <img 
-                        src={article.image} 
-                        alt={article.title} 
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                  ) : (
-                    <div className="w-full h-2" />
-                  )}
-
-                  {/* Article Title & Snippet */}
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2">
-                      {article.title}
-                    </h3>
-                    <p className="text-xs text-slate-600 font-medium line-clamp-2">
-                      {article.snippet}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Bottom Footer: Button + Date */}
-                <div className="flex items-center justify-between pt-4 border-t border-slate-200">
-                  <button
-                    onClick={() => openArticleModal(article)}
-                    className="px-4 py-1.5 bg-[#E2F1E7] hover:bg-[#d2e8db] border-2 border-slate-900 text-slate-900 text-xs font-bold rounded-lg shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all cursor-pointer"
-                  >
-                    Read more
-                  </button>
-
-                  <span className="text-xs text-slate-500 font-medium">
-                    {article.date}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* 4. UPCOMING EVENTS */}
-      <div className="space-y-4 pt-4">
-        <h2 className="text-2xl font-serif font-bold text-slate-900">Upcoming Events</h2>
+      {/* 3. UPCOMING EVENTS */}
+      <div className="space-y-4 pt-2">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-serif font-bold text-slate-900">Upcoming Events</h2>
+          <button 
+            onClick={() => setCurrentTab && setCurrentTab('events')}
+            className="text-xs font-bold text-slate-700 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
+          >
+            See all <ChevronRight size={14} />
+          </button>
+        </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
@@ -189,7 +105,6 @@ export default function Home({ setCurrentTab }) {
                 <img src={item.img} alt={item.title} className="w-full h-full object-cover" />
               </div>
               <p className="text-xs font-bold text-slate-900 text-center w-full truncate">{item.title}</p>
-              {/* Safe check for function existance */}
               <button 
                 onClick={() => setCurrentTab && setCurrentTab('events')}
                 className="w-full py-1.5 bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-900 text-xs font-bold rounded-lg border border-slate-900 transition-all cursor-pointer"
@@ -201,10 +116,72 @@ export default function Home({ setCurrentTab }) {
         </div>
       </div>
 
-      {/* 5. ARTICLE READER MODAL */}
+      {/* 4. BOTTOM HORIZONTAL ARTICLE SCROLLER */}
+      <div className="space-y-3 pt-6 border-t-2 border-slate-200">
+        <div className="flex justify-between items-center">
+          <div>
+            <h2 className="text-xl font-serif font-bold text-slate-900">Featured Articles</h2>
+            <p className="text-xs text-slate-500">Swipe through or view all articles directly</p>
+          </div>
+          
+          <button 
+            onClick={() => setShowAllArticlesModal(true)}
+            className="px-3 py-1 bg-slate-900 text-white text-xs font-bold rounded-md hover:bg-slate-800 transition-all flex items-center gap-1 cursor-pointer"
+          >
+            View all articles <ArrowRight size={12} />
+          </button>
+        </div>
+
+        {/* Scrollable Container */}
+        <div className="flex gap-4 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scrollbar-thin">
+          {exampleArticles.map((article) => (
+            <div 
+              key={article.id} 
+              onClick={() => openArticleModal(article)}
+              className="min-w-[280px] max-w-[280px] snap-start bg-[#FBFBEE] border-2 border-slate-900 rounded-xl p-3 flex flex-col justify-between shadow-[2px_2px_0px_0px_rgba(15,23,42,1)] hover:translate-y-[-2px] transition-all cursor-pointer"
+            >
+              <div className="space-y-2">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider block">
+                  {article.category}
+                </span>
+
+                <h3 className="text-sm font-bold text-slate-900 leading-snug line-clamp-2">
+                  {article.title}
+                </h3>
+                
+                <p className="text-[11px] text-slate-600 line-clamp-2 leading-tight">
+                  {article.snippet}
+                </p>
+              </div>
+
+              <div className="flex items-center justify-between pt-3 mt-3 border-t border-slate-300">
+                <span className="text-[10px] text-slate-500 font-medium">
+                  {article.date}
+                </span>
+                <span className="text-[11px] font-bold text-slate-900 hover:underline flex items-center gap-0.5">
+                  Read <ChevronRight size={12} />
+                </span>
+              </div>
+            </div>
+          ))}
+
+          {/* Quick Trigger Card at the end of scroll */}
+          <div 
+            onClick={() => setShowAllArticlesModal(true)}
+            className="min-w-[160px] snap-start bg-slate-100 border-2 border-dashed border-slate-400 rounded-xl p-4 flex flex-col items-center justify-center text-center space-y-2 cursor-pointer hover:bg-slate-200 transition-colors"
+          >
+            <span className="text-xs font-bold text-slate-700">View All</span>
+            <div className="p-2 bg-slate-900 text-white rounded-full">
+              <ArrowRight size={14} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 5. SINGLE ARTICLE MODAL */}
       {selectedArticleModal && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-[#FBFBEE] border-4 border-slate-900 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] relative">
+          <div className="bg-[#FBFBEE] border-4 border-slate-900 rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] relative animate-in fade-in zoom-in-95 duration-150">
             
             {/* Modal Header */}
             <div className="flex items-start justify-between border-b-2 border-slate-900 pb-3">
@@ -238,21 +215,81 @@ export default function Home({ setCurrentTab }) {
 
             {/* Modal Footer */}
             <div className="pt-3 border-t-2 border-slate-900 flex items-center justify-between">
-              {/* safe check for function existance */}
               <button
                 onClick={() => {
                   closeArticleModal();
-                  if (setCurrentTab) setCurrentTab('articles');
+                  setShowAllArticlesModal(true);
                 }}
                 className="text-xs font-bold text-emerald-800 hover:underline flex items-center gap-1 cursor-pointer"
               >
-                Explore all articles <ArrowRight size={12} />
+                View all articles <ArrowRight size={12} />
               </button>
               <button
                 onClick={closeArticleModal}
                 className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 cursor-pointer"
               >
                 Close
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {/* 6. "ALL ARTICLES" OVERLAY MODAL (Directly on Main Page) */}
+      {showAllArticlesModal && (
+        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-[#FBFBEE] border-4 border-slate-900 rounded-2xl max-w-2xl w-full p-6 space-y-4 shadow-[8px_8px_0px_0px_rgba(15,23,42,1)] relative max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            
+            {/* Modal Header */}
+            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-3">
+              <div className="flex items-center gap-2">
+                <BookOpen size={20} className="text-slate-900" />
+                <h2 className="text-2xl font-serif font-bold text-slate-900">All Articles</h2>
+              </div>
+              <button 
+                onClick={() => setShowAllArticlesModal(false)}
+                className="p-1 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-200 transition-all cursor-pointer"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Scrollable Article List inside Overlay */}
+            <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+              {exampleArticles.map((article) => (
+                <div 
+                  key={article.id}
+                  className="bg-white border-2 border-slate-900 rounded-xl p-4 shadow-[3px_3px_0px_0px_rgba(15,23,42,1)] space-y-2 hover:translate-x-0.5 hover:translate-y-0.5 transition-all cursor-pointer"
+                  onClick={() => {
+                    setShowAllArticlesModal(false);
+                    openArticleModal(article);
+                  }}
+                >
+                  <div className="flex justify-between items-center">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                      {article.category}
+                    </span>
+                    <span className="text-xs text-slate-400 font-medium">{article.date}</span>
+                  </div>
+
+                  <h3 className="text-base font-bold text-slate-900">{article.title}</h3>
+                  <p className="text-xs text-slate-600 line-clamp-2">{article.snippet}</p>
+
+                  <div className="pt-2 text-xs font-bold text-emerald-800 flex items-center gap-1">
+                    Read article <ChevronRight size={12} />
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-3 border-t-2 border-slate-900 flex justify-end">
+              <button
+                onClick={() => setShowAllArticlesModal(false)}
+                className="px-4 py-1.5 bg-slate-900 text-white text-xs font-bold rounded-lg hover:bg-slate-800 cursor-pointer"
+              >
+                Done
               </button>
             </div>
 
