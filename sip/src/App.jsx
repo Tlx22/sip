@@ -6,9 +6,10 @@ import MapPage from './pages/MapPage';
 import EventsPage from './pages/Events';
 import SettingsPage from './pages/Settings';
 import Community from './pages/Community';
-import MissionsPage from './pages/MissionsPage'; // IMPORT THIS
-import Games from './pages/Games'; // IMPORT THIS (Assuming filename is Games.jsx)
+import MissionsPage from './pages/MissionsPage'; 
+import Games from './pages/Games'; 
 import { ArrowLeft, Search, Clock, X, ChevronDown, ChevronUp } from 'lucide-react';
+import ModDashboard from './pages/Mod'; 
 
 const allArticles = [
   { 
@@ -144,8 +145,13 @@ export default function App() {
           {/* RENDER ACTUAL GAMES COMPONENT */}
           {currentPage === 'games' && <Games />}
           
-          {currentPage === 'settings' && <SettingsPage currentUser={currentUser} setCurrentUser={setCurrentUser} />}
-
+          {currentPage === 'settings' && (
+             <SettingsPage
+              currentUser={currentUser}
+              setCurrentUser={setCurrentUser}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
           {/* DEDICATED ARTICLES HUB */}
           {currentPage === 'articles' && (
             <div className="max-w-3xl mx-auto space-y-6 text-left pb-12">

@@ -1,6 +1,19 @@
 import React, { useState } from 'react';
 import RewardsPage from './RewardsPage'; // Adjust path if needed
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Languages, X } from 'lucide-react';
+
+const LANGUAGES = [
+  { code: 'en', label: 'English', flag: '🇬🇧' },
+  { code: 'zh', label: '中文 (Chinese)', flag: '🇨🇳' },
+  { code: 'ms', label: 'Bahasa Melayu', flag: '🇲🇾' },
+  { code: 'ta', label: 'தமிழ் (Tamil)', flag: '🇮🇳' },
+  { code: 'bn', label: 'বাংলা (Bengali)', flag: '🇧🇩' },
+  { code: 'hi', label: 'हिन्दी (Hindi)', flag: '🇮🇳' },
+  { code: 'tl', label: 'Tagalog / Filipino', flag: '🇵🇭' },
+  { code: 'my', label: 'မြန်မာ (Burmese)', flag: '🇲🇲' },
+  { code: 'id', label: 'Bahasa Indonesia', flag: '🇮🇩' },
+  { code: 'th', label: 'ไทย (Thai)', flag: '🇹🇭' },
+];
 
 export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPage }) {
   const [authMode, setAuthMode] = useState(currentUser ? "profile" : "auth");
@@ -9,6 +22,8 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
   const [newInterest, setNewInterest] = useState("");
   const [authForm, setAuthForm] = useState({ type: 'personal', name: '', handle: '', email: '', password: '' });
   const [showRewards, setShowRewards] = useState(false);
+  const [showLanguageModal, setShowLanguageModal] = useState(false);
+  const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const triggerSingpassLogin = () => {
     setIsSingpassLoading(true);
@@ -37,14 +52,14 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
   };
 
   const addInterestTag = () => {
-    if (newInterest.trim() && !editForm.interests?.includes(newInterest.trim())) {
-      setEditForm({ ...editForm, interests: [...(editForm.interests || []), newInterest.trim()] });
+    if (newInterest.trim() && !editForm.interests.includes(newInterest.trim())) {
+      setEditForm({ ...editForm, interests: [...editForm.interests, newInterest.trim()] });
       setNewInterest("");
     }
   };
 
   const removeInterestTag = (tagToRemove) => {
-    setEditForm({ ...editForm, interests: (editForm.interests || []).filter(tag => tag !== tagToRemove) });
+    setEditForm({ ...editForm, interests: editForm.interests.filter(tag => tag !== tagToRemove) });
   };
 
   const handleManualAuth = (e) => {
@@ -66,6 +81,12 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
     setAuthMode("profile");
   };
 
+  const handleSelectLanguage = (code) => {
+    setSelectedLanguage(code);
+    setShowLanguageModal(false);
+    // No real translation yet — just stores the choice
+  };
+
   // -------------------------------------------------------------
   // RENDER REWARDS PAGE VIEW
   // -------------------------------------------------------------
@@ -83,7 +104,6 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
           <h1 className="text-2xl font-serif font-bold text-gray-900">Get Started on COCO</h1>
           <p className="text-xs text-gray-400">Access events hubs, build shared maps, and track opportunities.</p>
         </div>
-
         <button
           onClick={triggerSingpassLogin} disabled={isSingpassLoading}
           className="w-full relative flex items-center justify-center gap-2.5 py-3 rounded-xl font-bold text-xs bg-[#E61F26] text-white hover:bg-[#c4151b] transition-all"
@@ -93,31 +113,25 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
             <span>Log in with Singpass</span>
           </>}
         </button>
-
         <div className="flex items-center my-4 text-gray-300 before:content-[''] before:flex-1 before:border-b before:border-gray-100 before:mr-3 after:content-[''] after:flex-1 after:border-b after:border-gray-100 after:ml-3 text-[10px] uppercase font-bold tracking-widest">or configuration logs</div>
-
         <form onSubmit={handleManualAuth} className="space-y-4">
           <div className="flex gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100">
             <button type="button" onClick={() => setAuthForm({ ...authForm, type: 'personal' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${authForm.type === 'personal' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🙋‍♂️ Personal</button>
             <button type="button" onClick={() => setAuthForm({ ...authForm, type: 'org' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${authForm.type === 'org' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🏢 Org</button>
             <button type="button" onClick={() => setAuthForm({ ...authForm, type: 'mod' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${authForm.type === 'mod' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🛡️ Mod</button>
           </div>
-
           <div className="space-y-1">
             <label className="block text-[10px] font-bold text-gray-500 uppercase">Display Title</label>
             <input type="text" required placeholder="Display Name" value={authForm.name} onChange={(e) => setAuthForm({ ...authForm, name: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
           </div>
-
           <div className="space-y-1">
             <label className="block text-[10px] font-bold text-gray-500 uppercase">Username Handle</label>
             <input type="text" required placeholder="handle" value={authForm.handle} onChange={(e) => setAuthForm({ ...authForm, handle: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
           </div>
-
           <div className="space-y-1">
             <label className="block text-[10px] font-bold text-gray-500 uppercase">Email</label>
             <input type="email" required placeholder="name@domain.com" value={authForm.email} onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
           </div>
-
           <button type="submit" className="w-full text-center font-bold text-xs uppercase tracking-wider py-3 mt-2 rounded-xl bg-emerald-800 text-white hover:bg-emerald-900 shadow-sm transition-all">
             Initialize Platform Workspace
           </button>
@@ -131,14 +145,22 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
   // -------------------------------------------------------------
   return (
     <div className="max-w-4xl mx-auto space-y-6 text-left pb-16">
-      
+
       {/* --- TOP PROFILE HEADER BAR --- */}
       <div className="bg-[#FBFBFA] border border-gray-200 rounded-3xl p-6 shadow-xs space-y-6">
-        
+
         {/* Title and Top Icons */}
         <div className="flex justify-between items-center">
           <h1 className="text-3xl font-serif font-normal text-slate-900">Profile</h1>
           <div className="flex items-center gap-3">
+            {/* Language button */}
+            <button
+              onClick={() => setShowLanguageModal(true)}
+              className="p-2 text-slate-600 hover:text-slate-900 transition-colors"
+              title="Change language"
+            >
+              <Languages className="w-5 h-5" />
+            </button>
             <button className="p-2 text-slate-600 hover:text-slate-900 transition-colors relative">
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -155,7 +177,6 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
           <div className="w-20 h-20 rounded-full bg-amber-100 text-amber-900 flex items-center justify-center text-2xl font-bold border-2 border-slate-900 shadow-sm shrink-0">
             {editForm.name ? editForm.name.charAt(0).toUpperCase() : "C"}
           </div>
-
           <div className="space-y-1 flex-1 w-full">
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="text-2xl font-serif font-bold text-slate-900">{editForm.name || "Carrie"}</h2>
@@ -166,10 +187,10 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
               )}
             </div>
             <p className="text-xs text-slate-500 font-sans">@{editForm.handle || "carrrielovesfood"}</p>
-            
+
             <div className="pt-2 space-y-1.5">
               <p className="text-xs font-semibold text-slate-800">Level 10 - Community builder</p>
-              
+
               <div className="flex items-center gap-3">
                 <div className="flex-1 max-w-md h-5 bg-white border border-slate-800 rounded-full p-0.5 overflow-hidden">
                   <div className="h-full bg-emerald-200/80 rounded-full w-[56%]" />
@@ -186,24 +207,20 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
             <p className="text-xs text-slate-600 font-medium">Events Joined</p>
             <p className="text-xl font-bold text-slate-900">12</p>
           </div>
-
           <div className="bg-white border-2 border-slate-900 rounded-2xl p-4 text-center space-y-1 shadow-xs">
             <p className="text-xs text-slate-600 font-medium">Communities</p>
             <p className="text-xl font-bold text-slate-900">9</p>
           </div>
-
           <div className="bg-white border-2 border-slate-900 rounded-2xl p-4 text-center space-y-1 shadow-xs">
             <p className="text-xs text-slate-600 font-medium">Friends</p>
             <p className="text-xl font-bold text-slate-900">28</p>
           </div>
-
-          {/* Points Box with View Rewards Button */}
           <div className="bg-white border-2 border-slate-900 rounded-2xl p-3 text-center space-y-1 shadow-xs flex flex-col justify-between items-center">
             <div>
               <p className="text-xs text-slate-600 font-medium">Points</p>
               <p className="text-xl font-bold text-slate-900">2458</p>
             </div>
-            <button 
+            <button
               onClick={() => setShowRewards(true)}
               className="mt-1 px-3 py-1 text-[10px] font-bold uppercase tracking-wider bg-emerald-100 hover:bg-emerald-800 hover:text-white text-emerald-900 border border-emerald-300 rounded-lg transition-all"
             >
@@ -212,7 +229,7 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
           </div>
         </div>
 
-        {/* --- MODERATOR ACCESS BOX (only shown for mod accounts) --- */}
+        {/* --- MODERATOR ACCESS BOX --- */}
         {editForm.type === 'mod' && (
           <div className="bg-slate-900 border-2 border-slate-900 rounded-2xl p-5 space-y-3 text-white">
             <div className="flex items-center gap-2">
@@ -237,7 +254,6 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
             <h3 className="font-bold text-slate-900 text-sm">Badges</h3>
             <button className="text-xs font-bold underline text-slate-800 hover:text-slate-600">View All</button>
           </div>
-
           <div className="flex items-center gap-4">
             <div className="w-24 h-24 rounded-full border-2 border-dashed border-emerald-600 bg-emerald-50/50 flex flex-col items-center justify-center text-center p-2">
               <span className="text-xl">🤝</span>
@@ -245,16 +261,12 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
             </div>
           </div>
         </div>
-
       </div>
 
       {/* --- ACCOUNT FORM & MANAGEMENT PANEL --- */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4">
-        {/* Navigation Sidebar */}
         <div className="md:col-span-4 bg-white border border-gray-100 rounded-2xl p-3 space-y-1.5 shadow-sm">
-          <button className="w-full text-left font-bold text-xs px-3 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">
-            Edit Profile Elements
-          </button>
+          <button className="w-full text-left font-bold text-xs px-3 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">Edit Profile Elements</button>
           {editForm.type === 'mod' && (
             <button
               onClick={() => setCurrentPage && setCurrentPage('mod')}
@@ -263,122 +275,117 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
               <ShieldCheck size={13} /> Moderation Dashboard
             </button>
           )}
-          <button 
-            onClick={() => { setCurrentUser(null); setAuthMode("auth"); }} 
-            className="w-full text-left font-bold text-xs px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all"
+          <button
+            onClick={() => setShowLanguageModal(true)}
+            className="w-full text-left font-bold text-xs px-3 py-2 text-slate-800 hover:bg-slate-50 rounded-xl transition-all flex items-center gap-1.5"
           >
-            Sign Out / Disconnect
+            <Languages size={13} /> Language
           </button>
+          <button onClick={() => { setCurrentUser(null); setAuthMode("auth"); }} className="w-full text-left font-bold text-xs px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out / Disconnect</button>
         </div>
 
-        {/* Profile Details Edit Form */}
         <div className="md:col-span-8 bg-white border border-gray-100 rounded-3xl p-6 md:p-8 space-y-6 shadow-sm">
           <div className="flex items-center gap-4 border-b border-gray-50 pb-5">
             <div className="w-14 h-14 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xl font-bold">
               {editForm.name ? editForm.name.charAt(0).toUpperCase() : "U"}
             </div>
             <div>
-              <h3 className="font-serif font-bold text-lg text-slate-900">Personal Details</h3>
-              <p className="text-xs text-gray-400">Update your account identity and preferences.</p>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-slate-900 text-sm">@{editForm.handle || 'username'}</h3>
+                {editForm.isSingpassVerified && <span className="bg-red-50 border border-red-200 text-[#E61F26] text-[8px] px-1.5 py-0.5 font-bold uppercase rounded-md tracking-wider">Singpass Verified</span>}
+              </div>
+              <p className="text-xs text-gray-400 capitalize">{editForm.type} Workspace Account</p>
             </div>
           </div>
-
           <form onSubmit={handleSaveProfile} className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Account Type</label>
+              <div className="flex gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100">
+                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'personal' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'personal' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🙋‍♂️ Personal</button>
+                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'org' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'org' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🏢 Org</button>
+                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'mod' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'mod' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🛡️ Mod</button>
+              </div>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase">Display Name</label>
-                <input 
-                  type="text" 
-                  value={editForm.name || ''} 
-                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
-                />
+                <label className="block text-[10px] font-bold text-gray-500 uppercase">Display Title</label>
+                <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
               </div>
-
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase">Username Handle</label>
-                <input 
-                  type="text" 
-                  value={editForm.handle || ''} 
-                  onChange={(e) => setEditForm({ ...editForm, handle: e.target.value })}
-                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
-                />
+                <label className="block text-[10px] font-bold text-gray-500 uppercase">Public Handle</label>
+                <input type="text" value={editForm.handle} onChange={(e) => setEditForm({ ...editForm, handle: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
               </div>
             </div>
-
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Email Address</label>
-              <input 
-                type="email" 
-                value={editForm.email || ''} 
-                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
-              />
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Contact Email</label>
+              <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
             </div>
-
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Bio / Description</label>
-              <textarea 
-                rows={3} 
-                value={editForm.bio || ''} 
-                onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
-                className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
-              />
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Bio / Purpose Description</label>
+              <textarea rows="3" value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none resize-none" />
             </div>
-
-            {/* Interest Tags Section */}
-            <div className="space-y-2 pt-2">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Interests & Activities</label>
-              <div className="flex flex-wrap gap-1.5 mb-2">
-                {(editForm.interests || []).map((tag, idx) => (
-                  <span key={idx} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-100 font-medium">
+            <div className="space-y-2 pt-2 border-t border-gray-50">
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Skills / Focus Tags</label>
+              <div className="flex flex-wrap gap-1 bg-gray-50 p-3 rounded-xl border border-gray-200 min-h-[44px]">
+                {editForm.interests && editForm.interests.length > 0 ? editForm.interests.map((tag) => (
+                  <span key={tag} className="bg-white text-emerald-800 text-[10px] font-bold pl-2.5 pr-1.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1.5">
                     {tag}
-                    <button type="button" onClick={() => removeInterestTag(tag)} className="text-emerald-600 hover:text-emerald-900 font-bold ml-1">
-                      ×
-                    </button>
+                    <button type="button" onClick={() => removeInterestTag(tag)} className="text-gray-400 hover:text-red-500 text-[11px]">✕</button>
                   </span>
-                ))}
+                )) : <span className="text-[10px] text-gray-400 self-center">No active tags assigned yet.</span>}
               </div>
               <div className="flex gap-2">
-                <input 
-                  type="text" 
-                  placeholder="Add a new interest..." 
-                  value={newInterest} 
-                  onChange={(e) => setNewInterest(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInterestTag(); } }}
-                  className="flex-1 text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
-                />
-                <button 
-                  type="button" 
-                  onClick={addInterestTag}
-                  className="px-4 text-xs font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all"
-                >
-                  Add
-                </button>
+                <input type="text" placeholder="Add custom tag..." value={newInterest} onChange={(e) => setNewInterest(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInterestTag(); } }} className="flex-1 text-xs p-2 bg-white border border-gray-200 rounded-xl focus:outline-none" />
+                <button type="button" onClick={addInterestTag} className="px-4 text-[11px] font-bold bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700">Add Tag</button>
               </div>
             </div>
-
-            {/* Verification Status Banner */}
-            {editForm.isSingpassVerified && (
-              <div className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-2xl flex items-center gap-2 text-xs text-emerald-900 mt-4">
-                <ShieldCheck size={16} className="text-emerald-700 shrink-0" />
-                <span>Identity verified via Singpass NDI.</span>
-              </div>
-            )}
-
-            {/* Action Buttons */}
-            <div className="pt-4 flex justify-end">
-              <button 
-                type="submit" 
-                className="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all"
-              >
-                Save Changes
-              </button>
+            <div className="pt-3">
+              <button type="submit" className="w-full text-center font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl bg-emerald-800 text-white hover:bg-emerald-900 transition-all">Apply Changes & Save Profile</button>
             </div>
           </form>
         </div>
       </div>
 
+      {/* --- LANGUAGE MODAL --- */}
+      {showLanguageModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-3xl border border-gray-200 shadow-xl w-full max-w-sm overflow-hidden">
+            <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+              <h3 className="font-bold text-slate-900 text-sm">Choose Language</h3>
+              <button
+                onClick={() => setShowLanguageModal(false)}
+                className="p-1.5 rounded-lg hover:bg-gray-100 text-slate-500 transition-colors"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto p-2">
+              {LANGUAGES.map((lang) => (
+                <button
+                  key={lang.code}
+                  onClick={() => handleSelectLanguage(lang.code)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left transition-all ${
+                    selectedLanguage === lang.code
+                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200'
+                      : 'hover:bg-gray-50 text-slate-800'
+                  }`}
+                >
+                  <span className="text-lg">{lang.flag}</span>
+                  <span className="text-sm font-medium flex-1">{lang.label}</span>
+                  {selectedLanguage === lang.code && (
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Active</span>
+                  )}
+                </button>
+              ))}
+            </div>
+            <div className="px-5 py-3 border-t border-gray-100 bg-gray-50/80">
+              <p className="text-[10px] text-gray-400 text-center">
+                Language preference is saved locally. Full translation coming soon.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
