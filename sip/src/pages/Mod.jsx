@@ -1,447 +1,267 @@
-import React, { useState } from 'react';
-import Sidebar from './components/Sidebar';
-import SocialPane from './components/SocialPane';
-import Home from './pages/Home';
-import MapPage from './pages/MapPage';
-import EventsPage from './pages/Events';
-import SettingsPage from './pages/Settings';
-import Community from './pages/Community';
-import MissionsPage from './pages/MissionsPage';
-import Games from './pages/Games';
-import ModPage from './pages/Mod'; // adjust path if your file is mod.jsx / Mod.jsx
-import { ArrowLeft, Search, Clock, X, ChevronDown, ChevronUp } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { ArrowLeft, ShieldCheck, Users, Calendar, Flag, Check, Trash2, Clock } from 'lucide-react';
 
-const allArticles = [
-  {
-    id: 1,
-    category: "MDW Safety & Well-being",
-    title: "Essential Safety Guidelines for High-Rise Home Cleaning",
-    readTime: "4 min read",
-    snippet: "Crucial MOM height-safety regulations and precautions when cleaning window exteriors or balconies.",
-    content: "Safety at home is paramount. Under Ministry of Manpower (MOM) regulations, cleaning the exterior of windows in high-rise homes requires strict adherence to safety conditions: adult supervision must be present, and window grilles must be locked at all times. Never stretch or lean out over balconies or ledges to clean exterior glass. Employers and helper communities should continuously review these physical safety checklists together to ensure a safe working environment for everyone."
-  },
-  {
-    id: 2,
-    category: "Cultural Exposure",
-    title: "Tastes of Home: Traditional Indonesian & Tagalog Festive Dishes",
-    readTime: "6 min read",
-    snippet: "Exploring the heritage and ingredients behind iconic dishes prepared during cultural celebrations.",
-    content: "Food is one of the strongest bridges between cultures. From rich Indonesian Nasi Tumpeng to traditional Tagalog Adobo and Sinigang, learning the history of these comfort foods fosters mutual respect and appreciation in households. Trying out authentic spices together not only expands culinary horizons but also provides MDWs a heartfelt space to share memories and traditions from their home countries."
-  },
-  {
-    id: 3,
-    category: "Community Highlights",
-    title: "Highlights from the Sunday Community Culinary Exchange",
-    readTime: "5 min read",
-    snippet: "Recap of last weekend's cooking masterclass bringing together local families and migrant domestic workers.",
-    content: "Over 80 participants gathered last Sunday at the local community hub for a collaborative culinary workshop. Local families learned traditional sambal-making techniques while MDWs were introduced to heritage hawker recipes. Beyond cooking, the event featured free basic health screenings, financial literacy check-ins, and peer networking sessions aimed at strengthening mutual support systems."
-  },
-  {
-    id: 4,
-    category: "MDW Safety & Well-being",
-    title: "Navigating Rest Days, Helplines & Mental Wellness Resources",
-    readTime: "5 min read",
-    snippet: "Key contacts, support channels, and recreational hubs available across Singapore.",
-    content: "Rest days are vital for emotional resilience and mental well-being. Singapore offers dedicated drop-in spaces, skills-training centers (such as FAST and CDE), and recreational hubs tailored for domestic workers. Knowing where to access 24/7 helplines, medical assistance, or advice on employment standards ensures that help is always reachable whenever challenges arise."
-  },
-  {
-    id: 5,
-    category: "Cultural Exposure",
-    title: "Basic Conversational Phrases: Connecting Through Language",
-    readTime: "4 min read",
-    snippet: "Simple everyday Bahasa Indonesia, Tagalog, and English phrases to improve household communication.",
-    content: "Clear and empathetic communication reduces workplace misunderstandings. Learning a few polite phrases—such as 'Terima kasih' (Thank you in Bahasa), 'Salamat' (Thank you in Tagalog), or taking time to explain household routines clearly—goes a long way in establishing trust, comfort, and mutual harmony between household members and helpers."
-  }
-];
+const NEW_WINDOW_MS = 1000 * 60 * 60 * 48; // items posted within the last 48h are flagged "New"
 
-export default function App() {
-  const [currentPage, setCurrentPage] = useState('home');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isMessagingOpen, setIsMessagingOpen] = useState(false);
-  const [articleSearchQuery, setArticleSearchQuery] = useState('');
+function timeAgo(timestamp) {
+  const diffMs = Date.now() - timestamp;
+  const mins = Math.floor(diffMs / 60000);
+  if (mins < 60) return `${Math.max(mins, 0)}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  return `${days}d ago`;
+}
 
-  // Interactive Article Modal & Expansion State for Articles Tab
-  const [selectedArticleModal, setSelectedArticleModal] = useState(null);
-  const [expandedArticleId, setExpandedArticleId] = useState(null);
+// Moderation Dashboard: a single place for a "mod" account to see freshly
+// created communities, freshly listed events, and reports filed from chat
+// conversations. All data is handed down from App.jsx, which is the shared
+// source of truth for these lists across the rest of the app.
+export default function ModPage({
+  communityGroups = [],
+  events = [],
+  reports = [],
+  onDismissReport,
+  onRemoveReport,
+  onRemoveGroup,
+  onRemoveEvent,
+  onBack
+}) {
+  const [activeTab, setActiveTab] = useState('reports');
 
-  // WhatsApp State
-  const [chatRooms, setChatRooms] = useState([
-    { id: '1', name: 'Alfie (Bouldering)', handle: 'alfie_v7', messages: [{ sender: 'them', text: 'Yo, down to run some sets on the slab wall tonight?', time: '4:15 PM' }] },
-    { id: '2', name: 'Jem (SP Band)', handle: 'jem_drums', messages: [{ sender: 'you', text: 'Double hit on hi-hat sounds clean for the chorus!', time: 'Yesterday' }] }
-  ]);
-
-  const [currentUser, setCurrentUser] = useState({
-    type: 'personal',
-    name: 'Chiew',
-    handle: 'chiew_climbs',
-    email: 'chiew@sp.edu.sg',
-    bio: 'Boulder enthusiast 🧗‍♂️ | Audio tinkerer 🥁',
-    interests: ['Bouldering', 'Drums', 'Python', 'Football']
-  });
-
-  // -------------------------------------------------------------
-  // MODERATION DATA (shared source of truth for ModPage)
-  // Swap these for real lists from Community / Events later if needed
-  // -------------------------------------------------------------
-  const [communityGroups, setCommunityGroups] = useState([
-    {
-      id: 'g1',
-      name: 'Sunday Rest-Day Hiking',
-      description: 'Casual group walks around MacRitchie and Bukit Timah on rest days.',
-      createdAt: Date.now() - 1000 * 60 * 60 * 6 // 6h ago → "New"
-    },
-    {
-      id: 'g2',
-      name: 'Tagalog Language Circle',
-      description: 'Practice conversational Tagalog and share cultural tips.',
-      createdAt: Date.now() - 1000 * 60 * 60 * 72 // 3d ago
-    }
-  ]);
-
-  const [modEvents, setModEvents] = useState([
-    {
-      id: 'e1',
-      type: 'Workshop',
-      title: 'Basic First-Aid for Home Care',
-      organization: 'FAST Hub',
-      location: 'Jurong East',
-      createdAt: Date.now() - 1000 * 60 * 60 * 12 // 12h ago → "New"
-    },
-    {
-      id: 'e2',
-      type: 'Social',
-      title: 'Community Culinary Exchange',
-      organization: 'COCO Volunteers',
-      location: 'Toa Payoh CC',
-      createdAt: Date.now() - 1000 * 60 * 60 * 96 // 4d ago
-    }
-  ]);
-
-  const [reports, setReports] = useState([
-    {
-      id: 'r1',
-      roomName: 'Alfie (Bouldering)',
-      roomHandle: 'alfie_v7',
-      reporterHandle: 'chiew_climbs',
-      reason: 'Harassment / unwelcome messages',
-      note: 'Repeated off-topic personal questions after being asked to stop.',
-      lastMessageText: 'Why won’t you just answer me?',
-      timestamp: Date.now() - 1000 * 60 * 45, // 45m ago
-      status: 'pending'
-    },
-    {
-      id: 'r2',
-      roomName: 'Jem (SP Band)',
-      roomHandle: 'jem_drums',
-      reporterHandle: 'carrrielovesfood',
-      reason: 'Spam',
-      note: '',
-      lastMessageText: 'Check out this link…',
-      timestamp: Date.now() - 1000 * 60 * 60 * 5,
-      status: 'reviewed'
-    }
-  ]);
-
-  const handleDismissReport = (id) => {
-    setReports((prev) =>
-      prev.map((r) => (r.id === id ? { ...r, status: 'reviewed' } : r))
-    );
-  };
-
-  const handleRemoveReport = (id) => {
-    setReports((prev) => prev.filter((r) => r.id !== id));
-  };
-
-  const handleRemoveGroup = (id) => {
-    setCommunityGroups((prev) => prev.filter((g) => g.id !== id));
-  };
-
-  const handleRemoveEvent = (id) => {
-    setModEvents((prev) => prev.filter((e) => e.id !== id));
-  };
-
-  const filteredArticles = allArticles.filter(
-    (article) =>
-      article.title.toLowerCase().includes(articleSearchQuery.toLowerCase()) ||
-      article.category.toLowerCase().includes(articleSearchQuery.toLowerCase()) ||
-      article.snippet.toLowerCase().includes(articleSearchQuery.toLowerCase())
+  const sortedGroups = useMemo(
+    () => [...communityGroups].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
+    [communityGroups]
+  );
+  const sortedEvents = useMemo(
+    () => [...events].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0)),
+    [events]
+  );
+  const sortedReports = useMemo(
+    () => [...reports].sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0)),
+    [reports]
   );
 
-  const handleDirectConnectMessagingSeed = (constructedTargetRoom) => {
-    setChatRooms((prevRooms) => {
-      const roomExists = prevRooms.find((r) => r.id === constructedTargetRoom.id);
-      if (!roomExists) return [...prevRooms, constructedTargetRoom];
-      return prevRooms;
-    });
-    setIsMessagingOpen(true);
-  };
+  const pendingReportCount = reports.filter(r => r.status !== 'reviewed').length;
+  const newGroupCount = communityGroups.filter(g => Date.now() - (g.createdAt || 0) < NEW_WINDOW_MS).length;
+  const newEventCount = events.filter(e => Date.now() - (e.createdAt || 0) < NEW_WINDOW_MS).length;
 
-  const getCategoryBadgeStyle = (category) => {
-    if (category.includes('Safety')) return 'bg-red-100 text-red-800';
-    if (category.includes('Cultural')) return 'bg-amber-100 text-amber-900';
-    return 'bg-emerald-100 text-emerald-800';
-  };
+  const tabs = [
+    { key: 'reports', label: 'Chat Reports', icon: Flag, count: pendingReportCount },
+    { key: 'communities', label: 'New Communities', icon: Users, count: newGroupCount },
+    { key: 'events', label: 'New Events', icon: Calendar, count: newEventCount }
+  ];
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#FBFBFA] font-sans text-gray-800 relative">
+    <div className="max-w-5xl mx-auto space-y-6 text-left pb-24">
 
-      {/* Mobile Sidebar Backdrop */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar Layout */}
-      <div
-        className={`fixed inset-y-0 left-0 z-50 transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0 md:z-auto ${
-          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
-        }`}
-      >
-        <Sidebar
-          currentPage={currentPage}
-          setCurrentPage={(page) => {
-            setCurrentPage(page);
-            setIsSidebarOpen(false);
-          }}
-        />
-      </div>
-
-      {/* Main Framework Content Panel Router */}
-      <div className="flex-1 flex flex-col h-full min-w-0 bg-white">
-
-        {/* Mobile Header Menu Bar */}
-        <header className="flex items-center justify-between px-4 py-3 border-b border-gray-100 md:hidden bg-white shrink-0">
+      {/* Header */}
+      <div className="space-y-3 border-b border-gray-100 pb-5">
+        {onBack && (
           <button
-            onClick={() => setIsSidebarOpen(true)}
-            className="p-2 text-xl hover:bg-gray-100 rounded-xl"
+            onClick={onBack}
+            className="text-xs font-bold text-gray-500 hover:text-slate-900 transition-colors flex items-center gap-1 bg-white border border-gray-100 px-3 py-1.5 rounded-xl shadow-sm"
           >
-            🍔
+            <ArrowLeft size={12} /> Back to Profile
           </button>
-          <span className="font-serif font-bold text-lg text-[#046A4E]">COCO</span>
-          <button
-            onClick={() => setIsMessagingOpen(!isMessagingOpen)}
-            className="p-2 text-xl hover:bg-gray-100 rounded-xl"
-          >
-            💬
-          </button>
-        </header>
-
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 relative">
-
-          {currentPage === 'home' && <Home setCurrentTab={setCurrentPage} />}
-
-          {currentPage === 'map' && <MapPage />}
-          {currentPage === 'events' && <EventsPage currentUser={currentUser} />}
-          {currentPage === 'community' && (
-            <Community triggerDirectMessage={handleDirectConnectMessagingSeed} />
-          )}
-
-          {currentPage === 'missions' && <MissionsPage setCurrentTab={setCurrentPage} />}
-
-          {currentPage === 'nsf' && (
-            <div className="max-w-4xl mx-auto space-y-4 text-left">
-              <h1 className="text-3xl font-serif font-bold text-gray-900">NSF Portfolio Hub</h1>
-              <p className="text-sm text-gray-500">
-                Track your SAT, ACT, and private H2 Math progression during service days.
-              </p>
-            </div>
-          )}
-
-          {currentPage === 'games' && <Games />}
-
-          {currentPage === 'settings' && (
-            <SettingsPage
-              currentUser={currentUser}
-              setCurrentUser={setCurrentUser}
-              setCurrentPage={setCurrentPage}
-            />
-          )}
-
-          {/* MODERATION DASHBOARD */}
-          {currentPage === 'mod' && (
-            <ModPage
-              communityGroups={communityGroups}
-              events={modEvents}
-              reports={reports}
-              onDismissReport={handleDismissReport}
-              onRemoveReport={handleRemoveReport}
-              onRemoveGroup={handleRemoveGroup}
-              onRemoveEvent={handleRemoveEvent}
-              onBack={() => setCurrentPage('settings')}
-            />
-          )}
-
-          {/* DEDICATED ARTICLES HUB */}
-          {currentPage === 'articles' && (
-            <div className="max-w-3xl mx-auto space-y-6 text-left pb-12">
-              <button
-                onClick={() => setCurrentPage('home')}
-                className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
-              >
-                <ArrowLeft size={14} /> Back to Feed
-              </button>
-
-              <div className="relative w-full">
-                <Search className="absolute left-3.5 top-3.5 text-gray-400" size={18} />
-                <input
-                  type="text"
-                  value={articleSearchQuery}
-                  onChange={(e) => setArticleSearchQuery(e.target.value)}
-                  placeholder="Search articles by title, category, or keyword..."
-                  className="w-full px-4 py-3 pl-10 bg-slate-50 border border-slate-100 rounded-2xl text-sm outline-none focus:ring-2 focus:ring-[#046A4E]/20"
-                />
-              </div>
-
-              <div className="space-y-4">
-                {filteredArticles.length === 0 ? (
-                  <p className="text-sm text-gray-400 italic py-8 text-center">
-                    No articles found matching "{articleSearchQuery}".
-                  </p>
-                ) : (
-                  filteredArticles.map((article) => {
-                    const isExpanded = expandedArticleId === article.id;
-                    return (
-                      <div
-                        key={article.id}
-                        className="bg-white border border-slate-100 hover:border-slate-300 p-6 rounded-2xl shadow-sm transition-all space-y-3 cursor-pointer group"
-                        onClick={() => setSelectedArticleModal(article)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span
-                            className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded uppercase tracking-wide ${getCategoryBadgeStyle(
-                              article.category
-                            )}`}
-                          >
-                            {article.category}
-                          </span>
-                          <span className="flex items-center gap-1 text-xs text-gray-400">
-                            <Clock size={12} /> {article.readTime}
-                          </span>
-                        </div>
-
-                        <h2 className="text-lg font-bold text-slate-900 group-hover:text-amber-600 transition-colors">
-                          {article.title}
-                        </h2>
-
-                        <p className="text-sm text-slate-600 leading-relaxed">{article.snippet}</p>
-
-                        {isExpanded && (
-                          <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 bg-slate-50 p-4 rounded-xl leading-relaxed">
-                            {article.content}
-                          </div>
-                        )}
-
-                        <div className="pt-2 flex items-center justify-between border-t border-slate-50 text-xs font-bold text-amber-600">
-                          <span>Click card to read full article →</span>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedArticleId(isExpanded ? null : article.id);
-                            }}
-                            className="flex items-center gap-1 text-slate-400 hover:text-slate-700"
-                          >
-                            {isExpanded ? (
-                              <>
-                                Collapse <ChevronUp size={14} />
-                              </>
-                            ) : (
-                              <>
-                                Quick Preview <ChevronDown size={14} />
-                              </>
-                            )}
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ARTICLE READER MODAL */}
-          {selectedArticleModal && (
-            <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-              <div className="bg-white rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200">
-                <div className="flex items-start justify-between border-b border-gray-100 pb-3">
-                  <div className="space-y-1">
-                    <span
-                      className={`text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wide ${getCategoryBadgeStyle(
-                        selectedArticleModal.category
-                      )}`}
-                    >
-                      {selectedArticleModal.category}
-                    </span>
-                    <h2 className="text-lg font-serif font-bold text-slate-900 leading-snug">
-                      {selectedArticleModal.title}
-                    </h2>
-                    <div className="flex items-center gap-2 text-xs text-gray-400">
-                      <span className="flex items-center gap-1">
-                        <Clock size={12} /> {selectedArticleModal.readTime}
-                      </span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setSelectedArticleModal(null)}
-                    className="p-1 rounded-full text-gray-400 hover:text-slate-800 hover:bg-slate-100 transition-all"
-                  >
-                    <X size={18} />
-                  </button>
-                </div>
-
-                <div className="space-y-3 text-xs text-slate-600 leading-relaxed max-h-[60vh] overflow-y-auto pr-1">
-                  <p className="font-medium text-slate-800 bg-slate-50 p-3 rounded-xl border border-slate-100">
-                    {selectedArticleModal.snippet}
-                  </p>
-                  <p>{selectedArticleModal.content}</p>
-                </div>
-
-                <div className="pt-3 border-t border-gray-100 flex items-center justify-end">
-                  <button
-                    onClick={() => setSelectedArticleModal(null)}
-                    className="px-4 py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-all"
-                  >
-                    Close
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
-        </main>
-      </div>
-
-      {/* Messaging overlay */}
-      {isMessagingOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
-          onClick={() => setIsMessagingOpen(false)}
-        />
-      )}
-
-      <div
-        className={`fixed inset-y-0 right-0 z-50 md:z-auto md:relative transform transition-transform duration-300 ease-in-out h-full ${
-          isMessagingOpen ? 'translate-x-0' : 'translate-x-full md:translate-x-0'
-        }`}
-      >
-        <div className="h-full bg-white border-l border-gray-100 flex flex-col relative">
-          <div className="p-2 border-b border-gray-100 flex justify-end md:hidden bg-slate-50">
-            <button
-              onClick={() => setIsMessagingOpen(false)}
-              className="text-xs font-bold px-3 py-1.5 bg-slate-900 text-white rounded-xl shadow-sm hover:bg-slate-800 transition-colors"
-            >
-              ✕ Close Messaging
-            </button>
+        )}
+        <div className="flex items-center gap-2">
+          <div className="w-9 h-9 rounded-xl bg-slate-900 text-white flex items-center justify-center">
+            <ShieldCheck size={18} />
           </div>
-
-          <SocialPane
-            chatRoomsData={chatRooms}
-            onAppendNewRoom={(updatedSet) => setChatRooms(updatedSet)}
-          />
+          <div>
+            <h1 className="text-2xl font-serif font-bold text-slate-900 tracking-tight">Moderation Dashboard</h1>
+            <p className="text-xs text-gray-400">Review new community postings, event listings, and chat reports.</p>
+          </div>
         </div>
       </div>
+
+      {/* Tabs */}
+      <div className="flex flex-wrap gap-2">
+        {tabs.map(({ key, label, icon: Icon, count }) => (
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+              activeTab === key
+                ? 'bg-slate-900 text-white border-slate-900 shadow-sm'
+                : 'bg-white text-gray-500 border-gray-100 hover:bg-gray-50'
+            }`}
+          >
+            <Icon size={13} />
+            {label}
+            {count > 0 && (
+              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded-full ${
+                activeTab === key ? 'bg-white/20 text-white' : 'bg-rose-50 text-rose-700'
+              }`}>
+                {count}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+
+      {/* ========================================================= */}
+      {/* TAB: CHAT REPORTS                                         */}
+      {/* ========================================================= */}
+      {activeTab === 'reports' && (
+        <div className="space-y-3">
+          {sortedReports.length === 0 ? (
+            <div className="text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
+              No reports filed yet. Reports submitted from chat conversations will show up here.
+            </div>
+          ) : (
+            sortedReports.map((report) => (
+              <div
+                key={report.id}
+                className={`bg-white border rounded-2xl p-5 shadow-xs space-y-3 ${
+                  report.status === 'reviewed' ? 'border-gray-100 opacity-70' : 'border-amber-200'
+                }`}
+              >
+                <div className="flex flex-wrap justify-between items-start gap-2">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-900">{report.roomName}</span>
+                      {report.roomHandle && <span className="text-[11px] text-gray-400">@{report.roomHandle}</span>}
+                    </div>
+                    <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                      <Clock size={10} /> {timeAgo(report.timestamp)} • Reported by {report.reporterHandle}
+                    </p>
+                  </div>
+                  <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded-md ${
+                    report.status === 'reviewed'
+                      ? 'bg-gray-100 text-gray-500'
+                      : 'bg-amber-50 text-amber-800 border border-amber-100'
+                  }`}>
+                    {report.status === 'reviewed' ? 'Reviewed' : 'Pending Review'}
+                  </span>
+                </div>
+
+                <div className="bg-gray-50 border border-gray-100 rounded-xl p-3 space-y-1.5">
+                  <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Reason</p>
+                  <p className="text-xs font-semibold text-slate-800">{report.reason}</p>
+                  {report.note && (
+                    <>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider pt-1">Details</p>
+                      <p className="text-xs text-slate-600 leading-relaxed">{report.note}</p>
+                    </>
+                  )}
+                  {report.lastMessageText && (
+                    <>
+                      <p className="text-[10px] font-bold text-gray-500 uppercase tracking-wider pt-1">Last Message in Thread</p>
+                      <p className="text-xs text-slate-600 italic leading-relaxed">"{report.lastMessageText}"</p>
+                    </>
+                  )}
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  {report.status !== 'reviewed' && onDismissReport && (
+                    <button
+                      onClick={() => onDismissReport(report.id)}
+                      className="flex-1 py-2 border-2 border-slate-900 bg-[#E3EFE6] hover:bg-[#d2e5d6] text-slate-900 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Check size={12} /> Mark Reviewed
+                    </button>
+                  )}
+                  {onRemoveReport && (
+                    <button
+                      onClick={() => onRemoveReport(report.id)}
+                      className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Trash2 size={12} /> Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: NEW COMMUNITIES                                      */}
+      {/* ========================================================= */}
+      {activeTab === 'communities' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {sortedGroups.length === 0 ? (
+            <div className="md:col-span-2 text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
+              No community groups yet.
+            </div>
+          ) : (
+            sortedGroups.map((grp) => {
+              const isNew = Date.now() - (grp.createdAt || 0) < NEW_WINDOW_MS;
+              return (
+                <div key={grp.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <h3 className="text-sm font-bold text-slate-900"># {grp.name}</h3>
+                    {isNew && (
+                      <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md shrink-0">
+                        New
+                      </span>
+                    )}
+                  </div>
+                  {grp.description && <p className="text-xs text-slate-600 leading-relaxed">{grp.description}</p>}
+                  <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                    <Clock size={10} /> Created {timeAgo(grp.createdAt || Date.now())}
+                  </p>
+                  {onRemoveGroup && (
+                    <button
+                      onClick={() => onRemoveGroup(grp.id)}
+                      className="w-full mt-1 py-2 bg-gray-50 hover:bg-rose-50 hover:text-rose-700 text-gray-500 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Trash2 size={12} /> Remove Community
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+
+      {/* ========================================================= */}
+      {/* TAB: NEW EVENTS                                           */}
+      {/* ========================================================= */}
+      {activeTab === 'events' && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {sortedEvents.length === 0 ? (
+            <div className="md:col-span-2 text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
+              No events listed yet.
+            </div>
+          ) : (
+            sortedEvents.map((event) => {
+              const isNew = Date.now() - (event.createdAt || 0) < NEW_WINDOW_MS;
+              return (
+                <div key={event.id} className="bg-white border border-gray-100 rounded-2xl p-5 shadow-xs space-y-2">
+                  <div className="flex justify-between items-start gap-2">
+                    <span className="text-[9px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                      {event.type}
+                    </span>
+                    {isNew && (
+                      <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100 px-2 py-0.5 rounded-md shrink-0">
+                        New
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="text-sm font-bold text-slate-900 leading-snug">{event.title}</h3>
+                  <p className="text-xs text-gray-400">{event.organization} • {event.location}</p>
+                  <p className="text-[10px] text-gray-400 flex items-center gap-1">
+                    <Clock size={10} /> Posted {timeAgo(event.createdAt || Date.now())}
+                  </p>
+                  {onRemoveEvent && (
+                    <button
+                      onClick={() => onRemoveEvent(event.id)}
+                      className="w-full mt-1 py-2 bg-gray-50 hover:bg-rose-50 hover:text-rose-700 text-gray-500 text-xs font-bold rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <Trash2 size={12} /> Remove Listing
+                    </button>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
     </div>
   );
 }
