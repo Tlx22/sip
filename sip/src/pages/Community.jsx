@@ -263,27 +263,19 @@ export default function Community({ triggerDirectMessage }) {
                       <span className="text-xs font-medium text-slate-800">📍 {spot}</span>
                       <button 
                         onClick={() => {
-                          alert(`🗓️ Conversation booked with ${selectedBook.name} at ${spot}!`);
+                          handleConnect(selectedBook);
                           setShowBookingModal(false);
                         }}
-                        className="px-3 py-1 bg-slate-900 text-white rounded-lg text-xs font-bold hover:bg-slate-800 transition-colors"
+                        className="px-3 py-1 bg-slate-900 text-white rounded-lg font-bold text-xs hover:bg-slate-800 transition-colors"
                       >
-                        Book
+                        Book Slot
                       </button>
                     </div>
                   ))}
                 </div>
-
-                <button 
-                  onClick={() => setShowBookingModal(false)}
-                  className="w-full py-2 bg-gray-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors"
-                >
-                  Close
-                </button>
               </div>
             </div>
           )}
-
         </div>
       )}
 
@@ -291,89 +283,54 @@ export default function Community({ triggerDirectMessage }) {
       {/* TAB 2: COMMUNITY GROUPS                                   */}
       {/* ========================================================= */}
       {activeFilter === 'groups' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
-          <div className="md:col-span-2 space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Megaphone size={12}/> Group Announcements</h3>
-            {groupAnnouncements.map((ann) => (
-              <div key={ann.id} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-xs space-y-2">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">{ann.group}</span>
-                  <span className="text-[10px] text-gray-400">{ann.time}</span>
+        <div className="space-y-4 max-w-2xl">
+          <p className="text-xs text-gray-500 font-medium">Recent announcements from local clubs and micro-communities you follow.</p>
+          {groupAnnouncements.map((post) => (
+            <div key={post.id} className="bg-white border border-gray-200 rounded-2xl p-4 space-y-2 shadow-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="p-1.5 bg-emerald-50 text-emerald-700 rounded-lg">
+                    <Megaphone size={14} />
+                  </span>
+                  <span className="font-bold text-xs text-slate-900">{post.group}</span>
                 </div>
-                <p className="text-xs font-semibold text-slate-500">Posted by {ann.author}</p>
-                <p className="text-sm text-slate-700 leading-relaxed pt-1">{ann.text}</p>
+                <span className="text-[10px] text-gray-400">{post.time}</span>
               </div>
-            ))}
-          </div>
-
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5"><Users size={12}/> Find/Create Channels</h3>
-            <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs space-y-3">
-              {['Redhill Climbers Hub', 'Kampong Glam Vinyl Crew', 'SP Tech Explorers'].map((grp, i) => (
-                <div key={i} className="flex justify-between items-center border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                  <span className="text-xs font-semibold text-slate-800 truncate pr-2"># {grp}</span>
-                  <button 
-                    onClick={() => handleConnect({ id: `grp-${i}`, name: grp, handle: 'group_channel' })}
-                    className="p-1.5 bg-gray-50 hover:bg-slate-900 hover:text-white rounded-lg transition-colors text-slate-400"
-                  >
-                    <MessageSquare size={12} />
-                  </button>
-                </div>
-              ))}
-              <button className="w-full mt-2 py-2 border border-dashed border-slate-300 hover:bg-slate-50 text-slate-800 font-bold text-xs rounded-xl transition-all">
-                + Create New Space
-              </button>
+              <p className="text-xs text-slate-700 leading-relaxed">{post.text}</p>
+              <div className="pt-2 border-t border-gray-50 flex items-center justify-between text-[11px] text-gray-500">
+                <span>By {post.author}</span>
+                <button className="font-semibold text-emerald-700 hover:underline">View Discussion →</button>
+              </div>
             </div>
-          </div>
+          ))}
         </div>
       )}
 
       {/* ========================================================= */}
       {/* TAB 3: CONNECTIONS / PAST CONNECTIONS                     */}
-      {/* Merges past-event connections with anyone connected with  */}
-      {/* via the Human Library.                                   */}
       {/* ========================================================= */}
       {activeFilter === 'connects' && (
-        <div className="space-y-4">
-          <h3 className="text-xs font-bold uppercase tracking-widest text-slate-400 flex items-center gap-1.5">
-            <Calendar size={12}/> Connections / Past Connections
-          </h3>
-          {allConnections.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {allConnections.map((person) => (
-                <div key={person.id} className="bg-white border border-gray-200 rounded-2xl p-4 shadow-xs flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center font-bold text-slate-700">
-                      {person.name.charAt(0)}
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h4 className="text-sm font-bold text-slate-900">{person.name}</h4>
-                        <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          person.status === 'Online' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-500'
-                        }`}>
-                          {person.status}
-                        </span>
-                      </div>
-                      <p className="text-xs text-gray-500">{person.eventAttended}</p>
-                      <p className="text-[11px] text-gray-400">@{person.handle}</p>
-                    </div>
-                  </div>
-
-                  <button 
-                    onClick={() => handleConnect(person)}
-                    className="px-3 py-1.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 transition-colors"
-                  >
-                    <MessageSquare size={12} /> Message
-                  </button>
+        <div className="space-y-3 max-w-2xl">
+          <p className="text-xs text-gray-500 font-medium">People you've interacted with at events or met through the Human Library.</p>
+          {allConnections.map((person) => (
+            <div key={person.id} className="flex items-center justify-between p-3.5 bg-white border border-gray-200 rounded-xl hover:border-slate-300 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-sm text-slate-700 border border-slate-200">
+                  {person.name.charAt(0)}
                 </div>
-              ))}
+                <div>
+                  <h4 className="font-bold text-xs text-slate-900">{person.name}</h4>
+                  <p className="text-[11px] text-gray-500">{person.eventAttended}</p>
+                </div>
+              </div>
+              <button 
+                onClick={() => handleConnect(person)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-white rounded-lg text-xs font-semibold hover:bg-slate-800 transition-colors"
+              >
+                <MessageSquare size={13} /> Message
+              </button>
             </div>
-          ) : (
-            <div className="text-center py-12 bg-gray-50 border border-dashed border-gray-200 rounded-2xl text-gray-400 text-xs">
-              No connections yet. Connect with a human book or attend an event to see them here.
-            </div>
-          )}
+          ))}
         </div>
       )}
 
