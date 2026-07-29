@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const initialEvents = [
+export const initialEvents = [
   {
     id: 1,
     title: "Community Coding & Skill-Swap Jam",
@@ -13,7 +13,8 @@ const initialEvents = [
     status: "Filling Fast",
     description: "Bring your laptop, share your programming stack experience, or pick up introductory UI rules from other local creators. Perfect for building up peer connections.",
     perks: ["Mentorship", "Certificate", "Refreshments Provided"],
-    requiresSafety: false
+    requiresSafety: false,
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 10
   },
   {
     id: 2,
@@ -28,7 +29,8 @@ const initialEvents = [
     description: "An immersive multi-day leadership track focused on urban planning sustainability, group team-building, and designing local environmental campaigns.",
     perks: ["Accommodation Included", "Leadership Badge", "Field Kit Provided"],
     requiresSafety: true,
-    safetyInfo: "All camp attendees must watch the standard Outward Bound & Eco-Camp safety brief before finalizing registration."
+    safetyInfo: "All camp attendees must watch the standard Outward Bound & Eco-Camp safety brief before finalizing registration.",
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 7
   },
   {
     id: 3,
@@ -42,16 +44,20 @@ const initialEvents = [
     status: "Waitlist Only",
     description: "Revisiting old-school neighborhood warmth! Help pack distribution kits for low-income support networks while participating in local acoustic performance stages.",
     perks: ["Community Hours Tracked", "Dinner Voucher"],
-    requiresSafety: false
+    requiresSafety: false,
+    createdAt: Date.now() - 1000 * 60 * 60 * 24 * 4
   }
 ];
 
-export default function EventsPage() {
+// EventsPage can either manage its own local list (default) or be handed a
+// shared list from a parent (eventsData / onEventsChange) so other parts of
+// the app - like a moderation dashboard - can see newly created events.
+export default function EventsPage({ currentUser, eventsData, onEventsChange }) {
   // Navigation & Filtering State
-  const [eventsList, setEventsList] = useState(initialEvents);
+  const [eventsList, setEventsList] = useState(eventsData || initialEvents);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedType, setSelectedType] = useState("All");
-  const [selectedEventId, setSelectedEventId] = useState(initialEvents[0].id);
+  const [selectedEventId, setSelectedEventId] = useState((eventsData || initialEvents)[0]?.id);
   
   // Dynamic Views Engine Control
   // "dashboard" | "register" | "create"
@@ -77,6 +83,12 @@ export default function EventsPage() {
 
   const eventTypes = ["All", "Skill-Swap", "Camps", "Community Events"];
 
+  // Keep in sync if a parent hands down a fresher shared list (e.g. after a
+  // moderator removes a listing from the mod dashboard).
+  useEffect(() => {
+    if (eventsData) setEventsList(eventsData);
+  }, [eventsData]);
+
   const filteredEvents = eventsList.filter(event => {
     const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
                           event.organization.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -97,11 +109,13 @@ export default function EventsPage() {
     alert(`Success! Registered ${regFormData.name} as a ${regFormData.role} for ${currentActiveEvent.title}.`);
     
     // Decrement spots left if available
-    setEventsList(eventsList.map(item => 
-      item.id === currentActiveEvent.id 
-        ? { ...item, spotsLeft: Math.max(0, item.spotsLeft - 1) } 
+    const updatedEvents = eventsList.map(item =>
+      item.id === currentActiveEvent.id
+        ? { ...item, spotsLeft: Math.max(0, item.spotsLeft - 1) }
         : item
-    ));
+    );
+    setEventsList(updatedEvents);
+    if (onEventsChange) onEventsChange(updatedEvents);
 
     setRegFormData({ name: '', contact: '', notes: '', watchedVideo: false, role: 'Participant' });
     setViewMode("dashboard");
@@ -124,10 +138,13 @@ export default function EventsPage() {
       description: newEventData.description,
       perks: newEventData.perksString ? newEventData.perksString.split(',').map(p => p.trim()) : [],
       requiresSafety: newEventData.requiresSafety,
-      safetyInfo: newEventData.safetyInfo
+      safetyInfo: newEventData.safetyInfo,
+      createdAt: Date.now()
     };
 
-    setEventsList([preparedEvent, ...eventsList]);
+    const updatedEvents = [preparedEvent, ...eventsList];
+    setEventsList(updatedEvents);
+    if (onEventsChange) onEventsChange(updatedEvents);
     setSelectedEventId(preparedEvent.id);
     alert(`🎉 Event successfully listed under ${preparedEvent.organization}!`);
     

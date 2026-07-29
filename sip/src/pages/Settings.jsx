@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import RewardsPage from './RewardsPage'; // Adjust path if needed
+import { ShieldCheck } from 'lucide-react';
 
-export default function SettingsPage({ currentUser, setCurrentUser }) {
+export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPage }) {
   const [authMode, setAuthMode] = useState(currentUser ? "profile" : "auth");
   const [isSingpassLoading, setIsSingpassLoading] = useState(false);
   const [editForm, setEditForm] = useState(currentUser || { type: 'personal', name: '', handle: '', email: '', bio: '', interests: [] });
@@ -50,10 +51,14 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
     e.preventDefault();
     const mockUser = {
       type: authForm.type,
-      name: authForm.name || "Carrie",
-      handle: authForm.handle || "carrrielovesfood",
+      name: authForm.name || (authForm.type === 'mod' ? 'Mod Team' : 'Carrie'),
+      handle: authForm.handle || (authForm.type === 'mod' ? 'coco_moderator' : 'carrrielovesfood'),
       email: authForm.email,
-      bio: authForm.type === 'org' ? 'Verified neighborhood hosting group.' : 'Active participant.',
+      bio: authForm.type === 'org'
+        ? 'Verified neighborhood hosting group.'
+        : authForm.type === 'mod'
+          ? 'Trust & safety moderator for the Co-Co community.'
+          : 'Active participant.',
       interests: ['General']
     };
     setCurrentUser(mockUser);
@@ -95,6 +100,7 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
           <div className="flex gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100">
             <button type="button" onClick={() => setAuthForm({ ...authForm, type: 'personal' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${authForm.type === 'personal' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🙋‍♂️ Personal</button>
             <button type="button" onClick={() => setAuthForm({ ...authForm, type: 'org' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${authForm.type === 'org' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🏢 Org</button>
+            <button type="button" onClick={() => setAuthForm({ ...authForm, type: 'mod' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${authForm.type === 'mod' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🛡️ Mod</button>
           </div>
 
           <div className="space-y-1">
@@ -151,7 +157,14 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
           </div>
 
           <div className="space-y-1 flex-1 w-full">
-            <h2 className="text-2xl font-serif font-bold text-slate-900">{editForm.name || "Carrie"}</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-2xl font-serif font-bold text-slate-900">{editForm.name || "Carrie"}</h2>
+              {editForm.type === 'mod' && (
+                <span className="text-[9px] font-bold uppercase tracking-wider text-white bg-slate-900 px-2 py-0.5 rounded-md flex items-center gap-1">
+                  <ShieldCheck size={10} /> Moderator
+                </span>
+              )}
+            </div>
             <p className="text-xs text-slate-500 font-sans">@{editForm.handle || "carrrielovesfood"}</p>
             
             <div className="pt-2 space-y-1.5">
@@ -199,6 +212,25 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
           </div>
         </div>
 
+        {/* --- MODERATOR ACCESS BOX (only shown for mod accounts) --- */}
+        {editForm.type === 'mod' && (
+          <div className="bg-slate-900 border-2 border-slate-900 rounded-2xl p-5 space-y-3 text-white">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-emerald-300" />
+              <h3 className="font-bold text-sm">Trust & Safety Access</h3>
+            </div>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Review newly posted communities and events, and follow up on reports filed from chat conversations.
+            </p>
+            <button
+              onClick={() => setCurrentPage && setCurrentPage('mod')}
+              className="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-900 font-bold text-xs uppercase tracking-wider rounded-xl transition-all"
+            >
+              Open Moderation Dashboard
+            </button>
+          </div>
+        )}
+
         {/* --- BADGES BOX --- */}
         <div className="bg-white border-2 border-slate-900 rounded-2xl p-5 space-y-3">
           <div className="flex justify-between items-center">
@@ -220,6 +252,14 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4">
         <div className="md:col-span-4 bg-white border border-gray-100 rounded-2xl p-3 space-y-1.5 shadow-sm">
           <button className="w-full text-left font-bold text-xs px-3 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">Edit Profile Elements</button>
+          {editForm.type === 'mod' && (
+            <button
+              onClick={() => setCurrentPage && setCurrentPage('mod')}
+              className="w-full text-left font-bold text-xs px-3 py-2 text-slate-800 hover:bg-slate-50 rounded-xl transition-all flex items-center gap-1.5"
+            >
+              <ShieldCheck size={13} /> Moderation Dashboard
+            </button>
+          )}
           <button onClick={() => { setCurrentUser(null); setAuthMode("auth"); }} className="w-full text-left font-bold text-xs px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out / Disconnect</button>
         </div>
 
@@ -238,6 +278,15 @@ export default function SettingsPage({ currentUser, setCurrentUser }) {
           </div>
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
+            <div className="space-y-1">
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Account Type</label>
+              <div className="flex gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100">
+                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'personal' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'personal' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🙋‍♂️ Personal</button>
+                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'org' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'org' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🏢 Org</button>
+                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'mod' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'mod' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🛡️ Mod</button>
+              </div>
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
                 <label className="block text-[10px] font-bold text-gray-500 uppercase">Display Title</label>

@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Send, UserPlus, Search, ArrowLeft, MoreVertical, Archive, Trash2, Inbox, QrCode, Scan, Camera, X, Check } from 'lucide-react';
+import { Send, UserPlus, Search, ArrowLeft, MoreVertical, Archive, Trash2, Inbox, QrCode, Scan, Camera, X, Check, Flag } from 'lucide-react';
 
-export default function SocialPane({ chatRoomsData, onAppendNewRoom }) {
+const REPORT_REASONS = ['Spam', 'Harassment or bullying', 'Inappropriate content', 'Scam or fraud', 'Other'];
+
+export default function SocialPane({ chatRoomsData, onAppendNewRoom, onReportSubmitted, reporterHandle }) {
   const [rooms, setRooms] = useState(chatRoomsData || [
     { id: '1', name: 'Alfie (Bouldering)', handle: 'alfie_v7', isArchived: false, messages: [{ sender: 'them', text: 'Yo, down to run some sets on the slab wall tonight?', time: '4:15 PM' }] },
     { id: '2', name: 'Jem (SP Band)', handle: 'jem_drums', isArchived: false, messages: [{ sender: 'you', text: 'Double hit on hi-hat sounds clean for the chorus!', time: 'Yesterday' }] }
@@ -19,6 +21,12 @@ export default function SocialPane({ chatRoomsData, onAppendNewRoom }) {
   // Context Menu & Archive View States
   const [openMenuRoomId, setOpenMenuRoomId] = useState(null);
   const [showArchivedView, setShowArchivedView] = useState(false);
+
+  // Report Conversation States
+  const [reportingRoom, setReportingRoom] = useState(null);
+  const [reportReason, setReportReason] = useState(REPORT_REASONS[0]);
+  const [reportNote, setReportNote] = useState('');
+  const [reportSubmitted, setReportSubmitted] = useState(false);
 
   // Discovery Corpus
   const publicDiscoveryDirectory = [
@@ -110,6 +118,46 @@ export default function SocialPane({ chatRoomsData, onAppendNewRoom }) {
       setActiveRoomId(remainingVisible[0]?.id || null);
     }
     setOpenMenuRoomId(null);
+  };
+
+  // Opens the report modal for a given conversation, pre-filled with a clean slate
+  const openReportModal = (room, e) => {
+    e.stopPropagation();
+    setReportingRoom(room);
+    setReportReason(REPORT_REASONS[0]);
+    setReportNote('');
+    setReportSubmitted(false);
+    setOpenMenuRoomId(null);
+  };
+
+  // Builds a report record from the flagged conversation and hands it up to
+  // whoever is tracking reports (e.g. a moderation dashboard).
+  const handleSubmitReport = () => {
+    if (!reportingRoom) return;
+    const lastMessage = reportingRoom.messages[reportingRoom.messages.length - 1];
+
+    const report = {
+      id: `rep-${Date.now()}`,
+      roomId: reportingRoom.id,
+      roomName: reportingRoom.name,
+      roomHandle: reportingRoom.handle,
+      lastMessageText: lastMessage?.text || '',
+      lastMessageSender: lastMessage?.sender || 'them',
+      reporterHandle: reporterHandle || 'you',
+      reason: reportReason,
+      note: reportNote.trim(),
+      status: 'pending',
+      timestamp: Date.now()
+    };
+
+    if (onReportSubmitted) onReportSubmitted(report);
+    setReportSubmitted(true);
+  };
+
+  const closeReportModal = () => {
+    setReportingRoom(null);
+    setReportNote('');
+    setReportSubmitted(false);
   };
 
   const visibleDiscoveryMatches = publicDiscoveryDirectory.filter(person => 
@@ -317,13 +365,20 @@ export default function SocialPane({ chatRoomsData, onAppendNewRoom }) {
                   </div>
 
                   {isMenuOpen && (
-                    <div className="absolute right-3 top-10 w-36 bg-white border border-gray-100 shadow-xl rounded-2xl py-1 z-30 space-y-0.5 text-xs text-left">
+                    <div className="absolute right-3 top-10 w-40 bg-white border border-gray-100 shadow-xl rounded-2xl py-1 z-30 space-y-0.5 text-xs text-left">
                       <button
                         onClick={(e) => handleToggleArchiveRoom(room.id, e)}
                         className="w-full text-left px-3 py-1.5 text-slate-700 hover:bg-slate-50 flex items-center gap-2 font-medium transition-colors cursor-pointer"
                       >
                         {room.isArchived ? <Inbox size={13} className="text-emerald-700" /> : <Archive size={13} className="text-slate-500" />}
                         <span>{room.isArchived ? 'Unarchive' : 'Archive'}</span>
+                      </button>
+                      <button
+                        onClick={(e) => openReportModal(room, e)}
+                        className="w-full text-left px-3 py-1.5 text-amber-700 hover:bg-amber-50 flex items-center gap-2 font-medium transition-colors cursor-pointer"
+                      >
+                        <Flag size={13} />
+                        <span>Report</span>
                       </button>
                       <button
                         onClick={(e) => handleDeleteRoom(room.id, e)}
@@ -384,6 +439,89 @@ export default function SocialPane({ chatRoomsData, onAppendNewRoom }) {
             </div>
           )}
         </>
+      )}
+
+      {/* REPORT CONVERSATION MODAL */}
+      {reportingRoom && (
+        <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+          <div className="bg-white border-2 border-slate-900 rounded-3xl p-5 max-w-sm w-full space-y-4 text-left shadow-xl">
+            {reportSubmitted ? (
+              <div className="text-center py-4 space-y-3">
+                <div className="w-12 h-12 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center mx-auto">
+                  <Check size={20} className="text-emerald-700" />
+                </div>
+                <div>
+                  <p className="text-sm font-bold text-slate-900">Report submitted</p>
+                  <p className="text-xs text-gray-400 mt-1">Our moderation team will review this conversation shortly.</p>
+                </div>
+                <button
+                  onClick={closeReportModal}
+                  className="w-full py-2 bg-slate-900 text-white text-xs font-bold rounded-xl hover:bg-slate-800 transition-colors"
+                >
+                  Done
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="flex justify-between items-center border-b border-gray-100 pb-3">
+                  <div>
+                    <h3 className="font-serif font-bold text-base text-slate-900 flex items-center gap-1.5">
+                      <Flag size={14} className="text-amber-700" /> Report Conversation
+                    </h3>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Reporting {reportingRoom.name}</p>
+                  </div>
+                  <button onClick={closeReportModal} className="p-1 text-gray-400 hover:text-slate-900 rounded-lg text-sm font-bold">✕</button>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Reason</label>
+                    <div className="space-y-1">
+                      {REPORT_REASONS.map((reason) => (
+                        <label key={reason} className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+                          <input
+                            type="radio"
+                            name="reportReason"
+                            checked={reportReason === reason}
+                            onChange={() => setReportReason(reason)}
+                            className="text-amber-700 focus:ring-amber-600"
+                          />
+                          {reason}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Additional details (optional)</label>
+                    <textarea
+                      value={reportNote}
+                      onChange={(e) => setReportNote(e.target.value)}
+                      placeholder="Anything else moderators should know?"
+                      rows={3}
+                      className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs outline-none focus:bg-white focus:border-slate-400 transition-all resize-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2 pt-1">
+                  <button
+                    onClick={closeReportModal}
+                    className="flex-1 py-2 bg-gray-100 text-slate-700 text-xs font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSubmitReport}
+                    className="flex-1 py-2 border-2 border-amber-700 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold rounded-xl transition-colors"
+                  >
+                    Submit Report
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       )}
     </aside>
   );
