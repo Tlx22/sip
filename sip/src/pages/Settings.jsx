@@ -37,14 +37,14 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
   };
 
   const addInterestTag = () => {
-    if (newInterest.trim() && !editForm.interests.includes(newInterest.trim())) {
-      setEditForm({ ...editForm, interests: [...editForm.interests, newInterest.trim()] });
+    if (newInterest.trim() && !editForm.interests?.includes(newInterest.trim())) {
+      setEditForm({ ...editForm, interests: [...(editForm.interests || []), newInterest.trim()] });
       setNewInterest("");
     }
   };
 
   const removeInterestTag = (tagToRemove) => {
-    setEditForm({ ...editForm, interests: editForm.interests.filter(tag => tag !== tagToRemove) });
+    setEditForm({ ...editForm, interests: (editForm.interests || []).filter(tag => tag !== tagToRemove) });
   };
 
   const handleManualAuth = (e) => {
@@ -132,7 +132,7 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
   return (
     <div className="max-w-4xl mx-auto space-y-6 text-left pb-16">
       
-      {/* --- TOP PROFILE HEADER BAR (MATCHES PIC 1) --- */}
+      {/* --- TOP PROFILE HEADER BAR --- */}
       <div className="bg-[#FBFBFA] border border-gray-200 rounded-3xl p-6 shadow-xs space-y-6">
         
         {/* Title and Top Icons */}
@@ -250,8 +250,11 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
 
       {/* --- ACCOUNT FORM & MANAGEMENT PANEL --- */}
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start pt-4">
+        {/* Navigation Sidebar */}
         <div className="md:col-span-4 bg-white border border-gray-100 rounded-2xl p-3 space-y-1.5 shadow-sm">
-          <button className="w-full text-left font-bold text-xs px-3 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">Edit Profile Elements</button>
+          <button className="w-full text-left font-bold text-xs px-3 py-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-100">
+            Edit Profile Elements
+          </button>
           {editForm.type === 'mod' && (
             <button
               onClick={() => setCurrentPage && setCurrentPage('mod')}
@@ -260,73 +263,117 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
               <ShieldCheck size={13} /> Moderation Dashboard
             </button>
           )}
-          <button onClick={() => { setCurrentUser(null); setAuthMode("auth"); }} className="w-full text-left font-bold text-xs px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all">Sign Out / Disconnect</button>
+          <button 
+            onClick={() => { setCurrentUser(null); setAuthMode("auth"); }} 
+            className="w-full text-left font-bold text-xs px-3 py-2 text-red-600 hover:bg-red-50 rounded-xl transition-all"
+          >
+            Sign Out / Disconnect
+          </button>
         </div>
 
+        {/* Profile Details Edit Form */}
         <div className="md:col-span-8 bg-white border border-gray-100 rounded-3xl p-6 md:p-8 space-y-6 shadow-sm">
           <div className="flex items-center gap-4 border-b border-gray-50 pb-5">
             <div className="w-14 h-14 rounded-full bg-emerald-800 text-white flex items-center justify-center text-xl font-bold">
               {editForm.name ? editForm.name.charAt(0).toUpperCase() : "U"}
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-slate-900 text-sm">@{editForm.handle || 'username'}</h3>
-                {editForm.isSingpassVerified && <span className="bg-red-50 border border-red-200 text-[#E61F26] text-[8px] px-1.5 py-0.5 font-bold uppercase rounded-md tracking-wider">Singpass Verified</span>}
-              </div>
-              <p className="text-xs text-gray-400 capitalize">{editForm.type} Workspace Account</p>
+              <h3 className="font-serif font-bold text-lg text-slate-900">Personal Details</h3>
+              <p className="text-xs text-gray-400">Update your account identity and preferences.</p>
             </div>
           </div>
 
           <form onSubmit={handleSaveProfile} className="space-y-4">
-            <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Account Type</label>
-              <div className="flex gap-2 p-1 bg-gray-50 rounded-xl border border-gray-100">
-                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'personal' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'personal' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🙋‍♂️ Personal</button>
-                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'org' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'org' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🏢 Org</button>
-                <button type="button" onClick={() => setEditForm({ ...editForm, type: 'mod' })} className={`flex-1 py-1.5 text-[10px] font-bold rounded-lg uppercase tracking-wider transition-all ${editForm.type === 'mod' ? 'bg-white text-emerald-800 shadow-xs' : 'text-gray-400'}`}>🛡️ Mod</button>
-              </div>
-            </div>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase">Display Title</label>
-                <input type="text" value={editForm.name} onChange={(e) => setEditForm({ ...editForm, name: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
+                <label className="block text-[10px] font-bold text-gray-500 uppercase">Display Name</label>
+                <input 
+                  type="text" 
+                  value={editForm.name || ''} 
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
+                />
               </div>
+
               <div className="space-y-1">
-                <label className="block text-[10px] font-bold text-gray-500 uppercase">Public Handle</label>
-                <input type="text" value={editForm.handle} onChange={(e) => setEditForm({ ...editForm, handle: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
+                <label className="block text-[10px] font-bold text-gray-500 uppercase">Username Handle</label>
+                <input 
+                  type="text" 
+                  value={editForm.handle || ''} 
+                  onChange={(e) => setEditForm({ ...editForm, handle: e.target.value })}
+                  className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
+                />
               </div>
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Contact Email</label>
-              <input type="email" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Email Address</label>
+              <input 
+                type="email" 
+                value={editForm.email || ''} 
+                onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
+              />
             </div>
 
             <div className="space-y-1">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Bio / Purpose Description</label>
-              <textarea rows="3" value={editForm.bio} onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none resize-none" />
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Bio / Description</label>
+              <textarea 
+                rows={3} 
+                value={editForm.bio || ''} 
+                onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
+              />
             </div>
 
-            <div className="space-y-2 pt-2 border-t border-gray-50">
-              <label className="block text-[10px] font-bold text-gray-500 uppercase">Skills / Focus Tags</label>
-              <div className="flex flex-wrap gap-1 bg-gray-50 p-3 rounded-xl border border-gray-200 min-h-[44px]">
-                {editForm.interests && editForm.interests.length > 0 ? editForm.interests.map((tag) => (
-                  <span key={tag} className="bg-white text-emerald-800 text-[10px] font-bold pl-2.5 pr-1.5 py-1 rounded-lg border border-gray-200 flex items-center gap-1.5">
+            {/* Interest Tags Section */}
+            <div className="space-y-2 pt-2">
+              <label className="block text-[10px] font-bold text-gray-500 uppercase">Interests & Activities</label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {(editForm.interests || []).map((tag, idx) => (
+                  <span key={idx} className="inline-flex items-center gap-1 text-xs px-2.5 py-1 bg-emerald-50 text-emerald-800 rounded-lg border border-emerald-100 font-medium">
                     {tag}
-                    <button type="button" onClick={() => removeInterestTag(tag)} className="text-gray-400 hover:text-red-500 text-[11px]">✕</button>
+                    <button type="button" onClick={() => removeInterestTag(tag)} className="text-emerald-600 hover:text-emerald-900 font-bold ml-1">
+                      ×
+                    </button>
                   </span>
-                )) : <span className="text-[10px] text-gray-400 self-center">No active tags assigned yet.</span>}
+                ))}
               </div>
-
               <div className="flex gap-2">
-                <input type="text" placeholder="Add custom tag..." value={newInterest} onChange={(e) => setNewInterest(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInterestTag(); } }} className="flex-1 text-xs p-2 bg-white border border-gray-200 rounded-xl focus:outline-none" />
-                <button type="button" onClick={addInterestTag} className="px-4 text-[11px] font-bold bg-gray-100 hover:bg-gray-200 rounded-xl text-gray-700">Add Tag</button>
+                <input 
+                  type="text" 
+                  placeholder="Add a new interest..." 
+                  value={newInterest} 
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addInterestTag(); } }}
+                  className="flex-1 text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:border-emerald-800"
+                />
+                <button 
+                  type="button" 
+                  onClick={addInterestTag}
+                  className="px-4 text-xs font-bold bg-slate-900 text-white rounded-xl hover:bg-slate-800 transition-all"
+                >
+                  Add
+                </button>
               </div>
             </div>
 
-            <div className="pt-3">
-              <button type="submit" className="w-full text-center font-bold text-xs uppercase tracking-wider py-2.5 rounded-xl bg-emerald-800 text-white hover:bg-emerald-900 transition-all">Apply Changes & Save Profile</button>
+            {/* Verification Status Banner */}
+            {editForm.isSingpassVerified && (
+              <div className="p-3 bg-emerald-50/50 border border-emerald-100 rounded-2xl flex items-center gap-2 text-xs text-emerald-900 mt-4">
+                <ShieldCheck size={16} className="text-emerald-700 shrink-0" />
+                <span>Identity verified via Singpass NDI.</span>
+              </div>
+            )}
+
+            {/* Action Buttons */}
+            <div className="pt-4 flex justify-end">
+              <button 
+                type="submit" 
+                className="px-6 py-2.5 bg-emerald-800 hover:bg-emerald-900 text-white font-bold text-xs uppercase tracking-wider rounded-xl shadow-xs transition-all"
+              >
+                Save Changes
+              </button>
             </div>
           </form>
         </div>
