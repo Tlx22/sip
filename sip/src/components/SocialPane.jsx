@@ -179,7 +179,8 @@ export default function SocialPane({ chatRoomsData, onAppendNewRoom, onReportSub
       )}
 
       {/* HEADER BAR */}
-      <div className="p-4 border-b border-gray-100 bg-white flex items-center justify-between shrink-0">
+      {/* pr-28 keeps the Add button clear of the floating Help button fixed at top-right */}
+      <div className="p-4 pr-28 border-b border-gray-100 bg-white flex items-center justify-between shrink-0">
         <div>
           <h2 className="text-sm font-black text-slate-900 tracking-tight">Messaging</h2>
           <button 

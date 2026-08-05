@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import RewardsPage from './RewardsPage'; // Adjust path if needed
-import { ShieldCheck, Languages, X } from 'lucide-react';
+import { ShieldCheck, Languages, X, FileText, Check } from 'lucide-react';
 
 const LANGUAGES = [
   { code: 'en', label: 'English', flag: '🇬🇧' },
@@ -24,6 +24,10 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
   const [showRewards, setShowRewards] = useState(false);
   const [showLanguageModal, setShowLanguageModal] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
+
+  // Terms & Conditions acceptance (required before creating a new account)
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
+  const [showSignupTerms, setShowSignupTerms] = useState(false);
 
   const triggerSingpassLogin = () => {
     setIsSingpassLoading(true);
@@ -64,6 +68,13 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
 
   const handleManualAuth = (e) => {
     e.preventDefault();
+
+    if (!agreedToTerms) {
+      alert("Please review and agree to the Terms & Conditions before creating your account.");
+      setShowSignupTerms(true);
+      return;
+    }
+
     const mockUser = {
       type: authForm.type,
       name: authForm.name || (authForm.type === 'mod' ? 'Mod Team' : 'Carrie'),
@@ -132,10 +143,113 @@ export default function SettingsPage({ currentUser, setCurrentUser, setCurrentPa
             <label className="block text-[10px] font-bold text-gray-500 uppercase">Email</label>
             <input type="email" required placeholder="name@domain.com" value={authForm.email} onChange={(e) => setAuthForm({ ...authForm, email: e.target.value })} className="w-full text-xs p-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none" />
           </div>
-          <button type="submit" className="w-full text-center font-bold text-xs uppercase tracking-wider py-3 mt-2 rounded-xl bg-emerald-800 text-white hover:bg-emerald-900 shadow-sm transition-all">
+
+          {/* TERMS & CONDITIONS AGREEMENT */}
+          <div className="flex items-start gap-2.5 bg-gray-50 border border-gray-200 rounded-xl p-3">
+            <input
+              type="checkbox"
+              id="agreeTerms"
+              checked={agreedToTerms}
+              onChange={(e) => setAgreedToTerms(e.target.checked)}
+              className="mt-0.5 rounded border-gray-300 text-emerald-800 focus:ring-emerald-800"
+            />
+            <label htmlFor="agreeTerms" className="text-[11px] text-slate-600 leading-relaxed">
+              I have read and agree to the{' '}
+              <button
+                type="button"
+                onClick={() => setShowSignupTerms(true)}
+                className="font-bold text-emerald-800 underline underline-offset-2 hover:text-emerald-900"
+              >
+                Terms & Conditions
+              </button>
+              .
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full text-center font-bold text-xs uppercase tracking-wider py-3 mt-2 rounded-xl bg-emerald-800 text-white hover:bg-emerald-900 shadow-sm transition-all"
+          >
             Initialize Platform Workspace
           </button>
         </form>
+
+        {/* TERMS & CONDITIONS MODAL (shown during account creation) */}
+        {showSignupTerms && (
+          <div className="fixed inset-0 z-[60] bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4">
+            <div className="bg-white rounded-3xl max-w-lg w-full max-h-[80vh] flex flex-col shadow-2xl">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 shrink-0">
+                <div className="flex items-center gap-2">
+                  <FileText size={16} className="text-slate-700" />
+                  <h2 className="text-sm font-serif font-bold text-slate-900">Terms & Conditions</h2>
+                </div>
+                <button onClick={() => setShowSignupTerms(false)} className="p-1 text-gray-400 hover:text-slate-900 rounded-full">
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div className="p-6 space-y-4 text-xs text-slate-600 leading-relaxed overflow-y-auto">
+                <p className="text-[10px] text-gray-400">Last updated: August 2026</p>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">1. Acceptance of Terms</h3>
+                  <p>By creating an account or using Co-Co, you agree to be bound by these Terms & Conditions and our Privacy Policy. If you do not agree, please do not use the platform.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">2. Eligibility & Accounts</h3>
+                  <p>You are responsible for maintaining the confidentiality of your account credentials and for all activity that occurs under your account. You must provide accurate information when registering.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">3. Acceptable Use</h3>
+                  <p>You agree not to use Co-Co to:</p>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Post or solicit illegal employment, unlicensed labour arrangements, or any work that violates local employment law</li>
+                    <li>Harass, threaten, or discriminate against other members</li>
+                    <li>Post spam, scams, or fraudulent event/community listings</li>
+                    <li>Share another person's private information without consent</li>
+                    <li>Circumvent moderation, safety checks, or reporting tools</li>
+                  </ul>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">4. Community & Event Listings</h3>
+                  <p>Organizations hosting events and communities are responsible for the accuracy of their listings, including safety briefing requirements. Co-Co reserves the right to remove any listing that violates these terms.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">5. Moderation & Enforcement</h3>
+                  <p>Reports filed through the chat reporting feature are reviewed by our moderation team. Accounts found in violation of these terms may be suspended or removed at Co-Co's discretion.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">6. Limitation of Liability</h3>
+                  <p>Co-Co is a platform for community connection and is not liable for interactions, transactions, or events arranged between members outside the app.</p>
+                </div>
+
+                <div className="space-y-1.5">
+                  <h3 className="text-xs font-bold text-slate-900">7. Changes to These Terms</h3>
+                  <p>We may update these terms from time to time. Continued use of Co-Co after changes are posted constitutes acceptance of the revised terms.</p>
+                </div>
+
+                <p className="text-[10px] text-gray-400 pt-2 border-t border-gray-50">This is placeholder/mock text for demo purposes only and is not a legally binding document.</p>
+              </div>
+
+              <div className="p-4 border-t border-gray-100 shrink-0">
+                <button
+                  onClick={() => {
+                    setAgreedToTerms(true);
+                    setShowSignupTerms(false);
+                  }}
+                  className="w-full py-2.5 bg-emerald-800 text-white text-xs font-bold rounded-xl hover:bg-emerald-900 transition-colors flex items-center justify-center gap-1.5"
+                >
+                  <Check size={14} /> I Agree & Close
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
